@@ -41,15 +41,15 @@
             --bg-dark: #f5f0e8;
             --bg-panel: #ebe5d9;
             --bg-hover: #ddd5c5;
-            --accent: #8b4513;
-            --accent-light: #a0522d;
-            --gold: #8b4513;
-            --gold-light: #a0522d;
-            --text: #2c2416;
-            --text-muted: #5c4d3c;
-            --border: rgba(139, 69, 19, 0.2);
-            --ink: #2c2416;
-            --header-text: #5c4d3c;
+            --accent: #6b3410;
+            --accent-light: #8b4513;
+            --gold: #6b3410;
+            --gold-light: #8b4513;
+            --text: #1a1408;
+            --text-muted: #4a3c2a;
+            --border: rgba(107, 52, 16, 0.25);
+            --ink: #1a1408;
+            --header-text: #4a3c2a;
         }
 
         /* 青铜主题（商周风格） */
@@ -122,7 +122,7 @@
             bottom: 0;
             background: #0a0a0f;
             opacity: 0;
-            transition: opacity 1.5s ease;
+            transition: opacity 0.5s ease;
         }
 
         body.rice-paper-theme .transition-overlay::before {
@@ -158,7 +158,7 @@
         }
 
         .transition-overlay.active .ink-drop {
-            animation: inkSpread 2s ease-out forwards;
+            animation: inkSpread 0.6s ease-out forwards;
         }
 
         @keyframes inkSpread {
@@ -190,7 +190,7 @@
         .transition-overlay.active .scroll-reveal {
             width: 100%;
             opacity: 1;
-            transition-delay: 0.5s;
+            transition-delay: 0.2s;
         }
 
         /* 标题界面样式 */
@@ -1212,6 +1212,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-transform: translate(-50%, -50%) translateZ(0);
+            -webkit-backface-visibility: hidden;
+            -webkit-perspective: 1000;
         }
 
         .map-image {
@@ -1223,10 +1226,15 @@
             -webkit-user-drag: none;
             display: none;
             border: 1px solid rgba(212, 175, 55, 0.2);
-            image-rendering: auto;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
             transform: translateZ(0);
+            will-change: transform;
             backface-visibility: hidden;
             pointer-events: none;
+            -webkit-transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            -webkit-perspective: 1000;
         }
 
         body.bronze-theme .map-image {
@@ -2413,6 +2421,382 @@
         .protect-toast.show {
             transform: translate(-50%, -50%) scale(1);
         }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .toggle-track {
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            position: relative;
+            transition: background 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .toggle-track.active {
+            background: var(--gold);
+        }
+
+        .toggle-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--text);
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-track.active .toggle-thumb {
+            transform: translateX(20px);
+            background: var(--bg-dark);
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        /* 帮助面板 */
+        .help-btn {
+            position: fixed;
+            top: 20px;
+            right: 70px;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-panel);
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            color: var(--gold);
+            cursor: pointer;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .help-btn:hover {
+            background: var(--gold);
+            color: var(--bg-dark);
+            transform: scale(1.1);
+        }
+
+        .help-panel {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            max-width: 100%;
+            height: 100%;
+            background: var(--bg-panel);
+            border-left: 2px solid var(--gold);
+            z-index: 1002;
+            transition: right 0.3s ease;
+            padding: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .help-panel.open {
+            right: 0;
+        }
+
+        .help-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .help-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        body.bronze-theme .help-header {
+            background: linear-gradient(180deg, rgba(127, 176, 105, 0.1) 0%, transparent 100%);
+        }
+
+        body.cinnabar-theme .help-header {
+            background: linear-gradient(180deg, rgba(192, 57, 43, 0.1) 0%, transparent 100%);
+        }
+
+        .help-title {
+            font-size: 1.5rem;
+            color: var(--gold);
+            font-family: "Zhi Mang Xing", cursive;
+            letter-spacing: 2px;
+        }
+
+        .close-help {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-help:hover {
+            color: var(--gold);
+        }
+
+        .help-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .help-section {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            background: rgba(0,0,0,0.1);
+        }
+
+        body.rice-paper-theme .help-section {
+            background: rgba(139, 69, 19, 0.03);
+        }
+
+        body.bronze-theme .help-section {
+            background: rgba(0,0,0,0.1);
+        }
+
+        body.cinnabar-theme .help-section {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .help-section-title {
+            font-size: 1rem;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 1px;
+        }
+
+        .help-section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+        .help-section-content {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.8;
+        }
+
+        .help-section-content p {
+            margin-bottom: 8px;
+        }
+
+        .help-section-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        body.bronze-theme .guide-item {
+            background: rgba(127, 176, 105, 0.05);
+        }
+
+        body.cinnabar-theme .guide-item {
+            background: rgba(192, 57, 43, 0.05);
+        }
+
+        .guide-icon {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .guide-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .guide-text strong {
+            color: var(--text);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .shortcut-list {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 6px 12px;
+            margin-top: 8px;
+        }
+
+        .shortcut-key {
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            color: var(--gold);
+            font-family: "Courier New", monospace;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .shortcut-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            align-self: center;
+        }
+
+        .contact-grid {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        body.bronze-theme .contact-row {
+            background: rgba(127, 176, 105, 0.05);
+        }
+
+        body.cinnabar-theme .contact-row {
+            background: rgba(192, 57, 43, 0.05);
+        }
+
+        .contact-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .contact-info-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .contact-info-text strong {
+            color: var(--text);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .thanks-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .thanks-tag {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        body.bronze-theme .thanks-tag {
+            background: rgba(127, 176, 105, 0.1);
+        }
+
+        body.cinnabar-theme .thanks-tag {
+            background: rgba(192, 57, 43, 0.1);
+        }
+
+        .thanks-tag.highlight {
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--gold);
+            border-color: var(--gold);
+        }
+
+        body.bronze-theme .thanks-tag.highlight {
+            background: rgba(127, 176, 105, 0.2);
+            color: var(--gold);
+        }
+
+        body.cinnabar-theme .thanks-tag.highlight {
+            background: rgba(192, 57, 43, 0.2);
+            color: var(--gold);
+        }
+
+        @media (max-width: 768px) {
+            .help-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .guide-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .help-btn {
+                right: 65px;
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+
+            .settings-btn {
+                right: 16px;
+            }
+        }
     </style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录58幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
@@ -2427,6 +2811,9 @@
         <div class="ink-drop" style="width: 150px; height: 150px; top: 70%; left: 40%; animation-delay: 0.6s;"></div>
         <div class="scroll-reveal"></div>
     </div>
+
+    <!-- 帮助按钮 -->
+    <button class="help-btn" onclick="toggleHelp()" title="帮助">❓</button>
 
     <!-- 设置按钮 -->
     <button class="settings-btn" onclick="toggleSettings()" title="设置">⚙️</button>
@@ -2474,11 +2861,162 @@
         </div>
 
         <div class="settings-section">
+            <label class="settings-label">加载设置</label>
+            <div class="toggle-switch" onclick="toggleLoadingProgress()" id="loadingToggle">
+                <div class="toggle-track active" id="loadingToggleTrack">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <span class="toggle-label">显示加载进度条</span>
+            </div>
+        </div>
+
+        <div class="settings-section">
             <label class="settings-label">关于</label>
             <div style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">
                 <p>昭燃的历史地图馆</p>
                 <p style="margin-top: 10px;">以史为鉴，可以知兴替</p>
                 <p style="margin-top: 10px;">共收录 59 幅历史地图</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助面板 -->
+    <div class="help-overlay" id="helpOverlay" onclick="toggleHelp()"></div>
+    <div class="help-panel" id="helpPanel">
+        <div class="help-header">
+            <span class="help-title">📖 帮助中心</span>
+            <button class="close-help" onclick="toggleHelp()">✕</button>
+        </div>
+
+        <div class="help-content">
+            <!-- 关于地图馆 -->
+            <div class="help-section">
+                <div class="help-section-title">关于地图馆</div>
+                <div class="help-section-content">
+                    <p><strong>昭燃的历史地图馆</strong>是一个专注于中国历史地理可视化的在线展馆，收录了从史前文明到当代中国的 59 幅历史地图。</p>
+                    <p>本馆以"以史为鉴，可以知兴替"为理念，通过交互式地图浏览，帮助用户直观地理解中国历代疆域变迁、政权更迭与文明演进。</p>
+                    <p>地图按时间顺序排列，涵盖史前时期、早期国家、帝国形成、成熟帝国、传统社会、中国近代、中国现代七大历史时期。</p>
+                </div>
+            </div>
+
+            <!-- 使用指南 -->
+            <div class="help-section">
+                <div class="help-section-title">🎮 使用指南</div>
+                <div class="help-section-content">
+                    <p>地图馆采用三栏布局设计，左侧为时间轴，中央为地图浏览区，右侧为详细信息面板。</p>
+                </div>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <span class="guide-icon">🖱️</span>
+                        <div class="guide-text">
+                            <strong>拖拽平移</strong>
+                            按住鼠标或手指拖拽地图
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">🔍</span>
+                        <div class="guide-text">
+                            <strong>缩放浏览</strong>
+                            滚轮或双指捏合缩放
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">📜</span>
+                        <div class="guide-text">
+                            <strong>时间轴</strong>
+                            点击左侧年份切换地图
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">🔎</span>
+                        <div class="guide-text">
+                            <strong>搜索</strong>
+                            输入朝代或年份快速定位
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">🎨</span>
+                        <div class="guide-text">
+                            <strong>主题切换</strong>
+                            设置中切换四种主题风格
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">📱</span>
+                        <div class="guide-text">
+                            <strong>移动端</strong>
+                            底部标签栏切换三栏视图
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷键 -->
+            <div class="help-section">
+                <div class="help-section-title">⌨️ 快捷键</div>
+                <div class="shortcut-list">
+                    <span class="shortcut-key">←</span>
+                    <span class="shortcut-desc">切换到上一幅地图</span>
+                    <span class="shortcut-key">→</span>
+                    <span class="shortcut-desc">切换到下一幅地图</span>
+                    <span class="shortcut-key">↑</span>
+                    <span class="shortcut-desc">放大地图</span>
+                    <span class="shortcut-key">↓</span>
+                    <span class="shortcut-desc">缩小地图</span>
+                    <span class="shortcut-key">0</span>
+                    <span class="shortcut-desc">重置视图</span>
+                </div>
+            </div>
+
+            <!-- 联系方式 -->
+            <div class="help-section">
+                <div class="help-section-title">📬 联系作者</div>
+                <div class="contact-grid">
+                    <div class="contact-row">
+                        <span class="contact-icon">📺</span>
+                        <div class="contact-info-text">
+                            <strong>Bilibili</strong>
+                            昭燃墨客
+                        </div>
+                    </div>
+                    <div class="contact-row">
+                        <span class="contact-icon">📧</span>
+                        <div class="contact-info-text">
+                            <strong>邮箱</strong>
+                            323885073@qq.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 鸣谢 -->
+            <div class="help-section">
+                <div class="help-section-title">🙏 鸣谢</div>
+                <div class="help-section-content">
+                    <p>感谢以下资源与工具对本项目的支持：</p>
+                </div>
+                <div class="thanks-list">
+                    <span class="thanks-tag highlight">中国历史地图集</span>
+                    <span class="thanks-tag">谭其骧</span>
+                    <span class="thanks-tag">维基百科</span>
+                    <span class="thanks-tag">中国历史研究院</span>
+                    <span class="thanks-tag">Google Fonts</span>
+                    <span class="thanks-tag">Noto Serif SC</span>
+                    <span class="thanks-tag highlight">全历史</span>
+                    <span class="thanks-tag">中国历史地图</span>
+                    <span class="thanks-tag">史图馆</span>
+                    <span class="thanks-tag">开源社区</span>
+                </div>
+            </div>
+
+            <!-- 版本信息 -->
+            <div class="help-section">
+                <div class="help-section-title">ℹ️ 版本信息</div>
+                <div class="help-section-content">
+                    <p>昭燃的历史地图馆 v1.0</p>
+                    <p>共收录 59 幅历史地图 · 涵盖 7 大历史时期</p>
+                    <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.7;">© 2024 昭燃 · 以史为鉴，可以知兴替</p>
+                </div>
             </div>
         </div>
     </div>
@@ -2658,20 +3196,7 @@
                 "江山留胜迹，我辈复登临" —— 孟浩然
             </div>
 
-            <!-- 联系方式 -->
-            <div class="contact-section">
-                <div class="contact-title">联系昭燃</div>
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <span class="contact-label">Bilibili:</span>
-                        <span class="contact-value">昭燃墨客</span>
-                    </div>
-                    <div class="contact-item">
-                        <span class="contact-label">邮箱:</span>
-                        <span class="contact-value">323885073@qq.com</span>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 
@@ -2714,23 +3239,23 @@
             // 延迟隐藏标题界面
             setTimeout(() => {
                 titleScreen.classList.add('hidden');
-            }, 500);
+            }, 300);
             
             // 显示主容器
             setTimeout(() => {
                 mainContainer.classList.add('visible');
                 detectLayout();
-            }, 800);
+            }, 500);
             
             // 结束过渡动画
             setTimeout(() => {
                 transitionOverlay.classList.remove('active');
-            }, 2000);
+            }, 1000);
             
             if (window.innerWidth <= 768) {
                 setTimeout(() => {
                     switchMobileTab('map');
-                }, 2200);
+                }, 1200);
             }
         }
 
@@ -2866,6 +3391,14 @@
             }
         }
 
+        // 帮助面板切换
+        function toggleHelp() {
+            const panel = document.getElementById('helpPanel');
+            const overlay = document.getElementById('helpOverlay');
+            panel.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
         // 设置面板切换
         function toggleSettings() {
             const panel = document.getElementById('settingsPanel');
@@ -2912,6 +3445,16 @@
                 document.getElementById('rightWidthValue').textContent = value + 'px';
                 localStorage.setItem('sidebarRightWidth', value);
             }
+        }
+
+        // 加载进度条开关
+        let showLoadingProgress = true;
+
+        function toggleLoadingProgress() {
+            showLoadingProgress = !showLoadingProgress;
+            const track = document.getElementById('loadingToggleTrack');
+            track.classList.toggle('active', showLoadingProgress);
+            localStorage.setItem('showLoadingProgress', showLoadingProgress);
         }
 
         // 加载保存的设置
@@ -3163,7 +3706,53 @@
             { text: "史者，所以明夫治天下之道也", author: "曾巩" },
             { text: "欲知大道，必先为史", author: "龚自珍" },
             { text: "灭人之国，必先去其史", author: "龚自珍" },
-            { text: "历史是最好的教科书", author: "习近平" }
+            { text: "历史是最好的教科书", author: "习近平" },
+            { text: "知人者智，自知者明", author: "老子《道德经》" },
+            { text: "博学之，审问之，慎思之，明辨之，笃行之", author: "《中庸》" },
+            { text: "为天地立心，为生民立命", author: "张载" },
+            { text: "天下兴亡，匹夫有责", author: "顾炎武" },
+            { text: "苟利国家生死以，岂因祸福避趋之", author: "林则徐" },
+            { text: "路漫漫其修远兮，吾将上下而求索", author: "屈原" },
+            { text: "不积跬步，无以至千里", author: "荀子" },
+            { text: "纸上得来终觉浅，绝知此事要躬行", author: "陆游" },
+            { text: "问渠那得清如许，为有源头活水来", author: "朱熹" },
+            { text: "江山代有才人出，各领风骚数百年", author: "赵翼" },
+            { text: "沉舟侧畔千帆过，病树前头万木春", author: "刘禹锡" },
+            { text: "长风破浪会有时，直挂云帆济沧海", author: "李白" },
+            { text: "先天下之忧而忧，后天下之乐而乐", author: "范仲淹" },
+            { text: "人生自古谁无死，留取丹心照汗青", author: "文天祥" },
+            { text: "横眉冷对千夫指，俯首甘为孺子牛", author: "鲁迅" },
+            { text: "星星之火，可以燎原", author: "毛泽东" },
+            { text: "雄关漫道真如铁，而今迈步从头越", author: "毛泽东" },
+            { text: "天行健，君子以自强不息", author: "《周易》" },
+            { text: "地势坤，君子以厚德载物", author: "《周易》" },
+            { text: "己所不欲，勿施于人", author: "孔子" },
+            { text: "学而不思则罔，思而不学则殆", author: "孔子" },
+            { text: "三人行，必有我师焉", author: "孔子" },
+            { text: "温故而知新，可以为师矣", author: "孔子" },
+            { text: "千里之行，始于足下", author: "老子" },
+            { text: "生于忧患，死于安乐", author: "孟子" },
+            { text: "得道多助，失道寡助", author: "孟子" },
+            { text: "富贵不能淫，贫贱不能移，威武不能屈", author: "孟子" },
+            { text: "青，取之于蓝，而青于蓝", author: "荀子" },
+            { text: "锲而不舍，金石可镂", author: "荀子" },
+            { text: "老骥伏枥，志在千里", author: "曹操" },
+            { text: "采菊东篱下，悠然见南山", author: "陶渊明" },
+            { text: "海内存知己，天涯若比邻", author: "王勃" },
+            { text: "落霞与孤鹜齐飞，秋水共长天一色", author: "王勃" },
+            { text: "大漠孤烟直，长河落日圆", author: "王维" },
+            { text: "会当凌绝顶，一览众山小", author: "杜甫" },
+            { text: "安得广厦千万间，大庇天下寒士俱欢颜", author: "杜甫" },
+            { text: "春蚕到死丝方尽，蜡炬成灰泪始干", author: "李商隐" },
+            { text: "无可奈何花落去，似曾相识燕归来", author: "晏殊" },
+            { text: "但愿人长久，千里共婵娟", author: "苏轼" },
+            { text: "大江东去，浪淘尽，千古风流人物", author: "苏轼" },
+            { text: "两情若是久长时，又岂在朝朝暮暮", author: "秦观" },
+            { text: "寻寻觅觅，冷冷清清，凄凄惨惨戚戚", author: "李清照" },
+            { text: "众里寻他千百度，蓦然回首，那人却在灯火阑珊处", author: "辛弃疾" },
+            { text: "我自横刀向天笑，去留肝胆两昆仑", author: "谭嗣同" },
+            { text: "寄意寒星荃不察，我以我血荐轩辕", author: "鲁迅" },
+            { text: "数风流人物，还看今朝", author: "毛泽东" }
         ];
 
         let currentIndex = -1;
@@ -3236,8 +3825,7 @@
             currentIndex = index;
             const data = historyData[index];
 
-            // 显示加载进度
-            showLoading(data.path);
+            // 加载进度由loadImageWithProgress根据设置控制
 
                             // 预加载相邻地图（限制缓存数量防止内存泄漏）
             if (!window.imageCache) window.imageCache = {};
@@ -3311,19 +3899,26 @@
             placeholder.style.display = 'none';
             mapImage.classList.remove('loaded');
 
-            // 模拟进度（实际图片加载无法获取真实进度，用模拟）
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += Math.random() * 15 + 5;
-                if (progress > 90) progress = 90;
-                updateProgress(progress);
-            }, 100);
+            let progressInterval = null;
+
+            if (showLoadingProgress) {
+                showLoading(path);
+                // 模拟进度（实际图片加载无法获取真实进度，用模拟）
+                let progress = 0;
+                progressInterval = setInterval(() => {
+                    progress += Math.random() * 15 + 5;
+                    if (progress > 90) progress = 90;
+                    updateProgress(progress);
+                }, 100);
+            }
 
             const img = new Image();
 
             img.onload = function() {
-                clearInterval(progressInterval);
-                updateProgress(100);
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    updateProgress(100);
+                }
 
                 mapImage.src = path;
                 mapImage.classList.add('loaded');
@@ -3333,7 +3928,7 @@
                 updateTransform();
 
                 setTimeout(() => {
-                    hideLoading();
+                    if (showLoadingProgress) hideLoading();
                     forceRepaint();
 
                     // 显示高清提示
@@ -3341,20 +3936,19 @@
                         hdTip.classList.add('show');
                         setTimeout(() => hdTip.classList.remove('show'), 5000);
                     }
-                }, 300);
+                }, showLoadingProgress ? 300 : 0);
             };
 
             img.onerror = function() {
-                clearInterval(progressInterval);
-                hideLoading();
+                if (progressInterval) clearInterval(progressInterval);
+                if (showLoadingProgress) hideLoading();
                 mapImage.classList.remove('loaded');
                 placeholder.style.display = 'block';
                 placeholder.innerHTML = `
-                    <div class="placeholder-icon">📁</div>
-                    <div class="welcome-text">昭燃的历史地图馆</div>
-                    <div style="color: var(--text-muted); margin-top: 10px;">
-                        请将图片放置于：<br>
-                        <span style="color: var(--gold);">${path}</span>
+                    <div class="placeholder-icon">📂</div>
+                    <div class="welcome-text">该地图暂未上传</div>
+                    <div style="color: var(--text-muted); margin-top: 10px; font-size: 0.95rem;">
+                        看看其他地图吧~
                     </div>
                 `;
                 // 加载失败时重置视图
@@ -3455,7 +4049,27 @@
                 "人事有代谢，往来成古今 —— 孟浩然",
                 "旧时王谢堂前燕，飞入寻常百姓家 —— 刘禹锡",
                 "念天地之悠悠，独怆然而涕下 —— 陈子昂",
-                "兴，百姓苦；亡，百姓苦 —— 张养浩"
+                "兴，百姓苦；亡，百姓苦 —— 张养浩",
+                "秦时明月汉时关，万里长征人未还 —— 王昌龄",
+                "黄沙百战穿金甲，不破楼兰终不还 —— 王昌龄",
+                "醉卧沙场君莫笑，古来征战几人回 —— 王翰",
+                "出师未捷身先死，长使英雄泪满襟 —— 杜甫",
+                "王师北定中原日，家祭无忘告乃翁 —— 陆游",
+                "人生自古谁无死，留取丹心照汗青 —— 文天祥",
+                "苟利国家生死以，岂因祸福避趋之 —— 林则徐",
+                "横眉冷对千夫指，俯首甘为孺子牛 —— 鲁迅",
+                "为有牺牲多壮志，敢教日月换新天 —— 毛泽东",
+                "雄关漫道真如铁，而今迈步从头越 —— 毛泽东",
+                "天若有情天亦老，人间正道是沧桑 —— 毛泽东",
+                "萧瑟秋风今又是，换了人间 —— 毛泽东",
+                "不到长城非好汉，屈指行程二万 —— 毛泽东",
+                "一万年太久，只争朝夕 —— 毛泽东",
+                "世上无难事，只要肯登攀 —— 毛泽东",
+                "不管风吹浪打，胜似闲庭信步 —— 毛泽东",
+                "宜将剩勇追穷寇，不可沽名学霸王 —— 毛泽东",
+                "牢骚太盛防肠断，风物长宜放眼量 —— 毛泽东",
+                "埋骨何须桑梓地，人生无处不青山 —— 毛泽东",
+                "自信人生二百年，会当水击三千里 —— 毛泽东"
             ];
             document.getElementById('footerQuote').textContent = footerQuotes[Math.floor(Math.random() * footerQuotes.length)];
         }
@@ -3715,16 +4329,47 @@
         });
 
         // 等待DOM完全加载后再初始化
-        document.addEventListener('DOMContentLoaded', () => {
+        // 统一初始化入口
+        function initApp() {
             initTimeline();
             setupEventListeners();
             setupImageProtection();
             detectLayout();
+            loadSavedSettings();
             
             if (window.innerWidth <= 768) {
                 switchMobileTab('map');
             }
-        });
+        }
+
+        // 加载保存的用户设置
+        function loadSavedSettings() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'rice') setTheme('rice');
+            else if (savedTheme === 'bronze') setTheme('bronze');
+            else if (savedTheme === 'cinnabar') setTheme('cinnabar');
+            
+            const savedLoadingProgress = localStorage.getItem('showLoadingProgress');
+            if (savedLoadingProgress !== null) {
+                showLoadingProgress = savedLoadingProgress === 'true';
+                const track = document.getElementById('loadingToggleTrack');
+                if (track) track.classList.toggle('active', showLoadingProgress);
+            }
+            
+            const savedLeftWidth = localStorage.getItem('sidebarLeftWidth');
+            const savedRightWidth = localStorage.getItem('sidebarRightWidth');
+            if (savedLeftWidth) {
+                document.getElementById('leftWidthSlider').value = savedLeftWidth;
+                updateSidebarWidth('left', savedLeftWidth);
+            }
+            if (savedRightWidth) {
+                document.getElementById('rightWidthSlider').value = savedRightWidth;
+                updateSidebarWidth('right', savedRightWidth);
+            }
+        }
+
+        // 等待DOM完全加载后再初始化
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
