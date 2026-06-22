@@ -1404,6 +1404,14 @@
             font-family: "Courier New", monospace;
         }
 
+        .loading-speed {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-family: "Courier New", monospace;
+            min-height: 18px;
+        }
+
         .zoom-level {
             position: absolute;
             bottom: 80px;
@@ -2802,6 +2810,7 @@
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
     <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 过渡动画 -->
@@ -2996,16 +3005,9 @@
                     <p>感谢以下资源与工具对本项目的支持：</p>
                 </div>
                 <div class="thanks-list">
-                    <span class="thanks-tag highlight">中国历史地图集</span>
-                    <span class="thanks-tag">谭其骧</span>
-                    <span class="thanks-tag">维基百科</span>
-                    <span class="thanks-tag">中国历史研究院</span>
-                    <span class="thanks-tag">Google Fonts</span>
-                    <span class="thanks-tag">Noto Serif SC</span>
-                    <span class="thanks-tag highlight">全历史</span>
-                    <span class="thanks-tag">中国历史地图</span>
-                    <span class="thanks-tag">史图馆</span>
-                    <span class="thanks-tag">开源社区</span>
+                    <span class="thanks-tag highlight">地图制作院</span>
+                    <span class="thanks-tag highlight">史图馆</span>
+                    <span class="thanks-tag highlight">KimiAI</span>
                 </div>
             </div>
 
@@ -3014,7 +3016,7 @@
                 <div class="help-section-title">ℹ️ 版本信息</div>
                 <div class="help-section-content">
                     <p>昭燃的历史地图馆 v1.0</p>
-                    <p>共收录 59 幅历史地图 · 涵盖 7 大历史时期</p>
+                    <p>共收录 58 幅历史地图 · 涵盖 7 大历史时期</p>
                     <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.7;">© 2024 昭燃 · 以史为鉴，可以知兴替</p>
                 </div>
             </div>
@@ -3112,6 +3114,7 @@
                                 <div class="loading-progress-bar" id="loadingProgressBar"></div>
                             </div>
                             <div class="loading-percent" id="loadingPercent">0%</div>
+                            <div class="loading-speed" id="loadingSpeed">连接中...</div>
                         </div>
                     </div>
 
@@ -3900,47 +3903,80 @@
             mapImage.classList.remove('loaded');
 
             let progressInterval = null;
+            let startTime = Date.now();
+            let lastLoaded = 0;
+            let lastTime = startTime;
+            let speedDisplay = document.getElementById('loadingSpeed');
 
-            if (showLoadingProgress) {
-                showLoading(path);
-                // 模拟进度（实际图片加载无法获取真实进度，用模拟）
-                let progress = 0;
-                progressInterval = setInterval(() => {
-                    progress += Math.random() * 15 + 5;
-                    if (progress > 90) progress = 90;
-                    updateProgress(progress);
-                }, 100);
-            }
+            // 使用 XMLHttpRequest 获取真实加载进度
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', path, true);
+            xhr.responseType = 'blob';
 
-            const img = new Image();
+            xhr.onprogress = function(event) {
+                if (event.lengthComputable && showLoadingProgress) {
+                    const percent = (event.loaded / event.total) * 100;
+                    updateProgress(percent);
 
-            img.onload = function() {
-                if (progressInterval) {
-                    clearInterval(progressInterval);
-                    updateProgress(100);
-                }
-
-                mapImage.src = path;
-                mapImage.classList.add('loaded');
-
-                // 保持当前视图位置与缩放比例（全知识风格）
-                // 不重置 scale/translateX/translateY，保持用户当前的观察视角
-                updateTransform();
-
-                setTimeout(() => {
-                    if (showLoadingProgress) hideLoading();
-                    forceRepaint();
-
-                    // 显示高清提示
-                    if (img.naturalWidth < 2000 || img.naturalHeight < 1500) {
-                        hdTip.classList.add('show');
-                        setTimeout(() => hdTip.classList.remove('show'), 5000);
+                    // 计算加载速度
+                    const now = Date.now();
+                    const timeDiff = (now - lastTime) / 1000; // 秒
+                    if (timeDiff > 0.2) {
+                        const bytesDiff = event.loaded - lastLoaded;
+                        const speedBps = bytesDiff / timeDiff;
+                        let speedText = '';
+                        if (speedBps > 1024 * 1024) {
+                            speedText = (speedBps / (1024 * 1024)).toFixed(1) + ' MB/s';
+                        } else if (speedBps > 1024) {
+                            speedText = (speedBps / 1024).toFixed(1) + ' KB/s';
+                        } else {
+                            speedText = Math.round(speedBps) + ' B/s';
+                        }
+                        if (speedDisplay) speedDisplay.textContent = '⚡ ' + speedText;
+                        lastLoaded = event.loaded;
+                        lastTime = now;
                     }
-                }, showLoadingProgress ? 300 : 0);
+                }
             };
 
-            img.onerror = function() {
-                if (progressInterval) clearInterval(progressInterval);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    if (showLoadingProgress) {
+                        updateProgress(100);
+                        if (speedDisplay) speedDisplay.textContent = '✓ 加载完成';
+                    }
+
+                    const blobUrl = URL.createObjectURL(xhr.response);
+                    mapImage.src = blobUrl;
+                    mapImage.classList.add('loaded');
+
+                    // 保持当前视图位置与缩放比例
+                    updateTransform();
+
+                    setTimeout(() => {
+                        if (showLoadingProgress) hideLoading();
+                        forceRepaint();
+
+                        // 显示高清提示
+                        if (mapImage.naturalWidth < 2000 || mapImage.naturalHeight < 1500) {
+                            hdTip.classList.add('show');
+                            setTimeout(() => hdTip.classList.remove('show'), 5000);
+                        }
+                    }, showLoadingProgress ? 300 : 0);
+                } else {
+                    handleLoadError();
+                }
+            };
+
+            xhr.onerror = function() {
+                handleLoadError();
+            };
+
+            xhr.onabort = function() {
+                handleLoadError();
+            };
+
+            function handleLoadError() {
                 if (showLoadingProgress) hideLoading();
                 mapImage.classList.remove('loaded');
                 placeholder.style.display = 'block';
@@ -3951,11 +3987,15 @@
                         看看其他地图吧~
                     </div>
                 `;
-                // 加载失败时重置视图
                 resetView();
-            };
+            }
 
-            img.src = path;
+            if (showLoadingProgress) {
+                showLoading(path);
+                if (speedDisplay) speedDisplay.textContent = '连接中...';
+            }
+
+            xhr.send();
         }
 
         function updateNavButtons(index) {
