@@ -3898,11 +3898,28 @@
             loadingPercent.textContent = Math.round(percent) + '%';
         }
 
+        // 当前正在进行的 XHR 请求，用于切换时中止
+        let currentXhr = null;
+        let currentBlobUrl = null;
+
+        function abortCurrentLoad() {
+            if (currentXhr) {
+                currentXhr.abort();
+                currentXhr = null;
+            }
+            if (currentBlobUrl) {
+                URL.revokeObjectURL(currentBlobUrl);
+                currentBlobUrl = null;
+            }
+        }
+
         function loadImageWithProgress(path) {
+            // 中止之前的加载请求
+            abortCurrentLoad();
+
             placeholder.style.display = 'none';
             mapImage.classList.remove('loaded');
 
-            let progressInterval = null;
             let startTime = Date.now();
             let lastLoaded = 0;
             let lastTime = startTime;
@@ -3910,6 +3927,7 @@
 
             // 使用 XMLHttpRequest 获取真实加载进度
             const xhr = new XMLHttpRequest();
+            currentXhr = xhr;
             xhr.open('GET', path, true);
             xhr.responseType = 'blob';
 
@@ -3940,14 +3958,22 @@
             };
 
             xhr.onload = function() {
+                // 如果请求已被中止或不是当前请求，忽略结果
+                if (xhr !== currentXhr) return;
+                currentXhr = null;
+
                 if (xhr.status === 200) {
                     if (showLoadingProgress) {
                         updateProgress(100);
                         if (speedDisplay) speedDisplay.textContent = '✓ 加载完成';
                     }
 
-                    const blobUrl = URL.createObjectURL(xhr.response);
-                    mapImage.src = blobUrl;
+                    // 释放旧的 blob URL
+                    if (currentBlobUrl) {
+                        URL.revokeObjectURL(currentBlobUrl);
+                    }
+                    currentBlobUrl = URL.createObjectURL(xhr.response);
+                    mapImage.src = currentBlobUrl;
                     mapImage.classList.add('loaded');
 
                     // 保持当前视图位置与缩放比例
@@ -3969,11 +3995,15 @@
             };
 
             xhr.onerror = function() {
+                if (xhr !== currentXhr) return;
+                currentXhr = null;
                 handleLoadError();
             };
 
             xhr.onabort = function() {
-                handleLoadError();
+                if (xhr !== currentXhr) return;
+                currentXhr = null;
+                // 被中止时不显示错误，静默处理
             };
 
             function handleLoadError() {
