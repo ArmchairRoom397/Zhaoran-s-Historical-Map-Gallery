@@ -2879,7 +2879,347 @@
             border-color: rgba(192, 57, 43, 0.3);
         }
 
-    </style>
+
+
+
+        /* ===== 弹出式公告弹窗 ===== */
+        .notice-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                        visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        pointer-events 0s linear 0.5s;
+            padding: 20px;
+        }
+
+        .notice-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                        visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        
+
+        .notice-modal {
+            background: var(--bg-panel);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            max-width: 520px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.85) translateY(40px);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6),
+                        0 0 40px rgba(212, 175, 55, 0.15);
+        }
+
+        body.rice-paper-theme .notice-modal {
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3),
+                        0 0 40px rgba(139, 69, 19, 0.1);
+        }
+
+        body.bronze-theme .notice-modal {
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6),
+                        0 0 40px rgba(127, 176, 105, 0.15);
+        }
+
+        body.cinnabar-theme .notice-modal {
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6),
+                        0 0 40px rgba(192, 57, 43, 0.15);
+        }
+
+        .notice-modal-overlay.show .notice-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .notice-modal-overlay.closing .notice-modal {
+            transform: scale(0.9) translateY(30px);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 1, 1),
+                        opacity 0.3s ease;
+        }
+
+        .notice-modal-header {
+            padding: 20px 24px 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .notice-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .notice-modal-close:hover {
+            background: var(--gold);
+            color: var(--bg-dark);
+            border-color: var(--gold);
+            transform: rotate(90deg);
+        }
+
+        .notice-modal-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 2px solid var(--gold);
+            background: linear-gradient(135deg, #2a1a0a, #4a2a1a);
+        }
+
+        .notice-modal-image[src=""] {
+            display: none;
+        }
+
+        .notice-modal-body {
+            padding: 20px 24px;
+        }
+
+        .notice-modal-title {
+            font-size: 1.15rem;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+
+        .notice-modal-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .notice-modal-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .notice-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .notice-meta-row .highlight {
+            color: var(--gold);
+            font-weight: 600;
+            font-family: "Courier New", monospace;
+        }
+
+        .notice-modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .notice-modal-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            letter-spacing: 1px;
+        }
+
+        .notice-modal-btn.primary {
+            background: var(--gold);
+            color: var(--bg-dark);
+            border: none;
+            font-weight: 700;
+        }
+
+        .notice-modal-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+        }
+
+        body.bronze-theme .notice-modal-btn.primary:hover {
+            box-shadow: 0 6px 20px rgba(127, 176, 105, 0.35);
+        }
+
+        body.cinnabar-theme .notice-modal-btn.primary:hover {
+            box-shadow: 0 6px 20px rgba(192, 57, 43, 0.35);
+        }
+
+        .notice-modal-btn.secondary {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .notice-modal-btn.secondary:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .notice-modal-footer {
+            padding: 10px 24px 16px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        /* ===== 左侧时间轴顶部公告条 ===== */
+        .timeline-notice {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(233, 69, 96, 0.06));
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            margin: 8px 12px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.rice-paper-theme .timeline-notice {
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.08), rgba(160, 82, 45, 0.04));
+            border-color: rgba(139, 69, 19, 0.25);
+        }
+
+        body.bronze-theme .timeline-notice {
+            background: linear-gradient(135deg, rgba(127, 176, 105, 0.12), rgba(107, 196, 181, 0.06));
+            border-color: rgba(127, 176, 105, 0.3);
+        }
+
+        body.cinnabar-theme .timeline-notice {
+            background: linear-gradient(135deg, rgba(192, 57, 43, 0.12), rgba(231, 76, 60, 0.06));
+            border-color: rgba(192, 57, 43, 0.3);
+        }
+
+        .timeline-notice:hover {
+            border-color: var(--gold);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+        }
+
+        .timeline-notice-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--bg-dark);
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .timeline-notice-title {
+            font-size: 0.82rem;
+            color: var(--gold);
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .timeline-notice-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-notice-meta span {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .timeline-notice-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold);
+            font-size: 1rem;
+            opacity: 0.6;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .timeline-notice:hover .timeline-notice-arrow {
+            opacity: 1;
+            transform: translateY(-50%) translateX(3px);
+        }
+
+        /* 移动端弹窗适配 */
+        @media (max-width: 768px) {
+            .notice-modal {
+                max-width: 100%;
+                margin: 0 10px;
+            }
+
+            .notice-modal-image {
+                height: 120px;
+            }
+
+            .notice-modal-body {
+                padding: 16px 18px;
+            }
+
+            .notice-modal-title {
+                font-size: 1rem;
+            }
+
+            .notice-modal-desc {
+                font-size: 0.8rem;
+            }
+
+            .notice-modal-actions {
+                flex-direction: column;
+            }
+
+            .notice-modal-btn {
+                padding: 10px 14px;
+            }
+        }
+
+</style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
@@ -2888,8 +3228,45 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
+
+    <!-- 弹出式公告弹窗 -->
+    <div class="notice-modal-overlay" id="noticeModalOverlay" onclick="closeNoticeModal(event)">
+        <div class="notice-modal" onclick="event.stopPropagation()">
+            <img src="notice.png" alt="比赛海报" class="notice-modal-image" onerror="this.style.display='none'">
+            <div class="notice-modal-header">
+                <button class="notice-modal-close" onclick="closeNoticeModalDirect()" title="关闭">✕</button>
+            </div>
+            <div class="notice-modal-body">
+                <div class="notice-modal-title">📜 地制院2026年暑期地图评比大赛正式开启！</div>
+                <div class="notice-modal-desc">
+                    如果你热爱历史、痴迷地图，欢迎加入制图人的大家庭！每半年一次的假期地图赛，是你展示制图技艺的最佳舞台。无论你是手绘大佬还是数字制图新手，都欢迎来交流学习！
+                </div>
+                <div class="notice-modal-meta">
+                    <div class="notice-meta-row">
+                        <span>🗺️</span>
+                        <span>报名Q群：<span class="highlight">1054802406</span></span>
+                    </div>
+                    <div class="notice-meta-row">
+                        <span>📅</span>
+                        <span>报名时间：即日起至 <span class="highlight">2026年7月31日</span></span>
+                    </div>
+                    <div class="notice-meta-row">
+                        <span>🏆</span>
+                        <span>评比方式：群内提交作品，公开投票 + 专业评审</span>
+                    </div>
+                </div>
+                <div class="notice-modal-actions">
+                    <a href="https://www.bilibili.com/video/BV1wVMH6pERn/" target="_blank" class="notice-modal-btn primary">📺 查看比赛详情</a>
+                    <button class="notice-modal-btn secondary" onclick="closeNoticeModalDirect()">我知道了</button>
+                </div>
+            </div>
+            <div class="notice-modal-footer">点击外部区域也可关闭此公告</div>
+        </div>
+    </div>
+
     <!-- 过渡动画 -->
     <div class="transition-overlay" id="transitionOverlay">
         <div class="ink-drop" style="width: 200px; height: 200px; top: 30%; left: 20%;"></div>
@@ -3153,6 +3530,20 @@
                 <div class="quote-author">—— 司马迁《报任安书》</div>
             </div>
 
+            <!-- 时间轴顶部公告条 -->
+            <a href="https://www.bilibili.com/video/BV1wVMH6pERn/" target="_blank" style="text-decoration: none; display: block;" onclick="event.stopPropagation()">
+                <div class="timeline-notice" title="点击查看比赛详情">
+                    <div class="timeline-notice-badge">🏆 比赛</div>
+                    <div class="timeline-notice-title">地制院2026暑期地图评比大赛</div>
+                    <div class="timeline-notice-meta">
+                        <span>🗺️ Q群 1054802406</span>
+                        <span>📅 截止7月31日</span>
+                    </div>
+                    <span class="timeline-notice-arrow">›</span>
+                </div>
+            </a>
+
+
             <div class="timeline-list" id="timelineList">
                 <!-- 动态生成 -->
             </div>
@@ -3277,7 +3668,6 @@
                 "江山留胜迹，我辈复登临" —— 孟浩然
             </div>
 
-
         </div>
     </div>
 
@@ -3326,6 +3716,8 @@
             setTimeout(() => {
                 mainContainer.classList.add('visible');
                 detectLayout();
+                // 进入主界面后弹出公告
+                initNoticeModal();
             }, 500);
             
             // 结束过渡动画
@@ -4492,7 +4884,80 @@
 
         // 等待DOM完全加载后再初始化
         // 统一初始化入口
-        function initApp() {
+        
+        // 公告栏功能
+        let noticeCollapsed = false;
+
+        function toggleNotice(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const banner = document.getElementById('noticeBanner');
+            noticeCollapsed = !noticeCollapsed;
+            banner.classList.toggle('collapsed', noticeCollapsed);
+            // 保存状态
+            localStorage.setItem('noticeCollapsed', noticeCollapsed);
+        }
+
+        // ===== 弹出式公告弹窗功能 =====
+        let noticeModalShown = false;
+
+        function showNoticeModal() {
+            const overlay = document.getElementById('noticeModalOverlay');
+            if (!overlay) return;
+            overlay.classList.add('show');
+            noticeModalShown = true;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNoticeModal(event) {
+            // 只有点击遮罩层本身时才关闭（不是点击弹窗内容）
+            if (event && event.target !== event.currentTarget) return;
+            closeNoticeModalDirect();
+        }
+
+        function closeNoticeModalDirect() {
+            const overlay = document.getElementById('noticeModalOverlay');
+            if (!overlay || !noticeModalShown) return;
+
+            // 添加关闭动画类
+            overlay.classList.add('closing');
+
+            // 等待动画完成后隐藏
+            setTimeout(() => {
+                overlay.classList.remove('show', 'closing');
+                document.body.style.overflow = '';
+                noticeModalShown = false;
+                // 记录已关闭
+                localStorage.setItem('noticeModalClosed', Date.now());
+            }, 400);
+        }
+
+        function initNoticeModal() {
+            // 检查是否已关闭过（24小时内不再弹出）
+            const lastClosed = localStorage.getItem('noticeModalClosed');
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000;
+
+            if (lastClosed && (now - parseInt(lastClosed)) < oneDay) {
+                // 24小时内关闭过，不再弹出
+                return;
+            }
+
+            // 进入主界面后延迟弹出
+            setTimeout(() => {
+                showNoticeModal();
+            }, 800);
+        }
+
+        // ESC键关闭弹窗
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && noticeModalShown) {
+                closeNoticeModalDirect();
+            }
+        });
+
+
+function initApp() {
             initTimeline();
             setupEventListeners();
             setupImageProtection();
