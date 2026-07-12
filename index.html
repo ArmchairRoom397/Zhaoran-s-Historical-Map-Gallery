@@ -745,7 +745,7 @@
         .portrait-nav {
             display: none;
             position: fixed;
-            bottom: 70px;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 150;
@@ -3224,18 +3224,13 @@
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
     <base target="_blank">
-<base target="_blank">
-<base target="_blank">
-<base target="_blank">
-<base target="_blank">
-<base target="_blank">
 </head>
 <body>
 
     <!-- 弹出式公告弹窗 -->
     <div class="notice-modal-overlay" id="noticeModalOverlay" onclick="closeNoticeModal(event)">
         <div class="notice-modal" onclick="event.stopPropagation()">
-            <img src="notice.png" alt="比赛海报" class="notice-modal-image" onerror="this.style.display='none'">
+            <img src="/map/notice.png" alt="比赛海报" class="notice-modal-image" onerror="this.style.display='none'">
             <div class="notice-modal-header">
                 <button class="notice-modal-close" onclick="closeNoticeModalDirect()" title="关闭">✕</button>
             </div>
@@ -4173,6 +4168,75 @@
         ];
 
         // 通用名言库（随机显示）
+        // 按历史时期分类的名言库
+        const eraQuotes = {
+            "史前时期": [
+                { text: "火的使用，是人类第一次支配自然力", author: "恩格斯" },
+                { text: "民以食为天", author: "《汉书·郦食其传》" }
+            ],
+            "早期国家": [
+                { text: "普天之下，莫非王土，率土之滨，莫非王臣", author: "《诗经·小雅·北山》" },
+                { text: "殷鉴不远", author: "《诗经·大雅·荡》" },
+                { text: "王侯将相宁有种乎", author: "陈胜" },
+                { text: "大道之行也，天下为公", author: "《礼记·礼运》" },
+                { text: "变法图强", author: "《史记·商君列传》" },
+                { text: "天下兴亡，匹夫有责", author: "顾炎武" },
+                { text: "灭人之国，必先去其史", author: "龚自珍" }
+            ],
+            "帝国形成": [
+                { text: "千古一帝", author: "李贽《藏书》" },
+                { text: "大风起兮云飞扬", author: "刘邦《大风歌》" },
+                { text: "力拔山兮气盖世", author: "项羽《垓下歌》" },
+                { text: "犯强汉者，虽远必诛", author: "陈汤" },
+                { text: "光武中兴", author: "《后汉书》" },
+                { text: "对酒当歌，人生几何", author: "曹操《短歌行》" },
+                { text: "天下三分", author: "陈寿《三国志》" },
+                { text: "三分归晋", author: "《三国演义》" },
+                { text: "投鞭断流", author: "《晋书·苻坚载记》" },
+                { text: "旧时王谢堂前燕", author: "刘禹锡《乌衣巷》" },
+                { text: "商女不知亡国恨，隔江犹唱后庭花", author: "杜牧《泊秦淮》" }
+            ],
+            "成熟帝国": [
+                { text: "开皇之治", author: "《隋书》" },
+                { text: "尽道隋亡为此河", author: "皮日休《汴河怀古》" },
+                { text: "天可汗", author: "四夷君长尊号" },
+                { text: "政启开元，治宏贞观", author: "郭沫若" },
+                { text: "忆昔开元全盛日，小邑犹藏万家室", author: "杜甫《忆昔》" },
+                { text: "国破山河在，城春草木深", author: "杜甫《春望》" },
+                { text: "满城尽带黄金甲", author: "黄巢《不第后赋菊》" },
+                { text: "五代更迭", author: "《新五代史》" },
+                { text: "风流总被雨打风吹去", author: "辛弃疾" },
+                { text: "儿皇帝", author: "《新五代史·晋本纪》" },
+                { text: "先南后北", author: "赵匡胤统一战略" },
+                { text: "澶渊之盟", author: "宋辽和约" },
+                { text: "靖康耻，犹未雪，臣子恨，何时灭", author: "岳飞《满江红》" },
+                { text: "一代天骄，成吉思汗", author: "毛泽东《沁园春·雪》" },
+                { text: "北逾阴山，西极流沙", author: "《元史·地理志》" },
+                { text: "石人一只眼", author: "元末民谣" }
+            ],
+            "传统社会": [
+                { text: "天子守国门", author: "永乐迁都" },
+                { text: "倭寇之患", author: "《明史》" },
+                { text: "君王死社稷", author: "崇祯自缢煤山" },
+                { text: "十全武功", author: "乾隆自诩" },
+                { text: "三千年未有之大变局", author: "李鸿章" }
+            ],
+            "中国近代": [
+                { text: "瓜分豆剖", author: "康有为" },
+                { text: "量中华之物力，结与国之欢心", author: "慈禧太后" },
+                { text: "革命尚未成功，同志仍需努力", author: "孙中山" },
+                { text: "天下大势，分久必合，合久必分", author: "《三国演义》" },
+                { text: "一寸山河一寸血，十万青年十万兵", author: "抗战名言" },
+                { text: "天翻地覆慨而慷", author: "毛泽东《七律》" },
+                { text: "雄鸡一唱天下白", author: "毛泽东《浣溪沙》" }
+            ],
+            "中国现代": [
+                { text: "独立自主", author: "建国方针" },
+                { text: "实现中华民族伟大复兴", author: "中国梦" }
+            ]
+        };
+
+        // 通用名言（作为后备）
         const generalQuotes = [
             { text: "究天人之际，通古今之变", author: "司马迁" },
             { text: "以史为鉴，可以知兴替", author: "唐太宗" },
@@ -4180,57 +4244,10 @@
             { text: "前事不忘，后事之师", author: "《战国策》" },
             { text: "史者，所以明夫治天下之道也", author: "曾巩" },
             { text: "欲知大道，必先为史", author: "龚自珍" },
-            { text: "灭人之国，必先去其史", author: "龚自珍" },
-            { text: "历史是最好的教科书", author: "习近平" },
-            { text: "知人者智，自知者明", author: "老子《道德经》" },
-            { text: "博学之，审问之，慎思之，明辨之，笃行之", author: "《中庸》" },
-            { text: "为天地立心，为生民立命", author: "张载" },
-            { text: "天下兴亡，匹夫有责", author: "顾炎武" },
-            { text: "苟利国家生死以，岂因祸福避趋之", author: "林则徐" },
-            { text: "路漫漫其修远兮，吾将上下而求索", author: "屈原" },
-            { text: "不积跬步，无以至千里", author: "荀子" },
-            { text: "纸上得来终觉浅，绝知此事要躬行", author: "陆游" },
-            { text: "问渠那得清如许，为有源头活水来", author: "朱熹" },
-            { text: "江山代有才人出，各领风骚数百年", author: "赵翼" },
-            { text: "沉舟侧畔千帆过，病树前头万木春", author: "刘禹锡" },
-            { text: "长风破浪会有时，直挂云帆济沧海", author: "李白" },
-            { text: "先天下之忧而忧，后天下之乐而乐", author: "范仲淹" },
-            { text: "人生自古谁无死，留取丹心照汗青", author: "文天祥" },
-            { text: "横眉冷对千夫指，俯首甘为孺子牛", author: "鲁迅" },
-            { text: "星星之火，可以燎原", author: "毛泽东" },
-            { text: "雄关漫道真如铁，而今迈步从头越", author: "毛泽东" },
-            { text: "天行健，君子以自强不息", author: "《周易》" },
-            { text: "地势坤，君子以厚德载物", author: "《周易》" },
-            { text: "己所不欲，勿施于人", author: "孔子" },
-            { text: "学而不思则罔，思而不学则殆", author: "孔子" },
-            { text: "三人行，必有我师焉", author: "孔子" },
-            { text: "温故而知新，可以为师矣", author: "孔子" },
-            { text: "千里之行，始于足下", author: "老子" },
-            { text: "生于忧患，死于安乐", author: "孟子" },
-            { text: "得道多助，失道寡助", author: "孟子" },
-            { text: "富贵不能淫，贫贱不能移，威武不能屈", author: "孟子" },
-            { text: "青，取之于蓝，而青于蓝", author: "荀子" },
-            { text: "锲而不舍，金石可镂", author: "荀子" },
-            { text: "老骥伏枥，志在千里", author: "曹操" },
-            { text: "采菊东篱下，悠然见南山", author: "陶渊明" },
-            { text: "海内存知己，天涯若比邻", author: "王勃" },
-            { text: "落霞与孤鹜齐飞，秋水共长天一色", author: "王勃" },
-            { text: "大漠孤烟直，长河落日圆", author: "王维" },
-            { text: "会当凌绝顶，一览众山小", author: "杜甫" },
-            { text: "安得广厦千万间，大庇天下寒士俱欢颜", author: "杜甫" },
-            { text: "春蚕到死丝方尽，蜡炬成灰泪始干", author: "李商隐" },
-            { text: "无可奈何花落去，似曾相识燕归来", author: "晏殊" },
-            { text: "但愿人长久，千里共婵娟", author: "苏轼" },
-            { text: "大江东去，浪淘尽，千古风流人物", author: "苏轼" },
-            { text: "两情若是久长时，又岂在朝朝暮暮", author: "秦观" },
-            { text: "寻寻觅觅，冷冷清清，凄凄惨惨戚戚", author: "李清照" },
-            { text: "众里寻他千百度，蓦然回首，那人却在灯火阑珊处", author: "辛弃疾" },
-            { text: "我自横刀向天笑，去留肝胆两昆仑", author: "谭嗣同" },
-            { text: "寄意寒星荃不察，我以我血荐轩辕", author: "鲁迅" },
-            { text: "数风流人物，还看今朝", author: "毛泽东" }
+            { text: "历史是最好的教科书", author: "习近平" }
         ];
 
-        let currentIndex = -1;
+let currentIndex = -1;
         let scale = 1;
         let translateX = 0;
         let translateY = 0;
@@ -4359,6 +4376,7 @@
         }
 
         function showLoading(path) {
+            if (!showLoadingProgress) return;
             loadingOverlay.classList.add('show');
             loadingPath.textContent = path;
             loadingProgressBar.style.width = '0%';
@@ -4496,10 +4514,8 @@
                 resetView();
             }
 
-            if (showLoadingProgress) {
-                showLoading(path);
-                if (speedDisplay) speedDisplay.textContent = '连接中...';
-            }
+            showLoading(path);
+            if (showLoadingProgress && speedDisplay) speedDisplay.textContent = '连接中...';
 
             xhr.send();
         }
@@ -4591,41 +4607,23 @@
                 `;
             }
 
+            // 根据当前朝代选择对应的名言，没有则使用通用名言
             const sidebarQuote = document.getElementById('sidebarQuote');
-            const randomQuote = generalQuotes[Math.floor(Math.random() * generalQuotes.length)];
+            let quotePool = eraQuotes[data.era] || [];
+            // 如果朝代名言不足3条，补充通用名言避免重复
+            if (quotePool.length < 3) {
+                quotePool = [...quotePool, ...generalQuotes];
+            }
+            const randomQuote = quotePool[Math.floor(Math.random() * quotePool.length)];
             sidebarQuote.innerHTML = `
                 <div>"${randomQuote.text}"</div>
                 <div class="quote-author">—— ${randomQuote.author}</div>
             `;
 
-            const footerQuotes = [
-                "江山留胜迹，我辈复登临 —— 孟浩然",
-                "人事有代谢，往来成古今 —— 孟浩然",
-                "旧时王谢堂前燕，飞入寻常百姓家 —— 刘禹锡",
-                "念天地之悠悠，独怆然而涕下 —— 陈子昂",
-                "兴，百姓苦；亡，百姓苦 —— 张养浩",
-                "秦时明月汉时关，万里长征人未还 —— 王昌龄",
-                "黄沙百战穿金甲，不破楼兰终不还 —— 王昌龄",
-                "醉卧沙场君莫笑，古来征战几人回 —— 王翰",
-                "出师未捷身先死，长使英雄泪满襟 —— 杜甫",
-                "王师北定中原日，家祭无忘告乃翁 —— 陆游",
-                "人生自古谁无死，留取丹心照汗青 —— 文天祥",
-                "苟利国家生死以，岂因祸福避趋之 —— 林则徐",
-                "横眉冷对千夫指，俯首甘为孺子牛 —— 鲁迅",
-                "为有牺牲多壮志，敢教日月换新天 —— 毛泽东",
-                "雄关漫道真如铁，而今迈步从头越 —— 毛泽东",
-                "天若有情天亦老，人间正道是沧桑 —— 毛泽东",
-                "萧瑟秋风今又是，换了人间 —— 毛泽东",
-                "不到长城非好汉，屈指行程二万 —— 毛泽东",
-                "一万年太久，只争朝夕 —— 毛泽东",
-                "世上无难事，只要肯登攀 —— 毛泽东",
-                "不管风吹浪打，胜似闲庭信步 —— 毛泽东",
-                "宜将剩勇追穷寇，不可沽名学霸王 —— 毛泽东",
-                "牢骚太盛防肠断，风物长宜放眼量 —— 毛泽东",
-                "埋骨何须桑梓地，人生无处不青山 —— 毛泽东",
-                "自信人生二百年，会当水击三千里 —— 毛泽东"
-            ];
-            document.getElementById('footerQuote').textContent = footerQuotes[Math.floor(Math.random() * footerQuotes.length)];
+            // 页脚名言也按朝代选择
+            const footerQuotePool = eraQuotes[data.era] || generalQuotes;
+            const footerQuote = footerQuotePool[Math.floor(Math.random() * footerQuotePool.length)];
+            document.getElementById('footerQuote').textContent = `"${footerQuote.text}" —— ${footerQuote.author}`;
         }
 
         // 获取鼠标/触摸在图片上的相对位置（用于以点为中心缩放）
