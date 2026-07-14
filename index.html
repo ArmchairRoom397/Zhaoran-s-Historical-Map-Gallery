@@ -1438,33 +1438,6 @@
             background: rgba(42, 21, 21, 0.9);
         }
 
-        /* 高清提示 */
-        .hd-tip {
-            position: absolute;
-            top: 60px;
-            right: 20px;
-            background: rgba(212, 175, 55, 0.15);
-            border: 1px solid var(--gold);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            color: var(--gold-light);
-            z-index: 60;
-            display: none;
-        }
-
-        body.bronze-theme .hd-tip {
-            background: rgba(127, 176, 105, 0.15);
-        }
-
-        body.cinnabar-theme .hd-tip {
-            background: rgba(192, 57, 43, 0.15);
-        }
-
-        .hd-tip.show {
-            display: block;
-        }
-
         /* 右侧信息面板 */
         .info-panel {
             background: var(--bg-panel);
@@ -2152,13 +2125,6 @@
             .zoom-level {
                 bottom: 130px;
                 right: 15px;
-            }
-
-            .hd-tip {
-                top: 50px;
-                right: 10px;
-                font-size: 0.7rem;
-                padding: 6px 10px;
             }
 
             .timeline-panel {
@@ -2990,8 +2956,9 @@
 
         .notice-modal-image {
             width: 100%;
-            height: 160px;
-            object-fit: cover;
+            height: auto;
+            max-height: 320px;
+            object-fit: contain;
             display: block;
             border-bottom: 2px solid var(--gold);
             background: linear-gradient(135deg, #2a1a0a, #4a2a1a);
@@ -3195,7 +3162,7 @@
             }
 
             .notice-modal-image {
-                height: 120px;
+                max-height: 220px;
             }
 
             .notice-modal-body {
@@ -3234,7 +3201,7 @@
             <div class="notice-modal-header">
                 <button class="notice-modal-close" onclick="closeNoticeModalDirect()" title="关闭">✕</button>
             </div>
-            <img src="maps/notice.png" alt="比赛海报" class="notice-modal-image" onerror="this.style.display='none'">
+            <img src="/map/notice.png" alt="比赛海报" class="notice-modal-image" onerror="this.style.display='none'">
             <div class="notice-modal-body">
                 <div class="notice-modal-title">📜 地制院2026年暑期地图评比大赛正式开启！</div>
                 <div class="notice-modal-desc">
@@ -3552,11 +3519,6 @@
                     <div>"读史使人明智"</div>
                     <div class="header-quote-author">—— 弗朗西斯·培根</div>
                 </div>
-            </div>
-
-            <!-- 高清提示 -->
-            <div class="hd-tip" id="hdTip">
-                💡 建议：使用高清图片可获得更好放大效果
             </div>
 
             <div class="toolbar">
@@ -4478,11 +4440,7 @@ let currentIndex = -1;
                         if (showLoadingProgress) hideLoading();
                         forceRepaint();
 
-                        // 显示高清提示
-                        if (mapImage.naturalWidth < 2000 || mapImage.naturalHeight < 1500) {
-                            hdTip.classList.add('show');
-                            setTimeout(() => hdTip.classList.remove('show'), 5000);
-                        }
+                        // 高清提示已移除
                     }, showLoadingProgress ? 300 : 0);
                 } else {
                     handleLoadError();
@@ -4926,23 +4884,22 @@ let currentIndex = -1;
                 overlay.classList.remove('show', 'closing');
                 document.body.style.overflow = '';
                 noticeModalShown = false;
-                // 记录已关闭
+                // 记录关闭时间
                 localStorage.setItem('noticeModalClosed', Date.now());
             }, 400);
         }
 
         function initNoticeModal() {
-            // 检查是否已关闭过（24小时内不再弹出）
+            // 每6小时弹出一次公告
             const lastClosed = localStorage.getItem('noticeModalClosed');
             const now = Date.now();
-            const oneDay = 24 * 60 * 60 * 1000;
+            const sixHours = 6 * 60 * 60 * 1000;
 
-            if (lastClosed && (now - parseInt(lastClosed)) < oneDay) {
-                // 24小时内关闭过，不再弹出
+            if (lastClosed && (now - parseInt(lastClosed)) < sixHours) {
+                // 6小时内关闭过，不再弹出
                 return;
             }
 
-            // 进入主界面后延迟弹出
             setTimeout(() => {
                 showNoticeModal();
             }, 800);
