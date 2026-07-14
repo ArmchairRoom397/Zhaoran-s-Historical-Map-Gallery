@@ -3186,7 +3186,377 @@
             }
         }
 
-</style>
+
+        /* ===== 多地图对比模式（上下布局） ===== */
+        .compare-mode .map-viewport {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            background: var(--border);
+        }
+
+        .compare-mode .map-viewport::before,
+        .compare-mode .map-viewport::after {
+            display: none;
+        }
+
+        .compare-panel {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-dark);
+            cursor: grab;
+            min-height: 0;
+        }
+
+        .compare-panel:first-child {
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .compare-panel.grabbing {
+            cursor: grabbing;
+        }
+
+        .compare-label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.8);
+            color: var(--gold);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            z-index: 60;
+            border: 1px solid var(--gold);
+            font-family: "Noto Serif SC", serif;
+            letter-spacing: 1px;
+            max-width: calc(100% - 24px);
+            white-space: normal;
+            word-wrap: break-word;
+            line-height: 1.4;
+            pointer-events: none;
+        }
+
+        body.rice-paper-theme .compare-label {
+            background: rgba(245, 240, 232, 0.95);
+            color: var(--gold);
+        }
+
+        body.bronze-theme .compare-label {
+            background: rgba(26, 47, 42, 0.95);
+        }
+
+        body.cinnabar-theme .compare-label {
+            background: rgba(26, 15, 15, 0.95);
+        }
+
+        .compare-panel .map-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translate(-50%, -50%) translateZ(0);
+            will-change: transform;
+        }
+
+        .compare-panel .map-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            user-select: none;
+            -webkit-user-drag: none;
+            display: none;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transform: translateZ(0);
+            will-change: transform;
+            backface-visibility: hidden;
+            pointer-events: none;
+        }
+
+        body.bronze-theme .compare-panel .map-image {
+            border-color: rgba(127, 176, 105, 0.2);
+        }
+
+        body.cinnabar-theme .compare-panel .map-image {
+            border-color: rgba(192, 57, 43, 0.2);
+        }
+
+        .compare-panel .map-image.loaded {
+            display: block;
+        }
+
+        .compare-panel .map-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-muted);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .compare-panel .loading-overlay {
+            z-index: 70;
+        }
+
+        /* 对比面板的缩放指示器 */
+        .compare-zoom-level {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.8);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--gold);
+            font-family: "Courier New", monospace;
+            border: 1px solid var(--gold);
+            z-index: 60;
+            pointer-events: none;
+        }
+
+        body.rice-paper-theme .compare-zoom-level {
+            background: rgba(235, 229, 217, 0.9);
+        }
+
+        /* 对比选择器 */
+        .compare-selector {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: var(--bg-panel);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 70vh;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+        }
+
+        .compare-selector.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .compare-selector-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .compare-selector-title {
+            font-size: 1.1rem;
+            color: var(--gold);
+            font-family: "Zhi Mang Xing", cursive;
+            letter-spacing: 2px;
+        }
+
+        .compare-selector-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .compare-selector-close:hover {
+            color: var(--gold);
+        }
+
+        .compare-selector-search {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .compare-selector-search input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        body.rice-paper-theme .compare-selector-search input {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .compare-selector-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .compare-selector-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            margin: 2px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .compare-selector-item:hover {
+            background: var(--bg-hover);
+            border-left-color: var(--gold);
+        }
+
+        .compare-selector-item.current {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .compare-selector-item .year-badge {
+            min-width: 55px;
+            font-size: 0.7rem;
+            margin-right: 10px;
+        }
+
+        .compare-selector-item .item-name {
+            font-size: 0.85rem;
+        }
+
+        .compare-selector-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .compare-selector-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 对比模式下的信息面板 */
+        .compare-info-section {
+            display: none;
+        }
+
+        .compare-mode-active .compare-info-section {
+            display: block;
+        }
+
+        .compare-mode-active .normal-info-section {
+            display: none;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .compare-table th,
+        .compare-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .compare-table th {
+            color: var(--gold);
+            font-weight: 700;
+            width: 30%;
+        }
+
+        .compare-table td {
+            color: var(--text);
+            width: 35%;
+        }
+
+        .compare-table td:first-child {
+            border-right: 1px solid var(--border);
+        }
+
+        .compare-exit-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 65;
+            padding: 6px 14px;
+            background: var(--bg-panel);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+
+        .compare-exit-btn:hover {
+            background: var(--gold);
+            color: var(--bg-dark);
+        }
+
+        /* 移动端对比模式适配 */
+        @media (max-width: 768px) {
+            .compare-mode .map-viewport {
+                flex-direction: column;
+            }
+
+            .compare-panel:first-child {
+                border-right: none;
+                border-bottom: 2px solid var(--gold);
+            }
+
+            .compare-selector {
+                max-width: 95%;
+                max-height: 80vh;
+            }
+        }
+
+
+            .compare-panel:first-child {
+                border-right: none;
+                border-bottom: 2px solid var(--gold);
+            }
+
+            .compare-selector {
+                max-width: 95%;
+                max-height: 80vh;
+            }
+        }
+
+    </style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
@@ -3526,6 +3896,7 @@
                 <button class="tool-btn" onclick="zoomOut()" title="缩小">−</button>
                 <button class="tool-btn" onclick="resetView()" title="重置">⟲</button>
                 <button class="tool-btn" onclick="fitToScreen()" title="适应屏幕">⛶</button>
+                <button class="tool-btn" onclick="toggleCompareMode()" title="对比模式" id="compareBtn">⚖</button>
             </div>
 
             <div class="map-viewport" id="mapViewport">
@@ -3554,6 +3925,23 @@
                     </div>
                     <img class="map-image" id="mapImage" alt="历史地图" oncontextmenu="return false;">
                 </div>
+                <!-- 对比模式面板（上：当前地图） -->
+                <div class="compare-panel" id="comparePanelLeft" style="display:none;">
+                    <div class="compare-label" id="compareLabelLeft">当前地图</div>
+                    <div class="compare-zoom-level" id="compareZoomLeft">100%</div>
+                    <div class="map-wrapper" id="compareWrapperLeft">
+                        <img class="map-image" id="compareImageLeft" alt="历史地图" oncontextmenu="return false;">
+                    </div>
+                </div>
+                <!-- 对比模式面板（下：对比地图） -->
+                <div class="compare-panel" id="comparePanelRight" style="display:none;">
+                    <div class="compare-label" id="compareLabelRight">对比地图</div>
+                    <div class="compare-zoom-level" id="compareZoomRight">100%</div>
+                    <div class="map-wrapper" id="compareWrapperRight">
+                        <img class="map-image" id="compareImageRight" alt="历史地图" oncontextmenu="return false;">
+                    </div>
+                </div>
+                <button class="compare-exit-btn" id="compareExitBtn" onclick="exitCompareMode()" style="display:none;">退出对比</button>
             </div>
 
             <div class="zoom-level" id="zoomLevel">100%</div>
@@ -3568,6 +3956,50 @@
             </div>
 
             <div class="info-content">
+                <!-- 对比模式信息 -->
+                <div class="compare-info-section" id="compareInfoSection" style="display:none;">
+                    <div class="era-intro-card">
+                        <div class="era-intro-title">📊 双图对比</div>
+                        <table class="compare-table">
+                            <tr>
+                                <th>对比项</th>
+                                <td id="compareCellLeft">当前地图</td>
+                                <td id="compareCellRight">对比地图</td>
+                            </tr>
+                            <tr>
+                                <th>时期</th>
+                                <td id="compareEraLeft">—</td>
+                                <td id="compareEraRight">—</td>
+                            </tr>
+                            <tr>
+                                <th>时间跨度</th>
+                                <td id="compareSpanLeft">—</td>
+                                <td id="compareSpanRight">—</td>
+                            </tr>
+                            <tr>
+                                <th>政权数</th>
+                                <td id="compareCountLeft">—</td>
+                                <td id="compareCountRight">—</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="info-section">
+                        <div class="section-title">对比地图详解</div>
+                        <div class="section-content" id="compareDesc">
+                            选择一幅地图进行对比...
+                        </div>
+                    </div>
+                    <div class="info-section">
+                        <div class="section-title">对比史家之言</div>
+                        <div class="wisdom-quote" id="compareWisdomQuote">
+                            "以史为鉴，可以知兴替"
+                            <div class="wisdom-author">—— 唐太宗</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 正常模式信息 -->
+                <div class="normal-info-section" id="normalInfoSection">
                 <!-- 时期详细介绍卡片 -->
                 <div class="era-intro-card" id="eraIntroCard" style="display: none;">
                     <div class="era-intro-title" id="eraIntroTitle">时期背景</div>
@@ -3615,6 +4047,7 @@
                         </div>
                     </div>
                 </div>
+                </div><!-- /normalInfoSection -->
             </div>
 
             <div class="nav-buttons">
@@ -3637,6 +4070,21 @@
     <div class="portrait-nav" id="portraitNav">
         <button class="nav-btn" id="portraitPrevBtn" onclick="navigate(-1)" disabled>← 前朝</button>
         <button class="nav-btn" id="portraitNextBtn" onclick="navigate(1)" disabled>后世 →</button>
+    </div>
+
+    <!-- 对比选择器弹窗 -->
+    <div class="compare-selector-overlay" id="compareSelectorOverlay" onclick="closeCompareSelector()"></div>
+    <div class="compare-selector" id="compareSelector">
+        <div class="compare-selector-header">
+            <span class="compare-selector-title">选择对比地图</span>
+            <button class="compare-selector-close" onclick="closeCompareSelector()">✕</button>
+        </div>
+        <div class="compare-selector-search">
+            <input type="text" id="compareSearchInput" placeholder="搜索朝代、年份或地图名称..." oninput="handleCompareSearch(this.value)">
+        </div>
+        <div class="compare-selector-list" id="compareSelectorList">
+            <!-- 动态生成 -->
+        </div>
     </div>
 
     <!-- 移动端底部标签栏 -->
@@ -4912,6 +5360,368 @@ let currentIndex = -1;
             }
         });
 
+
+
+        // ===== 多地图对比模式（上下布局 + 独立缩放） =====
+        let compareMode = false;
+        let compareIndex = -1;
+
+        // 对比面板独立状态
+        let compareLeftState = { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 };
+        let compareRightState = { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 };
+
+        function toggleCompareMode() {
+            if (compareMode) {
+                exitCompareMode();
+            } else {
+                openCompareSelector();
+            }
+        }
+
+        function openCompareSelector() {
+            if (currentIndex < 0) {
+                alert('请先选择一幅地图');
+                return;
+            }
+            const overlay = document.getElementById('compareSelectorOverlay');
+            const selector = document.getElementById('compareSelector');
+            overlay.classList.add('show');
+            selector.classList.add('show');
+            renderCompareSelectorList();
+            document.getElementById('compareSearchInput').value = '';
+            document.getElementById('compareSearchInput').focus();
+        }
+
+        function closeCompareSelector() {
+            const overlay = document.getElementById('compareSelectorOverlay');
+            const selector = document.getElementById('compareSelector');
+            overlay.classList.remove('show');
+            selector.classList.remove('show');
+        }
+
+        function renderCompareSelectorList(keyword) {
+            const list = document.getElementById('compareSelectorList');
+            list.innerHTML = '';
+
+            historyData.forEach((item, index) => {
+                if (keyword) {
+                    const lowerKeyword = keyword.toLowerCase();
+                    const match = item.name.toLowerCase().includes(lowerKeyword) || 
+                                 item.year.toLowerCase().includes(lowerKeyword) ||
+                                 item.era.toLowerCase().includes(lowerKeyword);
+                    if (!match) return;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'compare-selector-item' + (index === currentIndex ? ' current' : '');
+                const reignText = item.reign ? `<span class="reign-badge">${item.reign}</span>` : '';
+                div.innerHTML = `
+                    <span class="year-badge">${item.year}</span>
+                    <div class="item-info">
+                        <span class="item-name">${item.name}</span>
+                        ${reignText}
+                    </div>
+                `;
+                if (index !== currentIndex) {
+                    div.onclick = () => startCompare(index);
+                }
+                list.appendChild(div);
+            });
+        }
+
+        function handleCompareSearch(keyword) {
+            renderCompareSelectorList(keyword);
+        }
+
+        function startCompare(index) {
+            compareIndex = index;
+            compareMode = true;
+            closeCompareSelector();
+
+            // 重置对比面板状态
+            compareLeftState = { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 };
+            compareRightState = { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 };
+
+            const mapViewport = document.getElementById('mapViewport');
+            const mapWrapper = document.getElementById('mapWrapper');
+            const leftPanel = document.getElementById('comparePanelLeft');
+            const rightPanel = document.getElementById('comparePanelRight');
+            const exitBtn = document.getElementById('compareExitBtn');
+            const normalInfo = document.getElementById('normalInfoSection');
+            const compareInfo = document.getElementById('compareInfoSection');
+            const compareBtn = document.getElementById('compareBtn');
+            const infoContent = document.getElementById('infoPanel').querySelector('.info-content');
+
+            mapViewport.classList.add('compare-mode');
+            mapWrapper.style.display = 'none';
+            leftPanel.style.display = 'block';
+            rightPanel.style.display = 'block';
+            exitBtn.style.display = 'block';
+            normalInfo.style.display = 'none';
+            compareInfo.style.display = 'block';
+            if (infoContent) infoContent.classList.add('compare-mode-active');
+            compareBtn.style.background = 'var(--gold)';
+            compareBtn.style.color = 'var(--bg-dark)';
+
+            // 加载左侧当前地图
+            const currentData = historyData[currentIndex];
+            const leftImg = document.getElementById('compareImageLeft');
+            const leftWrapper = document.getElementById('compareWrapperLeft');
+            document.getElementById('compareLabelLeft').textContent = `${currentData.year} · ${currentData.name}`;
+
+            // 确保图片加载完成后再显示
+            leftImg.style.display = 'none';
+            leftImg.classList.remove('loaded');
+            leftImg.onload = function() {
+                leftImg.style.display = 'block';
+                leftImg.classList.add('loaded');
+                updateCompareTransform('left');
+            };
+            leftImg.onerror = function() {
+                leftWrapper.innerHTML = '<div class="map-placeholder"><div class="placeholder-icon">📂</div><div class="welcome-text">地图加载失败</div></div>';
+            };
+            leftImg.src = currentData.path;
+            // 如果图片已缓存，onload可能不触发，手动检查
+            if (leftImg.complete && leftImg.naturalWidth > 0) {
+                leftImg.style.display = 'block';
+                leftImg.classList.add('loaded');
+                updateCompareTransform('left');
+            }
+
+            // 加载右侧对比地图
+            const compareData = historyData[compareIndex];
+            const rightImg = document.getElementById('compareImageRight');
+            const rightWrapper = document.getElementById('compareWrapperRight');
+            document.getElementById('compareLabelRight').textContent = `${compareData.year} · ${compareData.name}`;
+
+            rightImg.style.display = 'none';
+            rightImg.classList.remove('loaded');
+            rightImg.onload = function() {
+                rightImg.style.display = 'block';
+                rightImg.classList.add('loaded');
+                updateCompareTransform('right');
+            };
+            rightImg.onerror = function() {
+                rightWrapper.innerHTML = '<div class="map-placeholder"><div class="placeholder-icon">📂</div><div class="welcome-text">地图加载失败</div></div>';
+            };
+            rightImg.src = compareData.path;
+            if (rightImg.complete && rightImg.naturalWidth > 0) {
+                rightImg.style.display = 'block';
+                rightImg.classList.add('loaded');
+                updateCompareTransform('right');
+            }
+
+            // 绑定对比面板的交互事件（只绑定一次）
+            if (!window.compareEventsBound) {
+                setupComparePanelEvents();
+                window.compareEventsBound = true;
+            }
+
+            // 更新对比信息面板
+            updateCompareInfo();
+
+            // 移动端切换到地图标签
+            if (window.innerWidth <= 768) {
+                switchMobileTab('map');
+            }
+        }
+
+        function updateCompareTransform(side) {
+            const state = side === 'left' ? compareLeftState : compareRightState;
+            const wrapper = document.getElementById('compareWrapper' + (side === 'left' ? 'Left' : 'Right'));
+            const zoomDisplay = document.getElementById('compareZoom' + (side === 'left' ? 'Left' : 'Right'));
+
+            wrapper.style.transform = `translate(calc(-50% + ${state.translateX}px), calc(-50% + ${state.translateY}px)) scale(${state.scale})`;
+            if (zoomDisplay) zoomDisplay.textContent = Math.round(state.scale * 100) + '%';
+        }
+
+        function setupComparePanelEvents() {
+            const leftPanel = document.getElementById('comparePanelLeft');
+            const rightPanel = document.getElementById('comparePanelRight');
+
+            // 左面板事件
+            setupSingleComparePanel(leftPanel, 'left');
+            // 右面板事件
+            setupSingleComparePanel(rightPanel, 'right');
+        }
+
+        function setupSingleComparePanel(panel, side) {
+            const state = side === 'left' ? compareLeftState : compareRightState;
+
+            // 鼠标拖拽
+            panel.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.compare-label') || e.target.closest('.compare-zoom-level')) return;
+                state.isDragging = true;
+                state.startX = e.clientX - state.translateX;
+                state.startY = e.clientY - state.translateY;
+                panel.classList.add('grabbing');
+            });
+
+            panel.addEventListener('mousemove', (e) => {
+                if (!state.isDragging) return;
+                e.preventDefault();
+                state.translateX = e.clientX - state.startX;
+                state.translateY = e.clientY - state.startY;
+                updateCompareTransform(side);
+            });
+
+            panel.addEventListener('mouseup', () => {
+                state.isDragging = false;
+                panel.classList.remove('grabbing');
+            });
+
+            panel.addEventListener('mouseleave', () => {
+                state.isDragging = false;
+                panel.classList.remove('grabbing');
+            });
+
+            // 滚轮缩放（以鼠标位置为中心）
+            panel.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = Math.max(0.2, Math.min(10, state.scale * delta));
+
+                // 以鼠标位置为中心缩放
+                const rect = panel.getBoundingClientRect();
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const mouseX = e.clientX - rect.left - centerX;
+                const mouseY = e.clientY - rect.top - centerY;
+
+                const pointX = (mouseX - state.translateX) / state.scale;
+                const pointY = (mouseY - state.translateY) / state.scale;
+
+                const screenX = pointX * state.scale + state.translateX;
+                const screenY = pointY * state.scale + state.translateY;
+
+                state.scale = newScale;
+                state.translateX = screenX - pointX * state.scale;
+                state.translateY = screenY - pointY * state.scale;
+
+                updateCompareTransform(side);
+            }, { passive: false });
+
+            // 触摸支持
+            let touchStartDist = 0;
+            let touchStartScale = 1;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isTouchDragging = false;
+            let touches = [];
+
+            panel.addEventListener('touchstart', (e) => {
+                touches = Array.from(e.touches);
+
+                if (touches.length === 1) {
+                    isTouchDragging = true;
+                    state.startX = touches[0].clientX - state.translateX;
+                    state.startY = touches[0].clientY - state.translateY;
+                } else if (touches.length === 2) {
+                    isTouchDragging = false;
+                    e.preventDefault();
+                    touchStartDist = Math.hypot(
+                        touches[0].clientX - touches[1].clientX,
+                        touches[0].clientY - touches[1].clientY
+                    );
+                    touchStartScale = state.scale;
+                }
+            }, { passive: false });
+
+            panel.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                touches = Array.from(e.touches);
+
+                if (touches.length === 1 && isTouchDragging) {
+                    state.translateX = touches[0].clientX - state.startX;
+                    state.translateY = touches[0].clientY - state.startY;
+                    updateCompareTransform(side);
+                } else if (touches.length === 2) {
+                    const currentDist = Math.hypot(
+                        touches[0].clientX - touches[1].clientX,
+                        touches[0].clientY - touches[1].clientY
+                    );
+                    if (touchStartDist > 0) {
+                        state.scale = Math.max(0.2, Math.min(10, touchStartScale * (currentDist / touchStartDist)));
+                        updateCompareTransform(side);
+                    }
+                }
+            }, { passive: false });
+
+            panel.addEventListener('touchend', () => {
+                isTouchDragging = false;
+                touches = [];
+            });
+        }
+
+        function updateCompareInfo() {
+            const currentData = historyData[currentIndex];
+            const compareData = historyData[compareIndex];
+
+            document.getElementById('compareCellLeft').textContent = `${currentData.year} · ${currentData.name}`;
+            document.getElementById('compareCellRight').textContent = `${compareData.year} · ${compareData.name}`;
+            document.getElementById('compareEraLeft').textContent = currentData.era;
+            document.getElementById('compareEraRight').textContent = compareData.era;
+            document.getElementById('compareSpanLeft').textContent = currentData.span;
+            document.getElementById('compareSpanRight').textContent = compareData.span;
+            document.getElementById('compareCountLeft').textContent = currentData.count;
+            document.getElementById('compareCountRight').textContent = compareData.count;
+            document.getElementById('compareDesc').textContent = compareData.desc;
+
+            if (compareData.quote) {
+                document.getElementById('compareWisdomQuote').innerHTML = `
+                    "${compareData.quote}"
+                    <div class="wisdom-author">${compareData.quoteAuthor}</div>
+                `;
+            }
+        }
+
+        function exitCompareMode() {
+            compareMode = false;
+            compareIndex = -1;
+
+            const mapViewport = document.getElementById('mapViewport');
+            const mapWrapper = document.getElementById('mapWrapper');
+            const leftPanel = document.getElementById('comparePanelLeft');
+            const rightPanel = document.getElementById('comparePanelRight');
+            const exitBtn = document.getElementById('compareExitBtn');
+            const normalInfo = document.getElementById('normalInfoSection');
+            const compareInfo = document.getElementById('compareInfoSection');
+            const compareBtn = document.getElementById('compareBtn');
+            const infoContent = document.getElementById('infoPanel').querySelector('.info-content');
+
+            mapViewport.classList.remove('compare-mode');
+            mapWrapper.style.display = 'flex';
+            leftPanel.style.display = 'none';
+            rightPanel.style.display = 'none';
+            exitBtn.style.display = 'none';
+            normalInfo.style.display = 'block';
+            compareInfo.style.display = 'none';
+            if (infoContent) infoContent.classList.remove('compare-mode-active');
+            compareBtn.style.background = '';
+            compareBtn.style.color = '';
+
+            // 清理对比图片
+            document.getElementById('compareImageLeft').src = '';
+            document.getElementById('compareImageLeft').classList.remove('loaded');
+            document.getElementById('compareImageRight').src = '';
+            document.getElementById('compareImageRight').classList.remove('loaded');
+
+            // 重新加载当前地图到主视图
+            if (currentIndex >= 0) {
+                loadImageWithProgress(historyData[currentIndex].path);
+            }
+        }
+
+        // ESC键关闭对比选择器
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const selector = document.getElementById('compareSelector');
+                if (selector && selector.classList.contains('show')) {
+                    closeCompareSelector();
+                }
+            }
+        });
 
 function initApp() {
             initTimeline();
