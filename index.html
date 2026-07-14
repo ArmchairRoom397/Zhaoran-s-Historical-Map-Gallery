@@ -4026,7 +4026,7 @@
     <base target="_blank">
 <base target="_blank">
 <base target="_blank">
-    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <base target="_blank">
 </head>
 <body>
@@ -6582,7 +6582,7 @@ function initApp() {
         function initSupabase() {
             // 等待 SDK 加载完成
             var checkSupabase = function() {
-                // UMD 模块可能挂载在 window.supabase 上
+                // UMD 模块挂载在 window.supabase 上，包含 createClient
                 var sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
 
                 if (sb && sb.createClient) {
@@ -6594,6 +6594,7 @@ function initApp() {
                             return;
                         }
 
+                        // UMD 方式：直接使用 supabase.createClient
                         supabaseClient = sb.createClient(SUPABASE_URL, SUPABASE_KEY, {
                             auth: {
                                 autoRefreshToken: false,
@@ -6601,6 +6602,15 @@ function initApp() {
                             }
                         });
                         console.log('Supabase 已初始化');
+
+                        // 测试连接
+                        supabaseClient.from('map_discussions').select('count', { count: 'exact', head: true })
+                            .then(function() {
+                                console.log('Supabase 连接测试成功');
+                            })
+                            .catch(function(err) {
+                                console.error('Supabase 连接测试失败:', err);
+                            });
                     } catch (e) {
                         console.error('Supabase 初始化失败:', e);
                         supabaseClient = null;
