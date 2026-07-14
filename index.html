@@ -3187,383 +3187,863 @@
         }
 
 
-        /* ===== 多地图对比模式（上下布局） ===== */
-        .compare-mode .map-viewport {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            background: var(--border);
+        /* ===== 同期世界对比 ===== */
+        .world-compare-section {
+            margin-top: 15px;
         }
 
-        .compare-mode .map-viewport::before,
-        .compare-mode .map-viewport::after {
-            display: none;
-        }
-
-        .compare-panel {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background: var(--bg-dark);
-            cursor: grab;
-            min-height: 0;
-        }
-
-        .compare-panel:first-child {
-            border-bottom: 2px solid var(--gold);
-        }
-
-        .compare-panel.grabbing {
-            cursor: grabbing;
-        }
-
-        .compare-label {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: rgba(0,0,0,0.8);
-            color: var(--gold);
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            z-index: 60;
-            border: 1px solid var(--gold);
-            font-family: "Noto Serif SC", serif;
-            letter-spacing: 1px;
-            max-width: calc(100% - 24px);
-            white-space: normal;
-            word-wrap: break-word;
-            line-height: 1.4;
-            pointer-events: none;
-        }
-
-        body.rice-paper-theme .compare-label {
-            background: rgba(245, 240, 232, 0.95);
-            color: var(--gold);
-        }
-
-        body.bronze-theme .compare-label {
-            background: rgba(26, 47, 42, 0.95);
-        }
-
-        body.cinnabar-theme .compare-label {
-            background: rgba(26, 15, 15, 0.95);
-        }
-
-        .compare-panel .map-wrapper {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 90%;
-            height: 90%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform: translate(-50%, -50%) translateZ(0);
-            will-change: transform;
-        }
-
-        .compare-panel .map-image {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            user-select: none;
-            -webkit-user-drag: none;
-            display: none;
+        .world-compare-card {
+            background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(212, 175, 55, 0.2);
-            transform: translateZ(0);
-            will-change: transform;
-            backface-visibility: hidden;
-            pointer-events: none;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
         }
 
-        body.bronze-theme .compare-panel .map-image {
+        body.rice-paper-theme .world-compare-card {
+            background: rgba(139, 69, 19, 0.05);
+            border-color: rgba(139, 69, 19, 0.2);
+        }
+
+        body.bronze-theme .world-compare-card {
+            background: rgba(0, 0, 0, 0.2);
             border-color: rgba(127, 176, 105, 0.2);
         }
 
-        body.cinnabar-theme .compare-panel .map-image {
+        body.cinnabar-theme .world-compare-card {
+            background: rgba(0, 0, 0, 0.2);
             border-color: rgba(192, 57, 43, 0.2);
         }
 
-        .compare-panel .map-image.loaded {
-            display: block;
+        .world-compare-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .compare-panel .map-placeholder {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: var(--text-muted);
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
+        .world-compare-header .globe-icon {
+            font-size: 1.3rem;
         }
 
-        .compare-panel .loading-overlay {
-            z-index: 70;
-        }
-
-        /* 对比面板的缩放指示器 */
-        .compare-zoom-level {
-            position: absolute;
-            bottom: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.8);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+        .world-compare-header .world-period {
+            font-size: 0.85rem;
             color: var(--gold);
-            font-family: "Courier New", monospace;
-            border: 1px solid var(--gold);
-            z-index: 60;
-            pointer-events: none;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
-        body.rice-paper-theme .compare-zoom-level {
-            background: rgba(235, 229, 217, 0.9);
+        .world-compare-header .world-context {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            font-style: italic;
         }
 
-        /* 对比选择器 */
-        .compare-selector {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background: var(--bg-panel);
-            border: 2px solid var(--gold);
-            border-radius: 16px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 70vh;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+        .world-compare-list {
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+            gap: 8px;
         }
 
-        .compare-selector.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .compare-selector-header {
-            padding: 18px 20px;
-            border-bottom: 1px solid var(--border);
+        .world-compare-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        .compare-selector-title {
-            font-size: 1.1rem;
-            color: var(--gold);
-            font-family: "Zhi Mang Xing", cursive;
-            letter-spacing: 2px;
-        }
-
-        .compare-selector-close {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.3rem;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .compare-selector-close:hover {
-            color: var(--gold);
-        }
-
-        .compare-selector-search {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-
-        .compare-selector-search input {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--gold);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        body.rice-paper-theme .compare-selector-search input {
-            background: rgba(255,255,255,0.5);
-        }
-
-        .compare-selector-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .compare-selector-item {
-            display: flex;
-            align-items: center;
+            align-items: flex-start;
+            gap: 10px;
             padding: 10px 12px;
-            margin: 2px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid var(--gold);
+            transition: all 0.2s ease;
         }
 
-        .compare-selector-item:hover {
-            background: var(--bg-hover);
+        body.rice-paper-theme .world-compare-item {
+            background: rgba(139, 69, 19, 0.05);
+        }
+
+        body.bronze-theme .world-compare-item {
+            background: rgba(127, 176, 105, 0.05);
             border-left-color: var(--gold);
         }
 
-        .compare-selector-item.current {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
+        body.cinnabar-theme .world-compare-item {
+            background: rgba(192, 57, 43, 0.05);
+            border-left-color: var(--gold);
         }
 
-        .compare-selector-item .year-badge {
-            min-width: 55px;
-            font-size: 0.7rem;
-            margin-right: 10px;
+        .world-compare-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+            transform: translateX(4px);
         }
 
-        .compare-selector-item .item-name {
+        body.rice-paper-theme .world-compare-item:hover {
+            background: rgba(139, 69, 19, 0.1);
+        }
+
+        body.bronze-theme .world-compare-item:hover {
+            background: rgba(127, 176, 105, 0.1);
+        }
+
+        body.cinnabar-theme .world-compare-item:hover {
+            background: rgba(192, 57, 43, 0.1);
+        }
+
+        .world-compare-region {
+            min-width: 70px;
+            font-size: 0.75rem;
+            color: var(--gold);
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .world-compare-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .world-compare-state {
+            font-size: 0.82rem;
+            color: var(--text);
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 2px;
+        }
+
+        .world-compare-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .world-compare-empty {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
             font-size: 0.85rem;
+            font-style: italic;
         }
 
-        .compare-selector-overlay {
+
+        /* ===== 讨论区 ===== */
+        .discussion-section {
+            margin-top: 15px;
+        }
+
+        .discussion-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        body.rice-paper-theme .discussion-card {
+            background: rgba(139, 69, 19, 0.05);
+            border-color: rgba(139, 69, 19, 0.2);
+        }
+
+        body.bronze-theme .discussion-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: rgba(127, 176, 105, 0.2);
+        }
+
+        body.cinnabar-theme .discussion-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: rgba(192, 57, 43, 0.2);
+        }
+
+        .discussion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .discussion-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .discussion-count {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: rgba(212, 175, 55, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        body.rice-paper-theme .discussion-count {
+            background: rgba(139, 69, 19, 0.1);
+        }
+
+        body.bronze-theme .discussion-count {
+            background: rgba(127, 176, 105, 0.1);
+        }
+
+        body.cinnabar-theme .discussion-count {
+            background: rgba(192, 57, 43, 0.1);
+        }
+
+        .discussion-input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .discussion-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .discussion-input {
+            flex: 1;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        body.rice-paper-theme .discussion-input {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .discussion-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+        }
+
+        body.bronze-theme .discussion-input:focus {
+            box-shadow: 0 0 8px rgba(127, 176, 105, 0.2);
+        }
+
+        body.cinnabar-theme .discussion-input:focus {
+            box-shadow: 0 0 8px rgba(192, 57, 43, 0.2);
+        }
+
+        .discussion-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .discussion-textarea {
+            width: 100%;
+            min-height: 60px;
+            resize: vertical;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        body.rice-paper-theme .discussion-textarea {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .discussion-textarea:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+        }
+
+        .discussion-submit-btn {
+            align-self: flex-end;
+            position: relative;
+            z-index: 10;
+            padding: 8px 20px;
+            background: var(--gold);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .discussion-submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        body.bronze-theme .discussion-submit-btn:hover {
+            box-shadow: 0 4px 12px rgba(127, 176, 105, 0.3);
+        }
+
+        body.cinnabar-theme .discussion-submit-btn:hover {
+            box-shadow: 0 4px 12px rgba(192, 57, 43, 0.3);
+        }
+
+        .discussion-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .discussion-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .discussion-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .discussion-list::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+        .discussion-item {
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            border-left: 2px solid var(--gold);
+            transition: all 0.2s;
+        }
+
+        body.rice-paper-theme .discussion-item {
+            background: rgba(139, 69, 19, 0.04);
+        }
+
+        body.bronze-theme .discussion-item {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        body.cinnabar-theme .discussion-item {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .discussion-item:hover {
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        body.rice-paper-theme .discussion-item:hover {
+            background: rgba(139, 69, 19, 0.08);
+        }
+
+        body.bronze-theme .discussion-item:hover {
+            background: rgba(127, 176, 105, 0.08);
+        }
+
+        body.cinnabar-theme .discussion-item:hover {
+            background: rgba(192, 57, 43, 0.08);
+        }
+
+        .discussion-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .discussion-item-author {
+            font-size: 0.8rem;
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .discussion-item-time {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: "Courier New", monospace;
+        }
+
+        .discussion-item-content {
+            font-size: 0.85rem;
+            color: var(--text);
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .discussion-empty {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .discussion-empty-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+
+        .discussion-tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 6px;
+            font-weight: 600;
+        }
+
+        .discussion-tag.academic {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .discussion-tag.question {
+            background: rgba(74, 155, 142, 0.15);
+            color: #4a9b8e;
+            border: 1px solid rgba(74, 155, 142, 0.3);
+        }
+
+        .discussion-tag.opinion {
+            background: rgba(233, 69, 96, 0.15);
+            color: var(--accent-light);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .discussion-tag-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .discussion-tag-option {
+            padding: 4px 12px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            font-family: inherit;
+        }
+
+        .discussion-tag-option:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .discussion-tag-option.active {
+            background: var(--gold);
+            color: var(--bg-dark);
+            border-color: var(--gold);
+            font-weight: 700;
+        }
+
+        .discussion-delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .discussion-item:hover .discussion-delete-btn {
+            opacity: 1;
+        }
+
+        .discussion-delete-btn:hover {
+            color: var(--accent);
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+
+        /* ===== 分享功能 ===== */
+        .share-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--gold);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+        }
+
+        .share-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 分享弹窗 */
+        .share-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 1999;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            padding: 20px;
         }
 
-        .compare-selector-overlay.show {
+        .share-modal-overlay.show {
             opacity: 1;
             visibility: visible;
         }
 
-        /* 对比模式下的信息面板 */
-        .compare-info-section {
-            display: none;
-        }
-
-        .compare-mode-active .compare-info-section {
-            display: block;
-        }
-
-        .compare-mode-active .normal-info-section {
-            display: none;
-        }
-
-        .compare-table {
+        .share-modal {
+            background: var(--bg-panel);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            max-width: 420px;
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .compare-table th,
-        .compare-table td {
-            padding: 8px 10px;
-            text-align: left;
+        .share-modal-overlay.show .share-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .share-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
             border-bottom: 1px solid var(--border);
-            font-size: 0.8rem;
         }
 
-        .compare-table th {
+        .share-modal-title {
+            font-size: 1.1rem;
             color: var(--gold);
             font-weight: 700;
-            width: 30%;
-        }
-
-        .compare-table td {
-            color: var(--text);
-            width: 35%;
-        }
-
-        .compare-table td:first-child {
-            border-right: 1px solid var(--border);
-        }
-
-        .compare-exit-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 65;
-            padding: 6px 14px;
-            background: var(--bg-panel);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
             letter-spacing: 1px;
         }
 
-        .compare-exit-btn:hover {
+        .share-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .share-modal-close:hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold);
+        }
+
+        /* 分享卡片预览 */
+        .share-card-preview {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .share-card-canvas-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(233, 69, 96, 0.03));
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .share-card-canvas {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .share-card-actions {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .share-card-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            letter-spacing: 1px;
+        }
+
+        .share-card-btn.primary {
             background: var(--gold);
             color: var(--bg-dark);
+            border: none;
+            font-weight: 700;
         }
 
-        /* 移动端对比模式适配 */
+        .share-card-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+        }
+
+        .share-card-btn.secondary {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .share-card-btn.secondary:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .share-card-tip {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 0 20px 20px;
+            line-height: 1.6;
+        }
+
         @media (max-width: 768px) {
-            .compare-mode .map-viewport {
-                flex-direction: column;
-            }
-
-            .compare-panel:first-child {
-                border-right: none;
-                border-bottom: 2px solid var(--gold);
-            }
-
-            .compare-selector {
-                max-width: 95%;
-                max-height: 80vh;
+            .share-btn {
+                bottom: 80px;
+                right: 15px;
+                width: 46px;
+                height: 46px;
+                font-size: 1.2rem;
             }
         }
 
 
-            .compare-panel:first-child {
-                border-right: none;
-                border-bottom: 2px solid var(--gold);
-            }
 
-            .compare-selector {
-                max-width: 95%;
-                max-height: 80vh;
-            }
+        /* ===== 管理员模式 ===== */
+        .admin-mode-indicator {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.9), rgba(233, 69, 96, 0.9));
+            color: #fff;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            z-index: 2000;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+            animation: adminPulse 2s ease-in-out infinite;
+            display: none;
         }
 
-    </style>
+        .admin-mode-indicator.show {
+            display: block;
+        }
+
+        @keyframes adminPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 4px 30px rgba(233, 69, 96, 0.6); }
+        }
+
+        .admin-login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .admin-login-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .admin-login-modal {
+            background: var(--bg-panel);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 360px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .admin-login-overlay.show .admin-login-modal {
+            transform: scale(1);
+        }
+
+        .admin-login-title {
+            font-size: 1.2rem;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .admin-login-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: "Courier New", monospace;
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 3px;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        body.rice-paper-theme .admin-login-input {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .admin-login-input:focus {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .admin-login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--gold);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 2px;
+        }
+
+        .admin-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+        }
+
+        .admin-login-error {
+            color: var(--accent);
+            font-size: 0.8rem;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        .admin-logout-btn {
+            background: none;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .admin-logout-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .discussion-item.is-own {
+            border-left-color: #4a9b8e;
+            background: rgba(74, 155, 142, 0.08);
+        }
+
+        body.rice-paper-theme .discussion-item.is-own {
+            background: rgba(74, 155, 142, 0.05);
+        }
+
+</style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
     <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
+    <!-- 管理员模式指示器 -->
+    <div class="admin-mode-indicator" id="adminModeIndicator">
+        🔐 管理员模式已开启
+        <button class="admin-logout-btn" onclick="adminLogout()">退出</button>
+    </div>
+
+    <!-- 管理员登录弹窗 -->
+    <div class="admin-login-overlay" id="adminLoginOverlay">
+        <div class="admin-login-modal">
+            <div class="admin-login-title">🔐 管理员验证</div>
+            <input type="password" class="admin-login-input" id="adminPasswordInput" placeholder="输入管理员密码" maxlength="20" onkeydown="if(event.key==='Enter')adminLogin()">
+            <button class="admin-login-btn" onclick="adminLogin()">验证身份</button>
+            <div class="admin-login-error" id="adminLoginError"></div>
+        </div>
+    </div>
+
 
     <!-- 弹出式公告弹窗 -->
     <div class="notice-modal-overlay" id="noticeModalOverlay" onclick="closeNoticeModal(event)">
@@ -3663,6 +4143,19 @@
                     <div class="toggle-thumb"></div>
                 </div>
                 <span class="toggle-label">显示加载进度条</span>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <label class="settings-label">管理员模式</label>
+            <div class="toggle-switch" onclick="toggleAdminLogin()" id="adminToggle">
+                <div class="toggle-track" id="adminToggleTrack">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <span class="toggle-label" id="adminToggleLabel">未登录</span>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 8px; line-height: 1.5;">
+                管理员可以删除所有评论，普通用户只能删除自己的评论。
             </div>
         </div>
 
@@ -3858,6 +4351,9 @@
                 <input type="text" class="search-input" id="searchInput" placeholder="搜索朝代、年份或地图名称..." oninput="handleSearch(this.value)">
             </div>
 
+
+
+
             <div class="quote-banner" id="sidebarQuote">
                 <div>"究天人之际，通古今之变，成一家之言"</div>
                 <div class="quote-author">—— 司马迁《报任安书》</div>
@@ -3896,7 +4392,6 @@
                 <button class="tool-btn" onclick="zoomOut()" title="缩小">−</button>
                 <button class="tool-btn" onclick="resetView()" title="重置">⟲</button>
                 <button class="tool-btn" onclick="fitToScreen()" title="适应屏幕">⛶</button>
-                <button class="tool-btn" onclick="toggleCompareMode()" title="对比模式" id="compareBtn">⚖</button>
             </div>
 
             <div class="map-viewport" id="mapViewport">
@@ -3925,23 +4420,6 @@
                     </div>
                     <img class="map-image" id="mapImage" alt="历史地图" oncontextmenu="return false;">
                 </div>
-                <!-- 对比模式面板（上：当前地图） -->
-                <div class="compare-panel" id="comparePanelLeft" style="display:none;">
-                    <div class="compare-label" id="compareLabelLeft">当前地图</div>
-                    <div class="compare-zoom-level" id="compareZoomLeft">100%</div>
-                    <div class="map-wrapper" id="compareWrapperLeft">
-                        <img class="map-image" id="compareImageLeft" alt="历史地图" oncontextmenu="return false;">
-                    </div>
-                </div>
-                <!-- 对比模式面板（下：对比地图） -->
-                <div class="compare-panel" id="comparePanelRight" style="display:none;">
-                    <div class="compare-label" id="compareLabelRight">对比地图</div>
-                    <div class="compare-zoom-level" id="compareZoomRight">100%</div>
-                    <div class="map-wrapper" id="compareWrapperRight">
-                        <img class="map-image" id="compareImageRight" alt="历史地图" oncontextmenu="return false;">
-                    </div>
-                </div>
-                <button class="compare-exit-btn" id="compareExitBtn" onclick="exitCompareMode()" style="display:none;">退出对比</button>
             </div>
 
             <div class="zoom-level" id="zoomLevel">100%</div>
@@ -3956,50 +4434,6 @@
             </div>
 
             <div class="info-content">
-                <!-- 对比模式信息 -->
-                <div class="compare-info-section" id="compareInfoSection" style="display:none;">
-                    <div class="era-intro-card">
-                        <div class="era-intro-title">📊 双图对比</div>
-                        <table class="compare-table">
-                            <tr>
-                                <th>对比项</th>
-                                <td id="compareCellLeft">当前地图</td>
-                                <td id="compareCellRight">对比地图</td>
-                            </tr>
-                            <tr>
-                                <th>时期</th>
-                                <td id="compareEraLeft">—</td>
-                                <td id="compareEraRight">—</td>
-                            </tr>
-                            <tr>
-                                <th>时间跨度</th>
-                                <td id="compareSpanLeft">—</td>
-                                <td id="compareSpanRight">—</td>
-                            </tr>
-                            <tr>
-                                <th>政权数</th>
-                                <td id="compareCountLeft">—</td>
-                                <td id="compareCountRight">—</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="info-section">
-                        <div class="section-title">对比地图详解</div>
-                        <div class="section-content" id="compareDesc">
-                            选择一幅地图进行对比...
-                        </div>
-                    </div>
-                    <div class="info-section">
-                        <div class="section-title">对比史家之言</div>
-                        <div class="wisdom-quote" id="compareWisdomQuote">
-                            "以史为鉴，可以知兴替"
-                            <div class="wisdom-author">—— 唐太宗</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 正常模式信息 -->
-                <div class="normal-info-section" id="normalInfoSection">
                 <!-- 时期详细介绍卡片 -->
                 <div class="era-intro-card" id="eraIntroCard" style="display: none;">
                     <div class="era-intro-title" id="eraIntroTitle">时期背景</div>
@@ -4026,6 +4460,54 @@
                     </div>
                 </div>
 
+                <div class="info-section world-compare-section" id="worldCompareSection">
+                    <div class="section-title">🌍 同期世界对比</div>
+                    <div class="world-compare-card" id="worldCompareCard">
+                        <div class="world-compare-header">
+                            <span class="globe-icon">🌐</span>
+                            <span class="world-period" id="worldPeriod">—</span>
+                            <span class="world-context" id="worldContext">—</span>
+                        </div>
+                        <div class="world-compare-list" id="worldCompareList">
+                            <div class="world-compare-empty">选择一个历史时期查看同期世界格局</div>
+                        </div>
+                    </div>
+
+                <div class="info-section discussion-section" id="discussionSection">
+                    <div class="section-title">💬 学术讨论区</div>
+                    <div class="discussion-card" id="discussionCard">
+                        <div class="discussion-header">
+                            <div class="discussion-title-row">
+                                <span style="font-size: 0.85rem; color: var(--gold); font-weight: 700;">关于这幅地图的讨论</span>
+                                <span class="discussion-count" id="discussionCount">0 条讨论</span>
+                            </div>
+                        </div>
+
+                        <div class="discussion-input-area">
+                            <div class="discussion-input-row">
+                                <input type="text" class="discussion-input" id="discussionName" placeholder="您的昵称（可选）" maxlength="20">
+                            </div>
+                            <div class="discussion-tag-selector">
+                                <button class="discussion-tag-option active" data-tag="general" onclick="selectDiscussionTag(this)">一般讨论</button>
+                                <button class="discussion-tag-option" data-tag="academic" onclick="selectDiscussionTag(this)">学术探讨</button>
+                                <button class="discussion-tag-option" data-tag="question" onclick="selectDiscussionTag(this)">疑问求助</button>
+                                <button class="discussion-tag-option" data-tag="opinion" onclick="selectDiscussionTag(this)">观点分享</button>
+                            </div>
+                            <textarea class="discussion-textarea" id="discussionContent" placeholder="分享您对这幅地图的见解、疑问或学术观点..." maxlength="500"></textarea>
+                            <button class="discussion-submit-btn" id="discussionSubmit" onclick="console.log('submit clicked, currentIndex='+currentIndex); submitDiscussion();">发表评论</button>
+                        </div>
+
+                        <div class="discussion-list" id="discussionList">
+                            <div class="discussion-empty">
+                                <div class="discussion-empty-icon">💭</div>
+                                <div>暂无讨论，来做第一个发言的人吧！</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+
                 <div class="info-section">
                     <div class="section-title">基本信息</div>
                     <div class="meta-list">
@@ -4047,7 +4529,6 @@
                         </div>
                     </div>
                 </div>
-                </div><!-- /normalInfoSection -->
             </div>
 
             <div class="nav-buttons">
@@ -4070,21 +4551,6 @@
     <div class="portrait-nav" id="portraitNav">
         <button class="nav-btn" id="portraitPrevBtn" onclick="navigate(-1)" disabled>← 前朝</button>
         <button class="nav-btn" id="portraitNextBtn" onclick="navigate(1)" disabled>后世 →</button>
-    </div>
-
-    <!-- 对比选择器弹窗 -->
-    <div class="compare-selector-overlay" id="compareSelectorOverlay" onclick="closeCompareSelector()"></div>
-    <div class="compare-selector" id="compareSelector">
-        <div class="compare-selector-header">
-            <span class="compare-selector-title">选择对比地图</span>
-            <button class="compare-selector-close" onclick="closeCompareSelector()">✕</button>
-        </div>
-        <div class="compare-selector-search">
-            <input type="text" id="compareSearchInput" placeholder="搜索朝代、年份或地图名称..." oninput="handleCompareSearch(this.value)">
-        </div>
-        <div class="compare-selector-list" id="compareSelectorList">
-            <!-- 动态生成 -->
-        </div>
     </div>
 
     <!-- 移动端底部标签栏 -->
@@ -4648,7 +5114,87 @@
         };
 
         // 通用名言（作为后备）
-        const generalQuotes = [
+        
+        // 同期世界对比数据
+        const worldComparisonData = {
+            "史前时期": {
+                period: "史前时期（约200万年前-前2070年）",
+                worldContext: "人类文明的黎明",
+                comparisons: [
+                    { region: "美索不达米亚", state: "苏美尔城邦萌芽", note: "两河流域出现最早的城市文明雏形" },
+                    { region: "尼罗河流域", state: "古埃及前王朝", note: "上下埃及逐渐统一，象形文字出现" },
+                    { region: "印度河流域", state: "哈拉帕文明", note: "印度河流域出现早期城市文明" },
+                    { region: "爱琴海地区", state: "米诺斯文明", note: "克里特岛出现宫殿建筑群" }
+                ]
+            },
+            "早期国家": {
+                period: "早期国家（约前2070-前221年）",
+                worldContext: "文明古国的黄金时代",
+                comparisons: [
+                    { region: "美索不达米亚", state: "古巴比伦王国", note: "汉谟拉比法典，两河流域统一" },
+                    { region: "尼罗河流域", state: "古埃及新王国", note: "图特摩斯三世扩张，帝国鼎盛" },
+                    { region: "印度河流域", state: "吠陀时代", note: "雅利安人入侵，种姓制度形成" },
+                    { region: "爱琴海地区", state: "迈锡尼文明", note: "特洛伊战争，线形文字B" },
+                    { region: "安纳托利亚", state: "赫梯帝国", note: "铁器时代先驱，与埃及争霸" }
+                ]
+            },
+            "帝国形成": {
+                period: "帝国形成（前221-220年）",
+                worldContext: "古典帝国的崛起",
+                comparisons: [
+                    { region: "地中海", state: "罗马帝国", note: "从共和国到帝国，疆域横跨欧亚非" },
+                    { region: "西亚", state: "帕提亚帝国", note: "丝绸之路中段霸主，与罗马对峙" },
+                    { region: "印度", state: "孔雀王朝/贵霜帝国", note: "阿育王统一印度，佛教传播" },
+                    { region: "中亚", state: "塞琉古王国", note: "亚历山大帝国遗产，希腊化时代" }
+                ]
+            },
+            "成熟帝国": {
+                period: "成熟帝国（220-1368年）",
+                worldContext: "中世纪的世界格局",
+                comparisons: [
+                    { region: "欧洲", state: "拜占庭帝国/法兰克王国", note: "东罗马延续，查理曼帝国崛起" },
+                    { region: "西亚", state: "阿拉伯帝国/奥斯曼帝国", note: "伊斯兰文明扩张，地跨三大洲" },
+                    { region: "印度", state: "笈多王朝/德里苏丹国", note: "印度黄金时代，穆斯林入侵" },
+                    { region: "中亚", state: "突厥汗国/蒙古帝国", note: "游牧帝国横扫欧亚" },
+                    { region: "日本", state: "大和朝廷/幕府时代", note: "大化改新，遣唐使来华" }
+                ]
+            },
+            "传统社会": {
+                period: "传统社会（1368-1840年）",
+                worldContext: "大航海与全球化开端",
+                comparisons: [
+                    { region: "欧洲", state: "西班牙/葡萄牙/英国", note: "地理大发现，殖民扩张" },
+                    { region: "西亚", state: "奥斯曼帝国/萨法维波斯", note: "伊斯兰世界两大强国对峙" },
+                    { region: "印度", state: "莫卧儿帝国", note: "泰姬陵，阿克巴大帝统一" },
+                    { region: "日本", state: "江户幕府", note: "锁国政策，德川家康统一" },
+                    { region: "美洲", state: "阿兹特克/印加帝国", note: "前哥伦布时期美洲文明巅峰" }
+                ]
+            },
+            "中国近代": {
+                period: "中国近代（1840-1949年）",
+                worldContext: "帝国主义与民族觉醒",
+                comparisons: [
+                    { region: "欧洲", state: "英国/法国/德国/俄国", note: "工业革命，列强争霸，两次世界大战" },
+                    { region: "美洲", state: "美国", note: "西进运动，成为世界头号工业强国" },
+                    { region: "日本", state: "明治维新后的日本", note: "脱亚入欧，甲午战争，侵华扩张" },
+                    { region: "印度", state: "英属印度", note: "完全沦为殖民地，甘地非暴力运动" },
+                    { region: "非洲", state: "瓜分狂潮", note: "柏林会议瓜分非洲，殖民体系形成" }
+                ]
+            },
+            "中国现代": {
+                period: "中国现代（1949年至今）",
+                worldContext: "冷战与多极化",
+                comparisons: [
+                    { region: "美国", state: "超级大国", note: "冷战霸主，911后全球战略调整" },
+                    { region: "苏联/俄罗斯", state: "超级大国/大国", note: "冷战对峙，苏联解体，普京时代" },
+                    { region: "欧盟", state: "区域一体化", note: "欧洲联合，欧元区，英国脱欧" },
+                    { region: "日本", state: "经济大国", note: "战后经济奇迹，泡沫破裂，失去的三十年" },
+                    { region: "印度", state: "新兴大国", note: "独立后发展，IT产业崛起，人口第一" }
+                ]
+            }
+        };
+
+const generalQuotes = [
             { text: "究天人之际，通古今之变", author: "司马迁" },
             { text: "以史为鉴，可以知兴替", author: "唐太宗" },
             { text: "读史使人明智", author: "培根" },
@@ -4763,6 +5309,8 @@ let currentIndex = -1;
 
             // 更新各处名言
             updateQuotes(data);
+            updateWorldComparison(data.era);
+            loadDiscussions(index);
 
             // 加载图片（带进度）
             loadImageWithProgress(data.path);
@@ -4783,6 +5331,20 @@ let currentIndex = -1;
             // 移动端：选择后自动切换到地图标签
             if (window.innerWidth <= 768) {
                 switchMobileTab('map');
+            }
+
+            // 直接绑定讨论区按钮事件（确保可靠）
+            var submitBtn = document.getElementById('discussionSubmit');
+            if (submitBtn) {
+                submitBtn.onclick = function() { submitDiscussion(); };
+            }
+
+            // 绑定标签选择按钮
+            var tagBtns = document.querySelectorAll('.discussion-tag-option');
+            for (var i = 0; i < tagBtns.length; i++) {
+                (function(btn) {
+                    btn.onclick = function() { selectDiscussionTag(this); };
+                })(tagBtns[i]);
             }
         }
 
@@ -4997,7 +5559,38 @@ let currentIndex = -1;
             }
         }
 
-        function updateQuotes(data) {
+        
+        // 更新世界对比面板
+        function updateWorldComparison(era) {
+            const section = document.getElementById('worldCompareSection');
+            const periodEl = document.getElementById('worldPeriod');
+            const contextEl = document.getElementById('worldContext');
+            const listEl = document.getElementById('worldCompareList');
+
+            const data = worldComparisonData[era];
+
+            if (!data) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            periodEl.textContent = data.period;
+            contextEl.textContent = data.worldContext;
+
+            listEl.innerHTML = data.comparisons.map(item => `
+                <div class="world-compare-item">
+                    <span class="world-compare-region">${item.region}</span>
+                    <div class="world-compare-info">
+                        <div class="world-compare-state">${item.state}</div>
+                        <div class="world-compare-note">${item.note}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+
+function updateQuotes(data) {
             const headerQuote = document.getElementById('headerQuote');
             if (data.quote) {
                 headerQuote.innerHTML = `
@@ -5034,6 +5627,483 @@ let currentIndex = -1;
         }
 
         // 获取鼠标/触摸在图片上的相对位置（用于以点为中心缩放）
+
+        function openShareModal() {
+            if (currentIndex < 0) {
+                alert('请先选择一幅地图');
+                return;
+            }
+            const overlay = document.getElementById('shareModalOverlay');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            generateShareCard();
+        }
+
+        function closeShareModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            closeShareModalDirect();
+        }
+
+        function closeShareModalDirect() {
+            const overlay = document.getElementById('shareModalOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+
+        function parseYearInput(input) {
+            input = input.trim().replace(/[\s]/g, '');
+
+            // 匹配 "前XXX年" 或 "公元前XXX年"
+            const bcMatch = input.match(/^前?(\d+)年?$/);
+            if (bcMatch) {
+                return -parseInt(bcMatch[1]);
+            }
+
+            // 匹配 "XXX年" 或 "公元XXX年"
+            const adMatch = input.match(/^(公元)?(\d+)年?$/);
+            if (adMatch) {
+                return parseInt(adMatch[2]);
+            }
+
+            // 匹配纯数字
+            const numMatch = input.match(/^(\d+)$/);
+            if (numMatch) {
+                const num = parseInt(numMatch[1]);
+                // 大于2025的可能是输入错误，但我们也接受
+                return num;
+            }
+
+            return null;
+        }
+
+        function parseMapYear(yearStr) {
+            // 处理 "旧石器"、"新石器"、"抗战" 等特殊年份
+            if (yearStr === '旧石器') return -2000000;
+            if (yearStr === '新石器') return -10000;
+            if (yearStr === '抗战') return 1937;
+
+            // 处理 "前XXX年"
+            const bcMatch = yearStr.match(/^前(\d+)年$/);
+            if (bcMatch) {
+                return -parseInt(bcMatch[1]);
+            }
+
+            // 处理纯数字年份
+            const numMatch = yearStr.match(/^(\d+)年$/);
+            if (numMatch) {
+                return parseInt(numMatch[1]);
+            }
+
+            // 处理无后缀数字（如 "1966"）
+            const simpleNum = yearStr.match(/^(\d+)$/);
+            if (simpleNum) {
+                return parseInt(simpleNum[1]);
+            }
+
+            return null;
+        }
+
+        function jumpToYear() {
+            const inputField = document.getElementById('yearInputField');
+            const resultBox = document.getElementById('yearMatchResult');
+            const resultText = document.getElementById('yearMatchText');
+            const resultDiff = document.getElementById('yearMatchDiff');
+
+            const input = inputField.value.trim();
+            if (!input) {
+                inputField.style.borderColor = 'var(--accent)';
+                setTimeout(() => { inputField.style.borderColor = ''; }, 2000);
+                return;
+            }
+
+            const targetYear = parseYearInput(input);
+            if (targetYear === null) {
+                resultBox.className = 'year-match-result show interpolated';
+                resultText.innerHTML = '❌ 无法识别的年份格式';
+                resultDiff.textContent = '请使用格式：前221年、750年、1949年';
+                return;
+            }
+
+            // 计算每幅地图的年份数值
+            const mapYears = historyData.map((item, idx) => {
+                const val = parseMapYear(item.year);
+                return { index: idx, value: val, data: item };
+            }).filter(m => m.value !== null);
+
+            if (mapYears.length === 0) {
+                resultBox.className = 'year-match-result show interpolated';
+                resultText.innerHTML = '❌ 无法计算匹配';
+                return;
+            }
+
+            // 找到最接近的地图
+            let closest = mapYears[0];
+            let minDiff = Math.abs(mapYears[0].value - targetYear);
+
+            for (let i = 1; i < mapYears.length; i++) {
+                const diff = Math.abs(mapYears[i].value - targetYear);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = mapYears[i];
+                }
+            }
+
+            // 判断是否精确匹配
+            const isExactMatch = minDiff === 0;
+
+            // 显示结果
+            resultBox.className = 'year-match-result show ' + (isExactMatch ? 'matched' : 'interpolated');
+
+            if (isExactMatch) {
+                resultText.innerHTML = `✅ 精确匹配：<strong>${closest.data.year} · ${closest.data.name}</strong>`;
+                resultDiff.textContent = '';
+            } else {
+                const diffYears = Math.abs(closest.value - targetYear);
+                const direction = closest.value > targetYear ? '之后' : '之前';
+                resultText.innerHTML = `📍 最接近的地图：<strong>${closest.data.year} · ${closest.data.name}</strong>`;
+                resultDiff.textContent = `（距离目标年份约 ${diffYears} 年${direction}）`;
+            }
+
+            // 自动跳转到该地图
+            setTimeout(() => {
+                selectMap(closest.index);
+                // 高亮输入框表示成功
+                inputField.style.borderColor = '#4a9b8e';
+                setTimeout(() => { inputField.style.borderColor = ''; }, 1500);
+            }, 500);
+        }
+
+
+        function generateShareCard() {
+            const canvas = document.getElementById('shareCardCanvas');
+            const ctx = canvas.getContext('2d');
+            const data = historyData[currentIndex];
+            const W = 800;
+            const H = 1100;
+
+            // 清除画布
+            ctx.clearRect(0, 0, W, H);
+
+            // ========== 背景 ==========
+            // 深色纹理背景
+            ctx.fillStyle = '#0d1117';
+            ctx.fillRect(0, 0, W, H);
+
+            // 微妙的网格纹理
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.03)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < W; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, H);
+                ctx.stroke();
+            }
+            for (let i = 0; i < H; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(W, i);
+                ctx.stroke();
+            }
+
+            // 顶部金色渐变条
+            const topGrad = ctx.createLinearGradient(0, 0, W, 0);
+            topGrad.addColorStop(0, 'rgba(212, 175, 55, 0)');
+            topGrad.addColorStop(0.3, 'rgba(212, 175, 55, 0.3)');
+            topGrad.addColorStop(0.7, 'rgba(212, 175, 55, 0.3)');
+            topGrad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+            ctx.fillStyle = topGrad;
+            ctx.fillRect(0, 0, W, 3);
+
+            // ========== 顶部标题区域 ==========
+            // 馆名
+            ctx.fillStyle = '#d4af37';
+            ctx.font = 'bold 32px "Noto Serif SC", "Source Han Serif SC", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('昭燃的历史地图馆', W / 2, 70);
+
+            // 副标题
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.6)';
+            ctx.font = '16px "Noto Serif SC", serif';
+            ctx.fillText('以史为鉴 · 可以知兴替', W / 2, 100);
+
+            // 装饰分隔线
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(200, 125);
+            ctx.lineTo(360, 125);
+            ctx.stroke();
+            ctx.fillStyle = '#d4af37';
+            ctx.font = '14px serif';
+            ctx.fillText('◆', W / 2, 130);
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+            ctx.beginPath();
+            ctx.moveTo(440, 125);
+            ctx.lineTo(600, 125);
+            ctx.stroke();
+
+            // ========== 年份与标题区域 ==========
+            const infoY = 170;
+
+            // 年份背景框
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.08)';
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+            ctx.lineWidth = 1;
+            roundRect(ctx, 60, infoY, 680, 110, 12);
+            ctx.fill();
+            ctx.stroke();
+
+            // 年份
+            ctx.fillStyle = '#f4d03f';
+            ctx.font = 'bold 42px "Times New Roman", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(data.year, W / 2, infoY + 50);
+
+            // 地图名称
+            ctx.fillStyle = '#eaeaea';
+            ctx.font = 'bold 22px "Noto Serif SC", serif';
+            ctx.fillText(data.name, W / 2, infoY + 85);
+
+            // 在位君主
+            if (data.reign) {
+                ctx.fillStyle = 'rgba(212, 175, 55, 0.8)';
+                ctx.font = '14px "Noto Serif SC", serif';
+                ctx.fillText(data.reign, W / 2, infoY + 108);
+            }
+
+            // ========== 地图预览区域 ==========
+            const mapY = 310;
+            const mapH = 320;
+
+            // 地图框背景
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            roundRect(ctx, 80, mapY, 640, mapH, 8);
+            ctx.fill();
+
+            // 地图框边框
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.25)';
+            ctx.lineWidth = 1;
+            roundRect(ctx, 80, mapY, 640, mapH, 8);
+            ctx.stroke();
+
+            // 尝试绘制地图缩略图
+            const mapImg = document.getElementById('mapImage');
+            let mapDrawn = false;
+
+            if (mapImg && mapImg.src && mapImg.classList.contains('loaded')) {
+                try {
+                    const padding = 20;
+                    const boxW = 640 - padding * 2;
+                    const boxH = mapH - padding * 2;
+                    const imgRatio = mapImg.naturalWidth / mapImg.naturalHeight;
+                    const boxRatio = boxW / boxH;
+                    let drawW, drawH, drawX, drawY;
+
+                    if (imgRatio > boxRatio) {
+                        drawW = boxW;
+                        drawH = boxW / imgRatio;
+                        drawX = 80 + padding;
+                        drawY = mapY + padding + (boxH - drawH) / 2;
+                    } else {
+                        drawH = boxH;
+                        drawW = boxH * imgRatio;
+                        drawX = 80 + padding + (boxW - drawW) / 2;
+                        drawY = mapY + padding;
+                    }
+
+                    // 图片圆角裁剪
+                    ctx.save();
+                    roundRect(ctx, drawX, drawY, drawW, drawH, 6);
+                    ctx.clip();
+                    ctx.drawImage(mapImg, drawX, drawY, drawW, drawH);
+                    ctx.restore();
+                    mapDrawn = true;
+                } catch (e) {
+                    mapDrawn = false;
+                }
+            }
+
+            if (!mapDrawn) {
+                // 占位图标和文字
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.font = '60px serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('🗺️', W / 2, mapY + mapH / 2 - 10);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.font = '16px "Noto Serif SC", serif';
+                ctx.fillText('地图预览', W / 2, mapY + mapH / 2 + 30);
+            }
+
+            // ========== 描述文字区域 ==========
+            const descY = 660;
+            ctx.fillStyle = 'rgba(234, 234, 234, 0.85)';
+            ctx.font = '15px "Noto Serif SC", serif';
+            ctx.textAlign = 'center';
+
+            // 自动换行
+            const desc = data.desc;
+            const maxWidth = 680;
+            const lineHeight = 26;
+            let line = '';
+            let y = descY;
+            let lineCount = 0;
+            const maxLines = 4;
+
+            for (let i = 0; i < desc.length && lineCount < maxLines; i++) {
+                const testLine = line + desc[i];
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && i > 0) {
+                    ctx.fillText(line, W / 2, y);
+                    line = desc[i];
+                    y += lineHeight;
+                    lineCount++;
+                } else {
+                    line = testLine;
+                }
+            }
+            if (lineCount < maxLines && line) {
+                ctx.fillText(line, W / 2, y);
+            }
+
+            // ========== 名言区域 ==========
+            const quoteY = Math.max(y + 40, 780);
+
+            // 名言背景
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.06)';
+            roundRect(ctx, 60, quoteY, 680, 100, 10);
+            ctx.fill();
+
+            // 名言左边框
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.5)';
+            ctx.fillRect(60, quoteY, 4, 100);
+
+            // 名言文字
+            ctx.fillStyle = '#d4af37';
+            ctx.font = 'italic 18px "Noto Serif SC", serif';
+            ctx.textAlign = 'center';
+            const quoteText = data.quote || '以史为鉴，可以知兴替';
+            ctx.fillText('"' + quoteText + '"', W / 2, quoteY + 45);
+
+            // 名言作者
+            ctx.fillStyle = 'rgba(160, 160, 160, 0.7)';
+            ctx.font = '14px "Noto Serif SC", serif';
+            ctx.fillText(data.quoteAuthor || '—— 唐太宗', W / 2, quoteY + 75);
+
+            // ========== 底部信息区域 ==========
+            const footerY = 980;
+
+            // 分隔线
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(150, footerY);
+            ctx.lineTo(650, footerY);
+            ctx.stroke();
+
+            // 底部文字
+            ctx.fillStyle = 'rgba(160, 160, 160, 0.5)';
+            ctx.font = '12px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(
+                '昭燃的历史地图馆 · 第 ' + (currentIndex + 1) + ' / ' + historyData.length + ' 幅 · ' + data.era,
+                W / 2, footerY + 25
+            );
+
+            ctx.fillStyle = 'rgba(160, 160, 160, 0.35)';
+            ctx.font = '11px "Courier New", monospace';
+            ctx.fillText('maps.zhaoran.history', W / 2, footerY + 45);
+
+            // 底部金色渐变条
+            const bottomGrad = ctx.createLinearGradient(0, H - 3, W, H - 3);
+            bottomGrad.addColorStop(0, 'rgba(212, 175, 55, 0)');
+            bottomGrad.addColorStop(0.3, 'rgba(212, 175, 55, 0.3)');
+            bottomGrad.addColorStop(0.7, 'rgba(212, 175, 55, 0.3)');
+            bottomGrad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+            ctx.fillStyle = bottomGrad;
+            ctx.fillRect(0, H - 3, W, 3);
+
+            // 角落装饰
+            drawCornerOrnament(ctx, 25, 25, 30, 'tl');
+            drawCornerOrnament(ctx, W - 25, 25, 30, 'tr');
+            drawCornerOrnament(ctx, 25, H - 25, 30, 'bl');
+            drawCornerOrnament(ctx, W - 25, H - 25, 30, 'br');
+
+            // 生成blob
+            canvas.toBlob(function(blob) {
+                shareCardBlob = blob;
+            }, 'image/png');
+        }
+
+        // 绘制圆角矩形辅助函数
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        // 绘制角落装饰
+        function drawCornerOrnament(ctx, cx, cy, size, type) {
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            if (type === 'tl') {
+                ctx.moveTo(cx, cy + size);
+                ctx.lineTo(cx, cy);
+                ctx.lineTo(cx + size, cy);
+            } else if (type === 'tr') {
+                ctx.moveTo(cx - size, cy);
+                ctx.lineTo(cx, cy);
+                ctx.lineTo(cx, cy + size);
+            } else if (type === 'bl') {
+                ctx.moveTo(cx, cy - size);
+                ctx.lineTo(cx, cy);
+                ctx.lineTo(cx + size, cy);
+            } else if (type === 'br') {
+                ctx.moveTo(cx - size, cy);
+                ctx.lineTo(cx, cy);
+                ctx.lineTo(cx, cy - size);
+            }
+            ctx.stroke();
+        }
+        function downloadShareCard() {
+            if (!shareCardBlob) {
+                alert('卡片生成中，请稍候...');
+                return;
+            }
+            const data = historyData[currentIndex];
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(shareCardBlob);
+            link.download = '昭燃地图馆_' + data.year + '_' + data.name.replace(/[^\w一-龥]/g, '_') + '.png';
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        async function copyShareCard() {
+            if (!shareCardBlob) {
+                alert('卡片生成中，请稍候...');
+                return;
+            }
+            try {
+                const item = new ClipboardItem({ 'image/png': shareCardBlob });
+                await navigator.clipboard.write([item]);
+                alert('分享卡片已复制到剪贴板！');
+            } catch (err) {
+                // 降级方案：下载
+                alert('浏览器不支持直接复制图片，将自动下载...');
+                downloadShareCard();
+            }
+        }
+
+
         function getPointOnImage(clientX, clientY) {
             const rect = mapViewport.getBoundingClientRect();
             const centerX = rect.width / 2;
@@ -5361,377 +6431,36 @@ let currentIndex = -1;
         });
 
 
-
-        // ===== 多地图对比模式（上下布局 + 独立缩放） =====
-        let compareMode = false;
-        let compareIndex = -1;
-
-        // 对比面板独立状态
-        let compareLeftState = { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 };
-        let compareRightState = { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 };
-
-        function toggleCompareMode() {
-            if (compareMode) {
-                exitCompareMode();
-            } else {
-                openCompareSelector();
-            }
-        }
-
-        function openCompareSelector() {
-            if (currentIndex < 0) {
-                alert('请先选择一幅地图');
-                return;
-            }
-            const overlay = document.getElementById('compareSelectorOverlay');
-            const selector = document.getElementById('compareSelector');
-            overlay.classList.add('show');
-            selector.classList.add('show');
-            renderCompareSelectorList();
-            document.getElementById('compareSearchInput').value = '';
-            document.getElementById('compareSearchInput').focus();
-        }
-
-        function closeCompareSelector() {
-            const overlay = document.getElementById('compareSelectorOverlay');
-            const selector = document.getElementById('compareSelector');
-            overlay.classList.remove('show');
-            selector.classList.remove('show');
-        }
-
-        function renderCompareSelectorList(keyword) {
-            const list = document.getElementById('compareSelectorList');
-            list.innerHTML = '';
-
-            historyData.forEach((item, index) => {
-                if (keyword) {
-                    const lowerKeyword = keyword.toLowerCase();
-                    const match = item.name.toLowerCase().includes(lowerKeyword) || 
-                                 item.year.toLowerCase().includes(lowerKeyword) ||
-                                 item.era.toLowerCase().includes(lowerKeyword);
-                    if (!match) return;
-                }
-
-                const div = document.createElement('div');
-                div.className = 'compare-selector-item' + (index === currentIndex ? ' current' : '');
-                const reignText = item.reign ? `<span class="reign-badge">${item.reign}</span>` : '';
-                div.innerHTML = `
-                    <span class="year-badge">${item.year}</span>
-                    <div class="item-info">
-                        <span class="item-name">${item.name}</span>
-                        ${reignText}
-                    </div>
-                `;
-                if (index !== currentIndex) {
-                    div.onclick = () => startCompare(index);
-                }
-                list.appendChild(div);
-            });
-        }
-
-        function handleCompareSearch(keyword) {
-            renderCompareSelectorList(keyword);
-        }
-
-        function startCompare(index) {
-            compareIndex = index;
-            compareMode = true;
-            closeCompareSelector();
-
-            // 重置对比面板状态
-            compareLeftState = { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 };
-            compareRightState = { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 };
-
-            const mapViewport = document.getElementById('mapViewport');
-            const mapWrapper = document.getElementById('mapWrapper');
-            const leftPanel = document.getElementById('comparePanelLeft');
-            const rightPanel = document.getElementById('comparePanelRight');
-            const exitBtn = document.getElementById('compareExitBtn');
-            const normalInfo = document.getElementById('normalInfoSection');
-            const compareInfo = document.getElementById('compareInfoSection');
-            const compareBtn = document.getElementById('compareBtn');
-            const infoContent = document.getElementById('infoPanel').querySelector('.info-content');
-
-            mapViewport.classList.add('compare-mode');
-            mapWrapper.style.display = 'none';
-            leftPanel.style.display = 'block';
-            rightPanel.style.display = 'block';
-            exitBtn.style.display = 'block';
-            normalInfo.style.display = 'none';
-            compareInfo.style.display = 'block';
-            if (infoContent) infoContent.classList.add('compare-mode-active');
-            compareBtn.style.background = 'var(--gold)';
-            compareBtn.style.color = 'var(--bg-dark)';
-
-            // 加载左侧当前地图
-            const currentData = historyData[currentIndex];
-            const leftImg = document.getElementById('compareImageLeft');
-            const leftWrapper = document.getElementById('compareWrapperLeft');
-            document.getElementById('compareLabelLeft').textContent = `${currentData.year} · ${currentData.name}`;
-
-            // 确保图片加载完成后再显示
-            leftImg.style.display = 'none';
-            leftImg.classList.remove('loaded');
-            leftImg.onload = function() {
-                leftImg.style.display = 'block';
-                leftImg.classList.add('loaded');
-                updateCompareTransform('left');
-            };
-            leftImg.onerror = function() {
-                leftWrapper.innerHTML = '<div class="map-placeholder"><div class="placeholder-icon">📂</div><div class="welcome-text">地图加载失败</div></div>';
-            };
-            leftImg.src = currentData.path;
-            // 如果图片已缓存，onload可能不触发，手动检查
-            if (leftImg.complete && leftImg.naturalWidth > 0) {
-                leftImg.style.display = 'block';
-                leftImg.classList.add('loaded');
-                updateCompareTransform('left');
-            }
-
-            // 加载右侧对比地图
-            const compareData = historyData[compareIndex];
-            const rightImg = document.getElementById('compareImageRight');
-            const rightWrapper = document.getElementById('compareWrapperRight');
-            document.getElementById('compareLabelRight').textContent = `${compareData.year} · ${compareData.name}`;
-
-            rightImg.style.display = 'none';
-            rightImg.classList.remove('loaded');
-            rightImg.onload = function() {
-                rightImg.style.display = 'block';
-                rightImg.classList.add('loaded');
-                updateCompareTransform('right');
-            };
-            rightImg.onerror = function() {
-                rightWrapper.innerHTML = '<div class="map-placeholder"><div class="placeholder-icon">📂</div><div class="welcome-text">地图加载失败</div></div>';
-            };
-            rightImg.src = compareData.path;
-            if (rightImg.complete && rightImg.naturalWidth > 0) {
-                rightImg.style.display = 'block';
-                rightImg.classList.add('loaded');
-                updateCompareTransform('right');
-            }
-
-            // 绑定对比面板的交互事件（只绑定一次）
-            if (!window.compareEventsBound) {
-                setupComparePanelEvents();
-                window.compareEventsBound = true;
-            }
-
-            // 更新对比信息面板
-            updateCompareInfo();
-
-            // 移动端切换到地图标签
-            if (window.innerWidth <= 768) {
-                switchMobileTab('map');
-            }
-        }
-
-        function updateCompareTransform(side) {
-            const state = side === 'left' ? compareLeftState : compareRightState;
-            const wrapper = document.getElementById('compareWrapper' + (side === 'left' ? 'Left' : 'Right'));
-            const zoomDisplay = document.getElementById('compareZoom' + (side === 'left' ? 'Left' : 'Right'));
-
-            wrapper.style.transform = `translate(calc(-50% + ${state.translateX}px), calc(-50% + ${state.translateY}px)) scale(${state.scale})`;
-            if (zoomDisplay) zoomDisplay.textContent = Math.round(state.scale * 100) + '%';
-        }
-
-        function setupComparePanelEvents() {
-            const leftPanel = document.getElementById('comparePanelLeft');
-            const rightPanel = document.getElementById('comparePanelRight');
-
-            // 左面板事件
-            setupSingleComparePanel(leftPanel, 'left');
-            // 右面板事件
-            setupSingleComparePanel(rightPanel, 'right');
-        }
-
-        function setupSingleComparePanel(panel, side) {
-            const state = side === 'left' ? compareLeftState : compareRightState;
-
-            // 鼠标拖拽
-            panel.addEventListener('mousedown', (e) => {
-                if (e.target.closest('.compare-label') || e.target.closest('.compare-zoom-level')) return;
-                state.isDragging = true;
-                state.startX = e.clientX - state.translateX;
-                state.startY = e.clientY - state.translateY;
-                panel.classList.add('grabbing');
-            });
-
-            panel.addEventListener('mousemove', (e) => {
-                if (!state.isDragging) return;
-                e.preventDefault();
-                state.translateX = e.clientX - state.startX;
-                state.translateY = e.clientY - state.startY;
-                updateCompareTransform(side);
-            });
-
-            panel.addEventListener('mouseup', () => {
-                state.isDragging = false;
-                panel.classList.remove('grabbing');
-            });
-
-            panel.addEventListener('mouseleave', () => {
-                state.isDragging = false;
-                panel.classList.remove('grabbing');
-            });
-
-            // 滚轮缩放（以鼠标位置为中心）
-            panel.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const delta = e.deltaY > 0 ? 0.9 : 1.1;
-                const newScale = Math.max(0.2, Math.min(10, state.scale * delta));
-
-                // 以鼠标位置为中心缩放
-                const rect = panel.getBoundingClientRect();
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const mouseX = e.clientX - rect.left - centerX;
-                const mouseY = e.clientY - rect.top - centerY;
-
-                const pointX = (mouseX - state.translateX) / state.scale;
-                const pointY = (mouseY - state.translateY) / state.scale;
-
-                const screenX = pointX * state.scale + state.translateX;
-                const screenY = pointY * state.scale + state.translateY;
-
-                state.scale = newScale;
-                state.translateX = screenX - pointX * state.scale;
-                state.translateY = screenY - pointY * state.scale;
-
-                updateCompareTransform(side);
-            }, { passive: false });
-
-            // 触摸支持
-            let touchStartDist = 0;
-            let touchStartScale = 1;
-            let touchStartX = 0;
-            let touchStartY = 0;
-            let isTouchDragging = false;
-            let touches = [];
-
-            panel.addEventListener('touchstart', (e) => {
-                touches = Array.from(e.touches);
-
-                if (touches.length === 1) {
-                    isTouchDragging = true;
-                    state.startX = touches[0].clientX - state.translateX;
-                    state.startY = touches[0].clientY - state.translateY;
-                } else if (touches.length === 2) {
-                    isTouchDragging = false;
-                    e.preventDefault();
-                    touchStartDist = Math.hypot(
-                        touches[0].clientX - touches[1].clientX,
-                        touches[0].clientY - touches[1].clientY
-                    );
-                    touchStartScale = state.scale;
-                }
-            }, { passive: false });
-
-            panel.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                touches = Array.from(e.touches);
-
-                if (touches.length === 1 && isTouchDragging) {
-                    state.translateX = touches[0].clientX - state.startX;
-                    state.translateY = touches[0].clientY - state.startY;
-                    updateCompareTransform(side);
-                } else if (touches.length === 2) {
-                    const currentDist = Math.hypot(
-                        touches[0].clientX - touches[1].clientX,
-                        touches[0].clientY - touches[1].clientY
-                    );
-                    if (touchStartDist > 0) {
-                        state.scale = Math.max(0.2, Math.min(10, touchStartScale * (currentDist / touchStartDist)));
-                        updateCompareTransform(side);
-                    }
-                }
-            }, { passive: false });
-
-            panel.addEventListener('touchend', () => {
-                isTouchDragging = false;
-                touches = [];
-            });
-        }
-
-        function updateCompareInfo() {
-            const currentData = historyData[currentIndex];
-            const compareData = historyData[compareIndex];
-
-            document.getElementById('compareCellLeft').textContent = `${currentData.year} · ${currentData.name}`;
-            document.getElementById('compareCellRight').textContent = `${compareData.year} · ${compareData.name}`;
-            document.getElementById('compareEraLeft').textContent = currentData.era;
-            document.getElementById('compareEraRight').textContent = compareData.era;
-            document.getElementById('compareSpanLeft').textContent = currentData.span;
-            document.getElementById('compareSpanRight').textContent = compareData.span;
-            document.getElementById('compareCountLeft').textContent = currentData.count;
-            document.getElementById('compareCountRight').textContent = compareData.count;
-            document.getElementById('compareDesc').textContent = compareData.desc;
-
-            if (compareData.quote) {
-                document.getElementById('compareWisdomQuote').innerHTML = `
-                    "${compareData.quote}"
-                    <div class="wisdom-author">${compareData.quoteAuthor}</div>
-                `;
-            }
-        }
-
-        function exitCompareMode() {
-            compareMode = false;
-            compareIndex = -1;
-
-            const mapViewport = document.getElementById('mapViewport');
-            const mapWrapper = document.getElementById('mapWrapper');
-            const leftPanel = document.getElementById('comparePanelLeft');
-            const rightPanel = document.getElementById('comparePanelRight');
-            const exitBtn = document.getElementById('compareExitBtn');
-            const normalInfo = document.getElementById('normalInfoSection');
-            const compareInfo = document.getElementById('compareInfoSection');
-            const compareBtn = document.getElementById('compareBtn');
-            const infoContent = document.getElementById('infoPanel').querySelector('.info-content');
-
-            mapViewport.classList.remove('compare-mode');
-            mapWrapper.style.display = 'flex';
-            leftPanel.style.display = 'none';
-            rightPanel.style.display = 'none';
-            exitBtn.style.display = 'none';
-            normalInfo.style.display = 'block';
-            compareInfo.style.display = 'none';
-            if (infoContent) infoContent.classList.remove('compare-mode-active');
-            compareBtn.style.background = '';
-            compareBtn.style.color = '';
-
-            // 清理对比图片
-            document.getElementById('compareImageLeft').src = '';
-            document.getElementById('compareImageLeft').classList.remove('loaded');
-            document.getElementById('compareImageRight').src = '';
-            document.getElementById('compareImageRight').classList.remove('loaded');
-
-            // 重新加载当前地图到主视图
-            if (currentIndex >= 0) {
-                loadImageWithProgress(historyData[currentIndex].path);
-            }
-        }
-
-        // ESC键关闭对比选择器
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const selector = document.getElementById('compareSelector');
-                if (selector && selector.classList.contains('show')) {
-                    closeCompareSelector();
-                }
-            }
-        });
-
 function initApp() {
             initTimeline();
             setupEventListeners();
             setupImageProtection();
             detectLayout();
             loadSavedSettings();
+            checkAdminStatus();
+            // 恢复用户名
+            const savedName = localStorage.getItem('discussionUserName');
+            if (savedName) {
+                document.getElementById('discussionName').value = savedName;
+                currentUserName = savedName;
+            }
             
             if (window.innerWidth <= 768) {
                 switchMobileTab('map');
+            }
+
+            // 直接绑定讨论区按钮事件（确保可靠）
+            var submitBtn = document.getElementById('discussionSubmit');
+            if (submitBtn) {
+                submitBtn.onclick = function() { submitDiscussion(); };
+            }
+
+            // 绑定标签选择按钮
+            var tagBtns = document.querySelectorAll('.discussion-tag-option');
+            for (var i = 0; i < tagBtns.length; i++) {
+                (function(btn) {
+                    btn.onclick = function() { selectDiscussionTag(this); };
+                })(tagBtns[i]);
             }
         }
 
@@ -5762,7 +6491,307 @@ function initApp() {
         }
 
         // 等待DOM完全加载后再初始化
+        
+        // ===== 管理员模式 =====
+        const ADMIN_PASSWORD = "zzbqq138";
+        let isAdminMode = false;
+
+        function checkAdminStatus() {
+            const saved = localStorage.getItem('adminMode') === 'true';
+            if (saved) {
+                isAdminMode = true;
+                var indicator = document.getElementById('adminModeIndicator');
+                var track = document.getElementById('adminToggleTrack');
+                var label = document.getElementById('adminToggleLabel');
+                if (indicator) indicator.classList.add('show');
+                if (track) track.classList.add('active');
+                if (label) label.textContent = '已登录';
+            }
+        }
+
+        function toggleAdminLogin() {
+            if (isAdminMode) {
+                adminLogout();
+                return;
+            }
+            var overlay = document.getElementById('adminLoginOverlay');
+            var input = document.getElementById('adminPasswordInput');
+            var errorEl = document.getElementById('adminLoginError');
+            if (overlay) {
+                overlay.classList.add('show');
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+                if (errorEl) errorEl.textContent = '';
+            }
+        }
+
+        function adminLogin() {
+            var input = document.getElementById('adminPasswordInput');
+            var errorEl = document.getElementById('adminLoginError');
+            if (!input) return;
+
+            var password = input.value;
+            if (password === ADMIN_PASSWORD) {
+                isAdminMode = true;
+                localStorage.setItem('adminMode', 'true');
+                var indicator = document.getElementById('adminModeIndicator');
+                var track = document.getElementById('adminToggleTrack');
+                var label = document.getElementById('adminToggleLabel');
+                var overlay = document.getElementById('adminLoginOverlay');
+                if (indicator) indicator.classList.add('show');
+                if (track) track.classList.add('active');
+                if (label) label.textContent = '已登录';
+                if (overlay) overlay.classList.remove('show');
+                if (errorEl) errorEl.textContent = '';
+                if (currentIndex >= 0) loadDiscussions(currentIndex);
+            } else {
+                if (errorEl) errorEl.textContent = '密码错误，请重试';
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function adminLogout() {
+            isAdminMode = false;
+            localStorage.removeItem('adminMode');
+            var indicator = document.getElementById('adminModeIndicator');
+            var track = document.getElementById('adminToggleTrack');
+            var label = document.getElementById('adminToggleLabel');
+            if (indicator) indicator.classList.remove('show');
+            if (track) track.classList.remove('active');
+            if (label) label.textContent = '未登录';
+            if (currentIndex >= 0) loadDiscussions(currentIndex);
+        }
+
+        // ===== 讨论区功能 =====
+        let currentDiscussionTag = 'general';
+        let currentUserName = localStorage.getItem('discussionUserName') || '';
+
+
+        // 管理员登录弹窗事件
+        document.addEventListener('DOMContentLoaded', function() {
+            var overlay = document.getElementById('adminLoginOverlay');
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('show');
+                    }
+                });
+            }
+        });
+
+        function selectDiscussionTag(btn) {
+            var options = document.querySelectorAll('.discussion-tag-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.remove('active');
+            }
+            btn.classList.add('active');
+            currentDiscussionTag = btn.getAttribute('data-tag') || btn.dataset && btn.dataset.tag || 'general';
+        }
+
+        function getDiscussionStorageKey(mapIndex) {
+            return 'map_discussion_' + mapIndex;
+        }
+
+        function loadDiscussions(mapIndex) {
+            var listEl = document.getElementById('discussionList');
+            var countEl = document.getElementById('discussionCount');
+            if (!listEl || !countEl) return;
+
+            var key = getDiscussionStorageKey(mapIndex);
+            var discussions = JSON.parse(localStorage.getItem(key) || '[]');
+
+            countEl.textContent = discussions.length + ' 条讨论';
+
+            if (discussions.length === 0) {
+                listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">💭</div><div>暂无讨论，来做第一个发言的人吧！</div></div>';
+                return;
+            }
+
+            var tagLabels = {
+                'general': '',
+                'academic': '<span class="discussion-tag academic">学术</span>',
+                'question': '<span class="discussion-tag question">疑问</span>',
+                'opinion': '<span class="discussion-tag opinion">观点</span>'
+            };
+
+            var nameInput = document.getElementById('discussionName');
+            var myName = (nameInput && nameInput.value ? nameInput.value : currentUserName || '匿名访客').trim();
+
+            var html = '';
+            for (var i = 0; i < discussions.length; i++) {
+                var item = discussions[i];
+                var isOwn = item.name === myName;
+                var canDelete = isOwn || isAdminMode;
+                var deleteBtn = '';
+                if (canDelete) {
+                    var title = isAdminMode && !isOwn ? '管理员删除' : '删除';
+                    deleteBtn = '<button class="discussion-delete-btn" onclick="deleteDiscussion(' + mapIndex + ', ' + i + ')" title="' + title + '">✕</button>';
+                }
+                var ownClass = isOwn ? 'is-own' : '';
+                var tagHtml = tagLabels[item.tag] || '';
+
+                html += '<div class="discussion-item ' + ownClass + '">' +
+                    '<div class="discussion-item-header">' +
+                    '<span class="discussion-item-author">' + escapeHtml(item.name || '匿名访客') + tagHtml + '</span>' +
+                    '<div style="display: flex; align-items: center; gap: 6px;">' +
+                    '<span class="discussion-item-time">' + item.time + '</span>' +
+                    deleteBtn +
+                    '</div></div>' +
+                    '<div class="discussion-item-content">' + escapeHtml(item.content) + '</div></div>';
+            }
+            listEl.innerHTML = html;
+        }
+
+        function submitDiscussion() {
+            try {
+                var nameInput = document.getElementById('discussionName');
+                var contentInput = document.getElementById('discussionContent');
+                var submitBtn = document.getElementById('discussionSubmit');
+
+                if (!nameInput) { console.error('discussionName not found'); return; }
+                if (!contentInput) { console.error('discussionContent not found'); return; }
+                if (!submitBtn) { console.error('discussionSubmit not found'); return; }
+
+                if (currentIndex < 0) {
+                    alert('请先选择一幅地图');
+                    return;
+                }
+
+                var name = nameInput.value.trim();
+                var content = contentInput.value.trim();
+
+                if (!content) {
+                    contentInput.style.borderColor = 'var(--accent)';
+                    setTimeout(function() { contentInput.style.borderColor = ''; }, 2000);
+                    return;
+                }
+
+                if (content.length < 3) {
+                    contentInput.style.borderColor = 'var(--accent)';
+                    var oldPlaceholder = contentInput.placeholder;
+                    contentInput.placeholder = '评论内容至少需要3个字';
+                    setTimeout(function() {
+                        contentInput.style.borderColor = '';
+                        contentInput.placeholder = oldPlaceholder;
+                    }, 2000);
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = '发送中...';
+
+                var key = getDiscussionStorageKey(currentIndex);
+                var discussions = JSON.parse(localStorage.getItem(key) || '[]');
+
+                var now = new Date();
+                var timeStr = now.getFullYear() + '-' + 
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(now.getDate()).padStart(2, '0') + ' ' + 
+                    String(now.getHours()).padStart(2, '0') + ':' + 
+                    String(now.getMinutes()).padStart(2, '0');
+
+                var userName = name || '匿名访客';
+                if (name) {
+                    localStorage.setItem('discussionUserName', name);
+                    currentUserName = name;
+                }
+
+                discussions.unshift({
+                    name: userName,
+                    content: content,
+                    tag: currentDiscussionTag || 'general',
+                    time: timeStr
+                });
+
+                if (discussions.length > 50) {
+                    discussions.pop();
+                }
+
+                localStorage.setItem(key, JSON.stringify(discussions));
+
+                contentInput.value = '';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '发表评论';
+
+                loadDiscussions(currentIndex);
+            } catch (e) {
+                console.error('submitDiscussion error:', e);
+                var submitBtn = document.getElementById('discussionSubmit');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '发表评论';
+                }
+                alert('发表评论失败: ' + e.message);
+            }
+        }
+function deleteDiscussion(mapIndex, idx) {
+            var key = getDiscussionStorageKey(mapIndex);
+            var discussions = JSON.parse(localStorage.getItem(key) || '[]');
+
+            if (idx < 0 || idx >= discussions.length) return;
+
+            var item = discussions[idx];
+            var nameInput = document.getElementById('discussionName');
+            var myName = (nameInput && nameInput.value ? nameInput.value : currentUserName || '匿名访客').trim();
+            var isOwn = item.name === myName;
+
+            if (!isOwn && !isAdminMode) {
+                alert('您只能删除自己的评论');
+                return;
+            }
+
+            var confirmMsg = isAdminMode && !isOwn 
+                ? '【管理员】确定要删除这条评论吗？\n作者：' + item.name 
+                : '确定要删除这条评论吗？';
+
+            if (!confirm(confirmMsg)) return;
+
+            discussions.splice(idx, 1);
+            localStorage.setItem(key, JSON.stringify(discussions));
+            loadDiscussions(mapIndex);
+        }
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
+
+    <!-- 分享按钮 -->
+    <button class="share-btn" onclick="openShareModal()" title="生成分享卡片">📤</button>
+
+    <!-- 分享弹窗 -->
+    <div class="share-modal-overlay" id="shareModalOverlay" onclick="closeShareModal(event)">
+        <div class="share-modal" onclick="event.stopPropagation()">
+            <div class="share-modal-header">
+                <span class="share-modal-title">📤 生成分享卡片</span>
+                <button class="share-modal-close" onclick="closeShareModalDirect()">✕</button>
+            </div>
+            <div class="share-card-preview">
+                <div class="share-card-canvas-container">
+                    <canvas id="shareCardCanvas" class="share-card-canvas" width="800" height="1000"></canvas>
+                </div>
+                <div class="share-card-actions">
+                    <button class="share-card-btn primary" onclick="downloadShareCard()">
+                        💾 保存图片
+                    </button>
+                    <button class="share-card-btn secondary" onclick="copyShareCard()">
+                        📋 复制到剪贴板
+                    </button>
+                </div>
+            </div>
+            <div class="share-card-tip">
+                生成的卡片包含当前地图信息、名言和展馆标识，可用于社交媒体分享或学术交流。
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
