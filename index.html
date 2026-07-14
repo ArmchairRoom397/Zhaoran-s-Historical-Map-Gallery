@@ -4026,6 +4026,8 @@
     <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<base target="_blank">
 </head>
 <body>
     <!-- 管理员模式指示器 -->
@@ -4473,13 +4475,14 @@
                         </div>
                     </div>
 
+                <!-- ===== Supabase 讨论区 ===== -->
                 <div class="info-section discussion-section" id="discussionSection">
                     <div class="section-title">💬 学术讨论区</div>
                     <div class="discussion-card" id="discussionCard">
                         <div class="discussion-header">
                             <div class="discussion-title-row">
                                 <span style="font-size: 0.85rem; color: var(--gold); font-weight: 700;">关于这幅地图的讨论</span>
-                                <span class="discussion-count" id="discussionCount">0 条讨论</span>
+                                <span class="discussion-count" id="discussionCount">加载中...</span>
                             </div>
                         </div>
 
@@ -4494,13 +4497,13 @@
                                 <button class="discussion-tag-option" data-tag="opinion" onclick="selectDiscussionTag(this)">观点分享</button>
                             </div>
                             <textarea class="discussion-textarea" id="discussionContent" placeholder="分享您对这幅地图的见解、疑问或学术观点..." maxlength="500"></textarea>
-                            <button class="discussion-submit-btn" id="discussionSubmit" onclick="console.log('submit clicked, currentIndex='+currentIndex); submitDiscussion();">发表评论</button>
+                            <button class="discussion-submit-btn" id="discussionSubmit" onclick="submitDiscussion();">发表评论</button>
                         </div>
 
                         <div class="discussion-list" id="discussionList">
                             <div class="discussion-empty">
                                 <div class="discussion-empty-icon">💭</div>
-                                <div>暂无讨论，来做第一个发言的人吧！</div>
+                                <div>加载中...</div>
                             </div>
                         </div>
                     </div>
@@ -6565,10 +6568,50 @@ function initApp() {
             if (currentIndex >= 0) loadDiscussions(currentIndex);
         }
 
-        // ===== 讨论区功能 =====
+        // ===== Supabase 讨论区功能 =====
         let currentDiscussionTag = 'general';
         let currentUserName = localStorage.getItem('discussionUserName') || '';
+        let supabaseClient = null;
 
+        // Supabase 配置
+        // 注意：请使用 Legacy anon key（以 eyJ 开头的 JWT 格式）
+        // 在 Supabase 控制台 → Settings → API Keys → Legacy anon, service_role API keys 中获取
+        const SUPABASE_URL = 'https://cmxoelhjcoxhxkbjpidw.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNteG9lbGhqY294aHhrYmpwaWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMjQ0ODIsImV4cCI6MjA5OTYwMDQ4Mn0.D6PUZuTWrhAJeb2C391PloBVGuEpIFBf2GYAacQbhjE';
+
+        function initSupabase() {
+            // 等待 SDK 加载完成
+            var checkSupabase = function() {
+                // UMD 模块可能挂载在 window.supabase 上
+                var sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+
+                if (sb && sb.createClient) {
+                    try {
+                        // 检查是否使用了正确的 key 格式
+                        if (!SUPABASE_KEY || SUPABASE_KEY.indexOf('YOUR_LEGACY') !== -1) {
+                            console.error('请配置 Supabase Legacy anon key');
+                            supabaseClient = null;
+                            return;
+                        }
+
+                        supabaseClient = sb.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                            auth: {
+                                autoRefreshToken: false,
+                                persistSession: false
+                            }
+                        });
+                        console.log('Supabase 已初始化');
+                    } catch (e) {
+                        console.error('Supabase 初始化失败:', e);
+                        supabaseClient = null;
+                    }
+                } else {
+                    console.log('等待 Supabase SDK 加载...');
+                    setTimeout(checkSupabase, 100);
+                }
+            };
+            checkSupabase();
+        }
 
         // 管理员登录弹窗事件
         document.addEventListener('DOMContentLoaded', function() {
@@ -6580,6 +6623,8 @@ function initApp() {
                     }
                 });
             }
+            // 初始化 Supabase
+            initSupabase();
         });
 
         function selectDiscussionTag(btn) {
@@ -6588,64 +6633,95 @@ function initApp() {
                 options[i].classList.remove('active');
             }
             btn.classList.add('active');
-            currentDiscussionTag = btn.getAttribute('data-tag') || btn.dataset && btn.dataset.tag || 'general';
+            currentDiscussionTag = btn.getAttribute('data-tag') || 'general';
         }
 
-        function getDiscussionStorageKey(mapIndex) {
-            return 'map_discussion_' + mapIndex;
-        }
-
-        function loadDiscussions(mapIndex) {
+        async function loadDiscussions(mapIndex) {
             var listEl = document.getElementById('discussionList');
             var countEl = document.getElementById('discussionCount');
             if (!listEl || !countEl) return;
 
-            var key = getDiscussionStorageKey(mapIndex);
-            var discussions = JSON.parse(localStorage.getItem(key) || '[]');
-
-            countEl.textContent = discussions.length + ' 条讨论';
-
-            if (discussions.length === 0) {
-                listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">💭</div><div>暂无讨论，来做第一个发言的人吧！</div></div>';
+            if (!supabaseClient) {
+                listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⚠️</div><div>评论服务初始化失败，请刷新页面重试</div></div>';
+                countEl.textContent = '连接失败';
                 return;
             }
 
-            var tagLabels = {
-                'general': '',
-                'academic': '<span class="discussion-tag academic">学术</span>',
-                'question': '<span class="discussion-tag question">疑问</span>',
-                'opinion': '<span class="discussion-tag opinion">观点</span>'
-            };
+            countEl.textContent = '加载中...';
 
-            var nameInput = document.getElementById('discussionName');
-            var myName = (nameInput && nameInput.value ? nameInput.value : currentUserName || '匿名访客').trim();
+            try {
+                var { data, error } = await supabaseClient
+                    .from('map_discussions')
+                    .select('*')
+                    .eq('map_index', mapIndex)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
 
-            var html = '';
-            for (var i = 0; i < discussions.length; i++) {
-                var item = discussions[i];
-                var isOwn = item.name === myName;
-                var canDelete = isOwn || isAdminMode;
-                var deleteBtn = '';
-                if (canDelete) {
-                    var title = isAdminMode && !isOwn ? '管理员删除' : '删除';
-                    deleteBtn = '<button class="discussion-delete-btn" onclick="deleteDiscussion(' + mapIndex + ', ' + i + ')" title="' + title + '">✕</button>';
+                if (error) {
+                    console.error('Supabase 查询错误:', error);
+                    listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⚠️</div><div>加载失败：' + escapeHtml(error.message) + '</div></div>';
+                    countEl.textContent = '加载失败';
+                    return;
                 }
-                var ownClass = isOwn ? 'is-own' : '';
-                var tagHtml = tagLabels[item.tag] || '';
 
-                html += '<div class="discussion-item ' + ownClass + '">' +
-                    '<div class="discussion-item-header">' +
-                    '<span class="discussion-item-author">' + escapeHtml(item.name || '匿名访客') + tagHtml + '</span>' +
-                    '<div style="display: flex; align-items: center; gap: 6px;">' +
-                    '<span class="discussion-item-time">' + item.time + '</span>' +
-                    deleteBtn +
-                    '</div></div>' +
-                    '<div class="discussion-item-content">' + escapeHtml(item.content) + '</div></div>';
+                var discussions = data || [];
+                countEl.textContent = discussions.length + ' 条讨论';
+
+                if (discussions.length === 0) {
+                    listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">💭</div><div>暂无讨论，来做第一个发言的人吧！</div></div>';
+                    return;
+                }
+
+                var tagLabels = {
+                    'general': '',
+                    'academic': '<span class="discussion-tag academic">学术</span>',
+                    'question': '<span class="discussion-tag question">疑问</span>',
+                    'opinion': '<span class="discussion-tag opinion">观点</span>'
+                };
+
+                var nameInput = document.getElementById('discussionName');
+                var myName = (nameInput && nameInput.value ? nameInput.value : currentUserName || '匿名访客').trim();
+
+                var html = '';
+                for (var i = 0; i < discussions.length; i++) {
+                    var item = discussions[i];
+                    var isOwn = item.name === myName;
+                    var canDelete = isOwn || isAdminMode;
+                    var deleteBtn = '';
+                    if (canDelete) {
+                        var title = isAdminMode && !isOwn ? '管理员删除' : '删除';
+                        deleteBtn = '<button class="discussion-delete-btn" onclick="deleteDiscussion(' + item.id + ')" title="' + title + '">✕</button>';
+                    }
+                    var ownClass = isOwn ? 'is-own' : '';
+                    var tagHtml = tagLabels[item.tag] || '';
+                    var timeStr = formatTime(item.created_at);
+
+                    html += '<div class="discussion-item ' + ownClass + '">' +
+                        '<div class="discussion-item-header">' +
+                        '<span class="discussion-item-author">' + escapeHtml(item.name || '匿名访客') + tagHtml + '</span>' +
+                        '<div style="display: flex; align-items: center; gap: 6px;">' +
+                        '<span class="discussion-item-time">' + timeStr + '</span>' +
+                        deleteBtn +
+                        '</div></div>' +
+                        '<div class="discussion-item-content">' + escapeHtml(item.content) + '</div></div>';
+                }
+                listEl.innerHTML = html;
+            } catch (e) {
+                console.error('加载评论错误:', e);
+                listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⚠️</div><div>加载失败：' + escapeHtml(e.message) + '</div></div>';
+                countEl.textContent = '加载失败';
             }
-            listEl.innerHTML = html;
         }
 
-        function submitDiscussion() {
+        function formatTime(isoString) {
+            if (!isoString) return '';
+            var d = new Date(isoString);
+            var pad = function(n) { return String(n).padStart(2, '0'); };
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
+                   pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+
+        async function submitDiscussion() {
             try {
                 var nameInput = document.getElementById('discussionName');
                 var contentInput = document.getElementById('discussionContent');
@@ -6657,6 +6733,11 @@ function initApp() {
 
                 if (currentIndex < 0) {
                     alert('请先选择一幅地图');
+                    return;
+                }
+
+                if (!supabaseClient) {
+                    alert('评论服务未初始化，请刷新页面重试');
                     return;
                 }
 
@@ -6683,39 +6764,35 @@ function initApp() {
                 submitBtn.disabled = true;
                 submitBtn.textContent = '发送中...';
 
-                var key = getDiscussionStorageKey(currentIndex);
-                var discussions = JSON.parse(localStorage.getItem(key) || '[]');
-
-                var now = new Date();
-                var timeStr = now.getFullYear() + '-' + 
-                    String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                    String(now.getDate()).padStart(2, '0') + ' ' + 
-                    String(now.getHours()).padStart(2, '0') + ':' + 
-                    String(now.getMinutes()).padStart(2, '0');
-
                 var userName = name || '匿名访客';
                 if (name) {
                     localStorage.setItem('discussionUserName', name);
                     currentUserName = name;
                 }
 
-                discussions.unshift({
-                    name: userName,
-                    content: content,
-                    tag: currentDiscussionTag || 'general',
-                    time: timeStr
-                });
+                var { data, error } = await supabaseClient
+                    .from('map_discussions')
+                    .insert([{
+                        map_index: currentIndex,
+                        name: userName,
+                        content: content,
+                        tag: currentDiscussionTag || 'general'
+                    }])
+                    .select();
 
-                if (discussions.length > 50) {
-                    discussions.pop();
+                if (error) {
+                    console.error('Supabase 插入错误:', error);
+                    alert('发表评论失败: ' + error.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '发表评论';
+                    return;
                 }
-
-                localStorage.setItem(key, JSON.stringify(discussions));
 
                 contentInput.value = '';
                 submitBtn.disabled = false;
                 submitBtn.textContent = '发表评论';
 
+                // 重新加载评论
                 loadDiscussions(currentIndex);
             } catch (e) {
                 console.error('submitDiscussion error:', e);
@@ -6727,31 +6804,32 @@ function initApp() {
                 alert('发表评论失败: ' + e.message);
             }
         }
-function deleteDiscussion(mapIndex, idx) {
-            var key = getDiscussionStorageKey(mapIndex);
-            var discussions = JSON.parse(localStorage.getItem(key) || '[]');
 
-            if (idx < 0 || idx >= discussions.length) return;
-
-            var item = discussions[idx];
-            var nameInput = document.getElementById('discussionName');
-            var myName = (nameInput && nameInput.value ? nameInput.value : currentUserName || '匿名访客').trim();
-            var isOwn = item.name === myName;
-
-            if (!isOwn && !isAdminMode) {
-                alert('您只能删除自己的评论');
+        async function deleteDiscussion(id) {
+            if (!supabaseClient) {
+                alert('评论服务未初始化');
                 return;
             }
 
-            var confirmMsg = isAdminMode && !isOwn 
-                ? '【管理员】确定要删除这条评论吗？\n作者：' + item.name 
-                : '确定要删除这条评论吗？';
+            if (!confirm('确定要删除这条评论吗？')) return;
 
-            if (!confirm(confirmMsg)) return;
+            try {
+                var { error } = await supabaseClient
+                    .from('map_discussions')
+                    .delete()
+                    .eq('id', id);
 
-            discussions.splice(idx, 1);
-            localStorage.setItem(key, JSON.stringify(discussions));
-            loadDiscussions(mapIndex);
+                if (error) {
+                    console.error('删除错误:', error);
+                    alert('删除失败: ' + error.message);
+                    return;
+                }
+
+                loadDiscussions(currentIndex);
+            } catch (e) {
+                console.error('删除评论错误:', e);
+                alert('删除失败: ' + e.message);
+            }
         }
 
         function escapeHtml(text) {
@@ -6760,9 +6838,9 @@ function deleteDiscussion(mapIndex, idx) {
             return div.innerHTML;
         }
 
-
+        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', initApp);
-    </script>
+</script>
 
     <!-- 分享按钮 -->
     <button class="share-btn" onclick="openShareModal()" title="生成分享卡片">📤</button>
