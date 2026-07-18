@@ -1120,6 +1120,10 @@
             backdrop-filter: blur(10px);
         }
 
+        .toolbar.hidden {
+            display: none;
+        }
+
         body.rice-paper-theme .toolbar {
             background: rgba(235, 229, 217, 0.95);
         }
@@ -2127,6 +2131,11 @@
                 right: 15px;
             }
 
+            .toolbar.hidden ~ .zoom-level,
+            .toolbar.hidden + .map-viewport .zoom-level {
+                bottom: 20px;
+            }
+
             .timeline-panel {
                 background: var(--bg-panel);
             }
@@ -2255,6 +2264,11 @@
 
             .zoom-level {
                 bottom: 70px;
+            }
+
+            .toolbar.hidden ~ .zoom-level,
+            .toolbar.hidden + .map-viewport .zoom-level {
+                bottom: 20px;
             }
 
             .map-wrapper {
@@ -4029,6 +4043,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 管理员模式指示器 -->
@@ -4159,6 +4174,19 @@
             </div>
             <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 8px; line-height: 1.5;">
                 管理员可以删除所有评论，普通用户只能删除自己的评论。
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <label class="settings-label">操作区显示</label>
+            <div class="toggle-switch" onclick="toggleToolbar()" id="toolbarToggle">
+                <div class="toggle-track active" id="toolbarToggleTrack">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <span class="toggle-label">显示中间操作区</span>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 8px; line-height: 1.5;">
+                控制地图中央底部缩放操作按钮的显示与隐藏。隐藏后可获得更大的地图浏览空间。
             </div>
         </div>
 
@@ -4804,6 +4832,29 @@
             const track = document.getElementById('loadingToggleTrack');
             track.classList.toggle('active', showLoadingProgress);
             localStorage.setItem('showLoadingProgress', showLoadingProgress);
+        }
+
+        // 中间操作区显示/隐藏
+        let showToolbar = true;
+
+        function toggleToolbar() {
+            showToolbar = !showToolbar;
+            const track = document.getElementById('toolbarToggleTrack');
+            const toolbar = document.querySelector('.toolbar');
+            if (track) track.classList.toggle('active', showToolbar);
+            if (toolbar) toolbar.classList.toggle('hidden', !showToolbar);
+            localStorage.setItem('showToolbar', showToolbar);
+        }
+
+        function applyToolbarSetting() {
+            const saved = localStorage.getItem('showToolbar');
+            if (saved !== null) {
+                showToolbar = saved === 'true';
+            }
+            const track = document.getElementById('toolbarToggleTrack');
+            const toolbar = document.querySelector('.toolbar');
+            if (track) track.classList.toggle('active', showToolbar);
+            if (toolbar) toolbar.classList.toggle('hidden', !showToolbar);
         }
 
         // 加载保存的设置
@@ -6493,6 +6544,8 @@ function initApp() {
                 document.getElementById('rightWidthSlider').value = savedRightWidth;
                 updateSidebarWidth('right', savedRightWidth);
             }
+        
+            applyToolbarSetting();
         }
 
         // 等待DOM完全加载后再初始化
