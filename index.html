@@ -3745,13 +3745,15 @@
             background: var(--bg-panel);
             border: 2px solid var(--gold);
             border-radius: 16px;
-            max-width: 420px;
-            width: 100%;
+            max-width: 90vw;
+            width: auto;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
             transform: scale(0.9) translateY(20px);
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
         }
 
         .share-modal-overlay.show .share-modal {
@@ -3800,6 +3802,7 @@
             flex-direction: column;
             align-items: center;
             gap: 15px;
+            max-width: 100%;
         }
 
         .share-card-canvas-container {
@@ -3810,12 +3813,18 @@
             border-radius: 12px;
             padding: 15px;
             border: 1px solid var(--border);
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .share-card-canvas {
             max-width: 100%;
+            max-height: 60vh;
+            width: auto;
+            height: auto;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            object-fit: contain;
         }
 
         .share-card-actions {
@@ -3878,6 +3887,20 @@
                 width: 46px;
                 height: 46px;
                 font-size: 1.2rem;
+            }
+
+            .share-modal {
+                max-width: 98vw;
+                border-radius: 12px;
+            }
+
+            .share-card-canvas {
+                max-height: 45vh;
+            }
+
+            .share-card-preview {
+                padding: 12px;
+                gap: 10px;
             }
         }
 
@@ -5835,27 +5858,34 @@ function updateQuotes(data) {
             const canvas = document.getElementById('shareCardCanvas');
             const ctx = canvas.getContext('2d');
             const data = historyData[currentIndex];
-            const W = 800;
-            const H = 1100;
+            const W = 1920;
+            const H = 1080;
+            const DPR = Math.min(window.devicePixelRatio || 2, 3);
+
+            // 设置高分辨率画布
+            canvas.width = W * DPR;
+            canvas.height = H * DPR;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.scale(DPR, DPR);
 
             // 清除画布
             ctx.clearRect(0, 0, W, H);
 
             // ========== 背景 ==========
-            // 深色纹理背景
-            ctx.fillStyle = '#0d1117';
+            ctx.fillStyle = '#0a0a14';
             ctx.fillRect(0, 0, W, H);
 
             // 微妙的网格纹理
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.03)';
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.02)';
             ctx.lineWidth = 1;
-            for (let i = 0; i < W; i += 40) {
+            for (let i = 0; i < W; i += 60) {
                 ctx.beginPath();
                 ctx.moveTo(i, 0);
                 ctx.lineTo(i, H);
                 ctx.stroke();
             }
-            for (let i = 0; i < H; i += 40) {
+            for (let i = 0; i < H; i += 60) {
                 ctx.beginPath();
                 ctx.moveTo(0, i);
                 ctx.lineTo(W, i);
@@ -5865,92 +5895,185 @@ function updateQuotes(data) {
             // 顶部金色渐变条
             const topGrad = ctx.createLinearGradient(0, 0, W, 0);
             topGrad.addColorStop(0, 'rgba(212, 175, 55, 0)');
-            topGrad.addColorStop(0.3, 'rgba(212, 175, 55, 0.3)');
-            topGrad.addColorStop(0.7, 'rgba(212, 175, 55, 0.3)');
+            topGrad.addColorStop(0.3, 'rgba(212, 175, 55, 0.35)');
+            topGrad.addColorStop(0.7, 'rgba(212, 175, 55, 0.35)');
             topGrad.addColorStop(1, 'rgba(212, 175, 55, 0)');
             ctx.fillStyle = topGrad;
             ctx.fillRect(0, 0, W, 3);
 
-            // ========== 顶部标题区域 ==========
+            // ========== 左侧信息面板 ==========
+            const leftPanelW = 420;
+            const leftMargin = 40;
+            const topMargin = 30;
+
             // 馆名
             ctx.fillStyle = '#d4af37';
-            ctx.font = 'bold 32px "Noto Serif SC", "Source Han Serif SC", serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('昭燃的历史地图馆', W / 2, 70);
+            ctx.font = 'bold 36px "Noto Serif SC", "Source Han Serif SC", serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('昭燃的历史地图馆', leftMargin, topMargin + 35);
 
             // 副标题
-            ctx.fillStyle = 'rgba(212, 175, 55, 0.6)';
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.5)';
             ctx.font = '16px "Noto Serif SC", serif';
-            ctx.fillText('以史为鉴 · 可以知兴替', W / 2, 100);
+            ctx.fillText('以史为鉴 · 可以知兴替', leftMargin, topMargin + 65);
 
-            // 装饰分隔线
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
-            ctx.lineWidth = 2;
+            // 分隔线
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(200, 125);
-            ctx.lineTo(360, 125);
-            ctx.stroke();
-            ctx.fillStyle = '#d4af37';
-            ctx.font = '14px serif';
-            ctx.fillText('◆', W / 2, 130);
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
-            ctx.beginPath();
-            ctx.moveTo(440, 125);
-            ctx.lineTo(600, 125);
+            ctx.moveTo(leftMargin, topMargin + 82);
+            ctx.lineTo(leftMargin + 340, topMargin + 82);
             ctx.stroke();
 
             // ========== 年份与标题区域 ==========
-            const infoY = 170;
+            const infoY = topMargin + 110;
 
             // 年份背景框
-            ctx.fillStyle = 'rgba(212, 175, 55, 0.08)';
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.06)';
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.2)';
             ctx.lineWidth = 1;
-            roundRect(ctx, 60, infoY, 680, 110, 12);
+            roundRect(ctx, leftMargin, infoY, leftPanelW - leftMargin * 2, 110, 10);
             ctx.fill();
             ctx.stroke();
 
             // 年份
             ctx.fillStyle = '#f4d03f';
-            ctx.font = 'bold 42px "Times New Roman", serif';
+            ctx.font = 'bold 48px "Times New Roman", serif';
             ctx.textAlign = 'center';
-            ctx.fillText(data.year, W / 2, infoY + 50);
+            ctx.fillText(data.year, leftPanelW / 2, infoY + 48);
 
             // 地图名称
             ctx.fillStyle = '#eaeaea';
-            ctx.font = 'bold 22px "Noto Serif SC", serif';
-            ctx.fillText(data.name, W / 2, infoY + 85);
+            ctx.font = 'bold 20px "Noto Serif SC", serif';
+            ctx.fillText(data.name, leftPanelW / 2, infoY + 82);
 
             // 在位君主
             if (data.reign) {
-                ctx.fillStyle = 'rgba(212, 175, 55, 0.8)';
+                ctx.fillStyle = 'rgba(212, 175, 55, 0.7)';
                 ctx.font = '14px "Noto Serif SC", serif';
-                ctx.fillText(data.reign, W / 2, infoY + 108);
+                ctx.fillText(data.reign, leftPanelW / 2, infoY + 106);
             }
 
-            // ========== 地图预览区域 ==========
-            const mapY = 310;
-            const mapH = 320;
+            // ========== 描述文字区域 ==========
+            const descY = infoY + 130;
+            ctx.fillStyle = 'rgba(234, 234, 234, 0.78)';
+            ctx.font = '15px "Noto Serif SC", serif';
+            ctx.textAlign = 'left';
+
+            const desc = data.desc;
+            const maxDescWidth = leftPanelW - leftMargin * 2 - 10;
+            const descLineHeight = 26;
+            let descLine = '';
+            let descYPos = descY;
+            let descLineCount = 0;
+            const maxDescLines = 6;
+
+            for (let i = 0; i < desc.length && descLineCount < maxDescLines; i++) {
+                const testLine = descLine + desc[i];
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxDescWidth && i > 0) {
+                    ctx.fillText(descLine, leftMargin + 5, descYPos);
+                    descLine = desc[i];
+                    descYPos += descLineHeight;
+                    descLineCount++;
+                } else {
+                    descLine = testLine;
+                }
+            }
+            if (descLineCount < maxDescLines && descLine) {
+                ctx.fillText(descLine, leftMargin + 5, descYPos);
+            }
+
+            // ========== 名言区域 ==========
+            const quoteY = Math.max(descYPos + 30, infoY + 280);
+
+            // 名言背景
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.05)';
+            roundRect(ctx, leftMargin, quoteY, leftPanelW - leftMargin * 2, 90, 8);
+            ctx.fill();
+
+            // 名言左边框
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.4)';
+            ctx.fillRect(leftMargin, quoteY, 3, 90);
+
+            // 名言文字
+            ctx.fillStyle = '#d4af37';
+            ctx.font = 'italic 17px "Noto Serif SC", serif';
+            ctx.textAlign = 'left';
+            const quoteText = data.quote || '以史为鉴，可以知兴替';
+
+            // 名言换行
+            let qLine = '';
+            let qY = quoteY + 32;
+            let qLineCount = 0;
+            for (let i = 0; i < quoteText.length && qLineCount < 2; i++) {
+                const testLine = qLine + quoteText[i];
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxDescWidth && i > 0) {
+                    ctx.fillText(qLine, leftMargin + 14, qY);
+                    qLine = quoteText[i];
+                    qY += 26;
+                    qLineCount++;
+                } else {
+                    qLine = testLine;
+                }
+            }
+            if (qLineCount < 2 && qLine) {
+                ctx.fillText(qLine, leftMargin + 14, qY);
+            }
+
+            // 名言作者
+            ctx.fillStyle = 'rgba(160, 160, 160, 0.6)';
+            ctx.font = '13px "Noto Serif SC", serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(data.quoteAuthor || '—— 唐太宗', leftPanelW - leftMargin - 10, quoteY + 78);
+
+            // ========== 底部信息 ==========
+            const footerY = H - 50;
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.15)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(leftMargin, footerY);
+            ctx.lineTo(leftPanelW - leftMargin, footerY);
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(160, 160, 160, 0.4)';
+            ctx.font = '12px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(
+                '第 ' + (currentIndex + 1) + ' / ' + historyData.length + ' 幅 · ' + data.era,
+                leftPanelW / 2, footerY + 22
+            );
+
+            ctx.fillStyle = 'rgba(160, 160, 160, 0.25)';
+            ctx.font = '11px "Courier New", monospace';
+            ctx.fillText('maps.zhaoran.history', leftPanelW / 2, footerY + 40);
+
+            // ========== 右侧地图区域（大幅增大，占 225% 原比例）==========
+            const mapX = leftPanelW + 20;
+            const mapW = W - leftPanelW - 40;
+            const mapH = H - 60;
+            const mapY = 30;
 
             // 地图框背景
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-            roundRect(ctx, 80, mapY, 640, mapH, 8);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            roundRect(ctx, mapX, mapY, mapW, mapH, 12);
             ctx.fill();
 
             // 地图框边框
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.25)';
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.18)';
             ctx.lineWidth = 1;
-            roundRect(ctx, 80, mapY, 640, mapH, 8);
+            roundRect(ctx, mapX, mapY, mapW, mapH, 12);
             ctx.stroke();
 
             // 尝试绘制地图缩略图
             const mapImg = document.getElementById('mapImage');
             let mapDrawn = false;
 
-            if (mapImg && mapImg.src && mapImg.classList.contains('loaded')) {
+            if (mapImg && mapImg.src && mapImg.classList.contains('loaded') && mapImg.naturalWidth > 0) {
                 try {
-                    const padding = 20;
-                    const boxW = 640 - padding * 2;
+                    const padding = 14;
+                    const boxW = mapW - padding * 2;
                     const boxH = mapH - padding * 2;
                     const imgRatio = mapImg.naturalWidth / mapImg.naturalHeight;
                     const boxRatio = boxW / boxH;
@@ -5959,18 +6082,18 @@ function updateQuotes(data) {
                     if (imgRatio > boxRatio) {
                         drawW = boxW;
                         drawH = boxW / imgRatio;
-                        drawX = 80 + padding;
+                        drawX = mapX + padding;
                         drawY = mapY + padding + (boxH - drawH) / 2;
                     } else {
                         drawH = boxH;
                         drawW = boxH * imgRatio;
-                        drawX = 80 + padding + (boxW - drawW) / 2;
+                        drawX = mapX + padding + (boxW - drawW) / 2;
                         drawY = mapY + padding;
                     }
 
                     // 图片圆角裁剪
                     ctx.save();
-                    roundRect(ctx, drawX, drawY, drawW, drawH, 6);
+                    roundRect(ctx, drawX, drawY, drawW, drawH, 8);
                     ctx.clip();
                     ctx.drawImage(mapImg, drawX, drawY, drawW, drawH);
                     ctx.restore();
@@ -5982,93 +6105,14 @@ function updateQuotes(data) {
 
             if (!mapDrawn) {
                 // 占位图标和文字
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-                ctx.font = '60px serif';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.font = '80px serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('🗺️', W / 2, mapY + mapH / 2 - 10);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.font = '16px "Noto Serif SC", serif';
-                ctx.fillText('地图预览', W / 2, mapY + mapH / 2 + 30);
+                ctx.fillText('🗺️', mapX + mapW / 2, mapY + mapH / 2 - 10);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.font = '20px "Noto Serif SC", serif';
+                ctx.fillText('地图预览', mapX + mapW / 2, mapY + mapH / 2 + 40);
             }
-
-            // ========== 描述文字区域 ==========
-            const descY = 660;
-            ctx.fillStyle = 'rgba(234, 234, 234, 0.85)';
-            ctx.font = '15px "Noto Serif SC", serif';
-            ctx.textAlign = 'center';
-
-            // 自动换行
-            const desc = data.desc;
-            const maxWidth = 680;
-            const lineHeight = 26;
-            let line = '';
-            let y = descY;
-            let lineCount = 0;
-            const maxLines = 4;
-
-            for (let i = 0; i < desc.length && lineCount < maxLines; i++) {
-                const testLine = line + desc[i];
-                const metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && i > 0) {
-                    ctx.fillText(line, W / 2, y);
-                    line = desc[i];
-                    y += lineHeight;
-                    lineCount++;
-                } else {
-                    line = testLine;
-                }
-            }
-            if (lineCount < maxLines && line) {
-                ctx.fillText(line, W / 2, y);
-            }
-
-            // ========== 名言区域 ==========
-            const quoteY = Math.max(y + 40, 780);
-
-            // 名言背景
-            ctx.fillStyle = 'rgba(212, 175, 55, 0.06)';
-            roundRect(ctx, 60, quoteY, 680, 100, 10);
-            ctx.fill();
-
-            // 名言左边框
-            ctx.fillStyle = 'rgba(212, 175, 55, 0.5)';
-            ctx.fillRect(60, quoteY, 4, 100);
-
-            // 名言文字
-            ctx.fillStyle = '#d4af37';
-            ctx.font = 'italic 18px "Noto Serif SC", serif';
-            ctx.textAlign = 'center';
-            const quoteText = data.quote || '以史为鉴，可以知兴替';
-            ctx.fillText('"' + quoteText + '"', W / 2, quoteY + 45);
-
-            // 名言作者
-            ctx.fillStyle = 'rgba(160, 160, 160, 0.7)';
-            ctx.font = '14px "Noto Serif SC", serif';
-            ctx.fillText(data.quoteAuthor || '—— 唐太宗', W / 2, quoteY + 75);
-
-            // ========== 底部信息区域 ==========
-            const footerY = 980;
-
-            // 分隔线
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.2)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(150, footerY);
-            ctx.lineTo(650, footerY);
-            ctx.stroke();
-
-            // 底部文字
-            ctx.fillStyle = 'rgba(160, 160, 160, 0.5)';
-            ctx.font = '12px "Courier New", monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText(
-                '昭燃的历史地图馆 · 第 ' + (currentIndex + 1) + ' / ' + historyData.length + ' 幅 · ' + data.era,
-                W / 2, footerY + 25
-            );
-
-            ctx.fillStyle = 'rgba(160, 160, 160, 0.35)';
-            ctx.font = '11px "Courier New", monospace';
-            ctx.fillText('maps.zhaoran.history', W / 2, footerY + 45);
 
             // 底部金色渐变条
             const bottomGrad = ctx.createLinearGradient(0, H - 3, W, H - 3);
@@ -6088,10 +6132,9 @@ function updateQuotes(data) {
             // 生成blob
             canvas.toBlob(function(blob) {
                 shareCardBlob = blob;
-            }, 'image/png');
+            }, 'image/png', 0.95);
         }
 
-        // 绘制圆角矩形辅助函数
         function roundRect(ctx, x, y, w, h, r) {
             ctx.beginPath();
             ctx.moveTo(x + r, y);
@@ -6919,7 +6962,7 @@ function initApp() {
             </div>
             <div class="share-card-preview">
                 <div class="share-card-canvas-container">
-                    <canvas id="shareCardCanvas" class="share-card-canvas" width="800" height="1000"></canvas>
+                    <canvas id="shareCardCanvas" class="share-card-canvas" width="1920" height="1080"></canvas>
                 </div>
                 <div class="share-card-actions">
                     <button class="share-card-btn primary" onclick="downloadShareCard()">
