@@ -1171,11 +1171,11 @@
                 linear-gradient(-45deg, transparent 48%, rgba(255,255,255,0.02) 50%, transparent 52%);
             background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
             touch-action: none;
-            /* 防盗图 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            contain: layout style paint;
         }
 
         body.rice-paper-theme .map-viewport {
@@ -1213,7 +1213,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) translateZ(0);
+            transform: translate3d(-50%, -50%, 0);
             transition: none;
             will-change: transform;
             width: 90vw;
@@ -1221,9 +1221,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            -webkit-transform: translate(-50%, -50%) translateZ(0);
+            -webkit-transform: translate3d(-50%, -50%, 0);
             -webkit-backface-visibility: hidden;
             -webkit-perspective: 1000;
+            contain: layout style paint;
+        }
+
+        .map-wrapper.dragging {
+            will-change: transform;
         }
 
         .map-image {
@@ -1236,19 +1241,32 @@
             -moz-user-select: none;
             -ms-user-select: none;
             -webkit-user-drag: none;
-            display: none;
+            display: none !important;
             border: 1px solid rgba(212, 175, 55, 0.2);
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
             transform: translateZ(0);
-            will-change: transform;
+            will-change: auto;
             backface-visibility: hidden;
             pointer-events: none;
             -webkit-transform: translateZ(0);
             -webkit-backface-visibility: hidden;
             -webkit-perspective: 1000;
-            /* 防盗图：禁止长按保存 */
             -webkit-touch-callout: none;
+            contain: layout style;
+        }
+
+        /* 拖拽时降低渲染质量提升性能 */
+        .map-viewport.grabbing .layer-image,
+        .map-viewport.grabbing .map-image {
+            image-rendering: auto !important;
+        }
+
+        /* 拖拽时简化非必要图层 */
+        .map-viewport.grabbing .layer-image[data-layer="terrain"],
+        .map-viewport.grabbing .layer-image[data-layer="river"],
+        .map-viewport.grabbing .layer-image[data-layer="border"] {
+            opacity: 0.15 !important;
         }
 
         body.bronze-theme .map-image {
@@ -3702,6 +3720,7 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
+            contain: layout style paint;
         }
 
         .layer-image {
@@ -3719,6 +3738,13 @@
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
             display: none;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            will-change: auto;
+            contain: layout style;
+            transition: opacity 0.15s ease;
         }
 
         .layer-image.loaded {
@@ -3906,6 +3932,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -3989,12 +4016,15 @@
         </div>
 
         <div class="settings-section">
-            <label class="settings-label">加载设置</label>
-            <div class="toggle-switch" onclick="toggleLoadingProgress()" id="loadingToggle">
-                <div class="toggle-track active" id="loadingToggleTrack">
+            <label class="settings-label">性能优化</label>
+            <div class="toggle-switch" onclick="toggleSmoothMode()" id="smoothToggle">
+                <div class="toggle-track active" id="smoothToggleTrack">
                     <div class="toggle-thumb"></div>
                 </div>
-                <span class="toggle-label">显示加载进度条</span>
+                <span class="toggle-label">流畅模式</span>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 8px; line-height: 1.5;">
+                开启后拖拽地图时会简化图层渲染以提升性能，松手后自动恢复完整画质。开启时可能影响视觉体验，建议低配设备或卡顿严重时使用。
             </div>
         </div>
 
@@ -4655,14 +4685,27 @@
             }
         }
 
-        // 加载进度条开关
-        let showLoadingProgress = true;
+        // 流畅模式开关
+        let smoothMode = true;
 
-        function toggleLoadingProgress() {
-            showLoadingProgress = !showLoadingProgress;
-            const track = document.getElementById('loadingToggleTrack');
-            track.classList.toggle('active', showLoadingProgress);
-            localStorage.setItem('showLoadingProgress', showLoadingProgress);
+        function toggleSmoothMode() {
+            smoothMode = !smoothMode;
+            const track = document.getElementById('smoothToggleTrack');
+            if (track) track.classList.toggle('active', smoothMode);
+            localStorage.setItem('smoothMode', smoothMode);
+            applySmoothMode();
+        }
+
+        function applySmoothMode() {
+            if (smoothMode) {
+                // 开启流畅模式：启用所有性能优化
+                PERF_CONFIG.dragThrottleMs = 16;
+                PERF_CONFIG.zoomThrottleMs = 16;
+            } else {
+                // 关闭流畅模式：恢复原始行为（无节流，无图层简化）
+                PERF_CONFIG.dragThrottleMs = 0;
+                PERF_CONFIG.zoomThrottleMs = 0;
+            }
         }
 
         // 中间操作区显示/隐藏
@@ -5157,7 +5200,7 @@ let currentIndex = -1;
         }
 
         function showLoading(path) {
-            if (!showLoadingProgress) return;
+            if (!smoothMode) return;
             loadingOverlay.classList.add('show');
             loadingPath.textContent = path;
             loadingProgressBar.style.width = '0%';
@@ -5365,7 +5408,7 @@ let currentIndex = -1;
             xhr.responseType = 'blob';
 
             xhr.onprogress = function(event) {
-                if (event.lengthComputable && showLoadingProgress) {
+                if (event.lengthComputable && smoothMode) {
                     const percent = (event.loaded / event.total) * 100;
                     updateProgress(percent);
 
@@ -5396,7 +5439,7 @@ let currentIndex = -1;
                 currentXhr = null;
 
                 if (xhr.status === 200) {
-                    if (showLoadingProgress) {
+                    if (smoothMode) {
                         updateProgress(100);
                         if (speedDisplay) speedDisplay.textContent = '✓ 加载完成';
                     }
@@ -5413,11 +5456,11 @@ let currentIndex = -1;
                     updateTransform();
 
                     setTimeout(() => {
-                        if (showLoadingProgress) hideLoading();
+                        if (smoothMode) hideLoading();
                         forceRepaint();
 
                         // 高清提示已移除
-                    }, showLoadingProgress ? 300 : 0);
+                    }, smoothMode ? 300 : 0);
                 } else {
                     handleLoadError();
                 }
@@ -5436,7 +5479,7 @@ let currentIndex = -1;
             };
 
             function handleLoadError() {
-                if (showLoadingProgress) hideLoading();
+                if (smoothMode) hideLoading();
                 mapImage.classList.remove('loaded');
                 placeholder.style.display = 'block';
                 placeholder.innerHTML = `
@@ -5450,7 +5493,7 @@ let currentIndex = -1;
             }
 
             showLoading(path);
-            if (showLoadingProgress && speedDisplay) speedDisplay.textContent = '连接中...';
+            if (smoothMode && speedDisplay) speedDisplay.textContent = '连接中...';
 
             xhr.send();
         }
@@ -6155,8 +6198,55 @@ function updateQuotes(data) {
         }
 
         // 缩放功能 - 以鼠标/触摸点为中心
+        // ===== 高性能渲染配置 =====
+        const PERF_CONFIG = {
+            dragThrottleMs: 16,
+            zoomThrottleMs: 16,
+            maxScale: 10,
+            minScale: 0.2,
+            zoomStep: 1.15,
+            qualityRestoreDelay: 150
+        };
+
+        let rafId = null;
+        let pendingTransform = null;
+        let lastDragTime = 0;
+        let lastZoomTime = 0;
+        let qualityTimer = null;
+
+        function updateTransform() {
+            pendingTransform = { scale, translateX, translateY };
+            if (!rafId) {
+                rafId = requestAnimationFrame(() => {
+                    rafId = null;
+                    if (!pendingTransform || !mapWrapper) return;
+                    const s = pendingTransform.scale;
+                    const tx = pendingTransform.translateX;
+                    const ty = pendingTransform.translateY;
+                    pendingTransform = null;
+                    mapWrapper.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale3d(${s}, ${s}, 1)`;
+                    if (zoomLevelDisplay) zoomLevelDisplay.textContent = Math.round(s * 100) + '%';
+                });
+            }
+        }
+
+        function setDragQuality(low) {
+            if (!mapWrapper || !smoothMode) return;
+            if (low) {
+                mapWrapper.classList.add('dragging');
+                if (mapViewport) mapViewport.classList.add('grabbing');
+            } else {
+                clearTimeout(qualityTimer);
+                qualityTimer = setTimeout(() => {
+                    if (mapWrapper) mapWrapper.classList.remove('dragging');
+                    if (mapViewport) mapViewport.classList.remove('grabbing');
+                    forceRepaint();
+                }, PERF_CONFIG.qualityRestoreDelay);
+            }
+        }
+
         function zoomIn() {
-            const newScale = Math.min(scale * 1.25, 10);
+            const newScale = Math.min(scale * PERF_CONFIG.zoomStep, PERF_CONFIG.maxScale);
             if (lastMouseX !== 0 && lastMouseY !== 0) {
                 const point = getPointOnImage(lastMouseX, lastMouseY);
                 zoomAtPoint(point.x, point.y, newScale);
@@ -6164,11 +6254,10 @@ function updateQuotes(data) {
                 scale = newScale;
                 updateTransform();
             }
-            setTimeout(forceRepaint, 50);
         }
 
         function zoomOut() {
-            const newScale = Math.max(scale / 1.25, 0.2);
+            const newScale = Math.max(scale / PERF_CONFIG.zoomStep, PERF_CONFIG.minScale);
             if (lastMouseX !== 0 && lastMouseY !== 0) {
                 const point = getPointOnImage(lastMouseX, lastMouseY);
                 zoomAtPoint(point.x, point.y, newScale);
@@ -6176,7 +6265,6 @@ function updateQuotes(data) {
                 scale = newScale;
                 updateTransform();
             }
-            setTimeout(forceRepaint, 50);
         }
 
         function resetView() {
@@ -6195,22 +6283,17 @@ function updateQuotes(data) {
             setTimeout(forceRepaint, 50);
         }
 
-        function updateTransform() {
-            mapWrapper.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scale})`;
-            zoomLevelDisplay.textContent = Math.round(scale * 100) + '%';
-        }
-
         // 鼠标拖拽（桌面端）
         function setupEventListeners() {
             if (mapViewport) {
                 mapViewport.addEventListener('mousedown', (e) => {
-                    if (e.target.closest('.toolbar')) return;
+                    if (e.target.closest('.toolbar') || e.target.closest('.layer-panel')) return;
                     isDragging = true;
                     startX = e.clientX - translateX;
                     startY = e.clientY - translateY;
                     lastMouseX = e.clientX;
                     lastMouseY = e.clientY;
-                    mapViewport.classList.add('grabbing');
+                    setDragQuality(true);
                 });
 
                 document.addEventListener('mousemove', (e) => {
@@ -6218,6 +6301,9 @@ function updateQuotes(data) {
                     lastMouseY = e.clientY;
                     if (!isDragging) return;
                     e.preventDefault();
+                    const now = performance.now();
+                    if (now - lastDragTime < PERF_CONFIG.dragThrottleMs) return;
+                    lastDragTime = now;
                     translateX = e.clientX - startX;
                     translateY = e.clientY - startY;
                     updateTransform();
@@ -6225,7 +6311,8 @@ function updateQuotes(data) {
 
                 document.addEventListener('mouseup', () => {
                     isDragging = false;
-                    mapViewport.classList.remove('grabbing');
+                    if (mapViewport) mapViewport.classList.remove('grabbing');
+                    setDragQuality(false);
                 });
             }
 
@@ -6233,14 +6320,13 @@ function updateQuotes(data) {
             if (mapViewport) {
                 mapViewport.addEventListener('wheel', (e) => {
                     e.preventDefault();
+                    const now = performance.now();
+                    if (now - lastZoomTime < PERF_CONFIG.zoomThrottleMs) return;
+                    lastZoomTime = now;
                     const delta = e.deltaY > 0 ? 0.9 : 1.1;
-                    const newScale = Math.max(0.2, Math.min(10, scale * delta));
-                    
-                    // 以鼠标位置为中心缩放
+                    const newScale = Math.max(PERF_CONFIG.minScale, Math.min(PERF_CONFIG.maxScale, scale * delta));
                     const point = getPointOnImage(e.clientX, e.clientY);
                     zoomAtPoint(point.x, point.y, newScale);
-                    
-                    setTimeout(forceRepaint, 50);
                 }, { passive: false });
             }
 
@@ -6249,7 +6335,7 @@ function updateQuotes(data) {
             let lastTouchCenter = { x: 0, y: 0 };
 
             if (mapViewport) {
-                            mapViewport.addEventListener('touchstart', (e) => {
+                mapViewport.addEventListener('touchstart', (e) => {
                     touches = Array.from(e.touches);
 
                     if (touches.length === 1) {
@@ -6258,27 +6344,30 @@ function updateQuotes(data) {
                         startY = touches[0].clientY - translateY;
                         lastMouseX = touches[0].clientX;
                         lastMouseY = touches[0].clientY;
+                        setDragQuality(true);
                     } else if (touches.length === 2) {
                         isDragging = false;
-                        e.preventDefault(); // 仅双指缩放时阻止默认行为
+                        e.preventDefault();
                         initialDistance = Math.hypot(
                             touches[0].clientX - touches[1].clientX,
                             touches[0].clientY - touches[1].clientY
                         );
                         initialScale = scale;
-
-                        // 计算双指中心点
                         lastTouchCenter = {
                             x: (touches[0].clientX + touches[1].clientX) / 2,
                             y: (touches[0].clientY + touches[1].clientY) / 2
                         };
+                        setDragQuality(true);
                     }
                 }, { passive: false });
 
                 mapViewport.addEventListener('touchmove', (e) => {
                     e.preventDefault();
                     touches = Array.from(e.touches);
-                    
+                    const now = performance.now();
+                    if (now - lastDragTime < PERF_CONFIG.dragThrottleMs) return;
+                    lastDragTime = now;
+
                     if (touches.length === 1 && isDragging) {
                         translateX = touches[0].clientX - startX;
                         translateY = touches[0].clientY - startY;
@@ -6290,21 +6379,16 @@ function updateQuotes(data) {
                             touches[0].clientX - touches[1].clientX,
                             touches[0].clientY - touches[1].clientY
                         );
-                        
-                        // 计算当前双指中心点
                         const currentCenter = {
                             x: (touches[0].clientX + touches[1].clientX) / 2,
                             y: (touches[0].clientY + touches[1].clientY) / 2
                         };
-                        
                         if (initialDistance > 0) {
-                            const newScale = Math.max(0.2, Math.min(10, initialScale * (currentDistance / initialDistance)));
-                            
-                            // 以双指中心点缩放
+                            const newScale = Math.max(PERF_CONFIG.minScale, Math.min(PERF_CONFIG.maxScale, 
+                                initialScale * (currentDistance / initialDistance)));
                             const point = getPointOnImage(lastTouchCenter.x, lastTouchCenter.y);
                             zoomAtPoint(point.x, point.y, newScale);
                         }
-                        
                         lastTouchCenter = currentCenter;
                     }
                 }, { passive: false });
@@ -6312,24 +6396,23 @@ function updateQuotes(data) {
                 mapViewport.addEventListener('touchend', (e) => {
                     isDragging = false;
                     touches = Array.from(e.touches);
-                    
                     if (touches.length === 1) {
                         startX = touches[0].clientX - translateX;
                         startY = touches[0].clientY - translateY;
                         isDragging = true;
                     }
-                    
-                    setTimeout(forceRepaint, 50);
+                    setDragQuality(false);
                 });
 
                 mapViewport.addEventListener('touchcancel', () => {
                     isDragging = false;
                     touches = [];
+                    setDragQuality(false);
                 });
             }
         }
 
-        // ========== 防盗图保护系统（多层防护）==========
+        // ========== 防盗图保护系统（多层防护）==========        // ========== 防盗图保护系统（多层防护）==========
         function setupImageProtection() {
             // 第一层：禁止右键菜单
             document.addEventListener('contextmenu', function(e) {
@@ -6830,11 +6913,11 @@ function initApp() {
             else if (savedTheme === 'bronze') setTheme('bronze');
             else if (savedTheme === 'cinnabar') setTheme('cinnabar');
             
-            const savedLoadingProgress = localStorage.getItem('showLoadingProgress');
+            const savedLoadingProgress = localStorage.getItem('smoothMode');
             if (savedLoadingProgress !== null) {
-                showLoadingProgress = savedLoadingProgress === 'true';
+                smoothMode = savedLoadingProgress === 'true';
                 const track = document.getElementById('loadingToggleTrack');
-                if (track) track.classList.toggle('active', showLoadingProgress);
+                if (track) track.classList.toggle('active', smoothMode);
             }
             
             const savedLeftWidth = localStorage.getItem('sidebarLeftWidth');
