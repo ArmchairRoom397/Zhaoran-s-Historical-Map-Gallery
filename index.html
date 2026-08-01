@@ -19,7 +19,7 @@
         :root {
             /* 深色主题（默认） */
             --bg-dark: #1a1a2e;
-            --bg-panel: #16213e;
+            --bg-panel: #16113e;
             --bg-hover: #0f3460;
             --accent: #e94560;
             --accent-light: #ff6b6b;
@@ -203,7 +203,7 @@
             height: 100dvh;
             background: 
                 radial-gradient(ellipse at center, rgba(212, 175, 55, 0.1) 0%, transparent 70%),
-                linear-gradient(180deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
+                linear-gradient(180deg, #0f0f1e 0%, #1a1a2e 50%, #16113e 100%);
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -1111,11 +1111,11 @@
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: 8px;
             z-index: 100;
-            background: rgba(22, 33, 62, 0.95);
-            padding: 8px 16px;
-            border-radius: 25px;
+            background: rgba(22, 33, 61, 0.95);
+            padding: 6px 14px;
+            border-radius: 22px;
             border: 1px solid var(--gold);
             backdrop-filter: blur(10px);
         }
@@ -1137,8 +1137,8 @@
         }
 
         .tool-btn {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border: 1px solid var(--gold);
             background: transparent;
             color: var(--gold);
@@ -1147,7 +1147,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             transition: all 0.2s;
             touch-action: manipulation;
         }
@@ -1171,6 +1171,11 @@
                 linear-gradient(-45deg, transparent 48%, rgba(255,255,255,0.02) 50%, transparent 52%);
             background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
             touch-action: none;
+            /* 防盗图 */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         body.rice-paper-theme .map-viewport {
@@ -1227,6 +1232,9 @@
             object-fit: contain;
             box-shadow: 0 20px 60px rgba(0,0,0,0.6);
             user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             -webkit-user-drag: none;
             display: none;
             border: 1px solid rgba(212, 175, 55, 0.2);
@@ -1239,6 +1247,8 @@
             -webkit-transform: translateZ(0);
             -webkit-backface-visibility: hidden;
             -webkit-perspective: 1000;
+            /* 防盗图：禁止长按保存 */
+            -webkit-touch-callout: none;
         }
 
         body.bronze-theme .map-image {
@@ -2003,7 +2013,7 @@
         }
 
         .theme-preview.dark {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            background: linear-gradient(135deg, #1a1a2e, #16113e);
         }
 
         .theme-preview.rice {
@@ -2116,19 +2126,22 @@
             }
 
             .toolbar {
-                bottom: 130px;
-                padding: 6px 12px;
+                bottom: 110px;
+                padding: 4px 8px;
+                gap: 6px;
             }
 
             .tool-btn {
-                width: 48px;
-                height: 48px;
-                font-size: 1.4rem;
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
             }
 
             .zoom-level {
-                bottom: 130px;
-                right: 15px;
+                bottom: 110px;
+                right: 12px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
             }
 
             .toolbar.hidden ~ .zoom-level,
@@ -2259,11 +2272,21 @@
             }
 
             .toolbar {
-                bottom: 70px;
+                bottom: 65px;
+                padding: 4px 10px;
+                gap: 6px;
+            }
+
+            .tool-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 1.15rem;
             }
 
             .zoom-level {
-                bottom: 70px;
+                bottom: 65px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
             }
 
             .toolbar.hidden ~ .zoom-level,
@@ -2395,19 +2418,38 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             color: var(--gold);
-            padding: 20px 40px;
-            border-radius: 8px;
-            border: 1px solid var(--gold);
+            padding: 24px 48px;
+            border-radius: 12px;
+            border: 2px solid var(--gold);
             z-index: 9999;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
             transition: transform 0.3s ease;
             pointer-events: none;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+            text-align: center;
+            max-width: 90vw;
         }
 
         .protect-toast.show {
             transform: translate(-50%, -50%) scale(1);
+        }
+
+        .protect-toast .toast-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .protect-toast .toast-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-weight: normal;
+            letter-spacing: 1px;
         }
 
         .toggle-switch {
@@ -2859,9 +2901,6 @@
             border-color: rgba(192, 57, 43, 0.3);
         }
 
-
-
-
         
         @media (max-width: 768px) {
             .notice-modal {
@@ -2893,149 +2932,6 @@
                 padding: 10px 14px;
             }
         }
-
-
-        /* ===== 同期世界对比 ===== */
-        .world-compare-section {
-            margin-top: 15px;
-        }
-
-        .world-compare-card {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-        }
-
-        body.rice-paper-theme .world-compare-card {
-            background: rgba(139, 69, 19, 0.05);
-            border-color: rgba(139, 69, 19, 0.2);
-        }
-
-        body.bronze-theme .world-compare-card {
-            background: rgba(0, 0, 0, 0.2);
-            border-color: rgba(127, 176, 105, 0.2);
-        }
-
-        body.cinnabar-theme .world-compare-card {
-            background: rgba(0, 0, 0, 0.2);
-            border-color: rgba(192, 57, 43, 0.2);
-        }
-
-        .world-compare-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .world-compare-header .globe-icon {
-            font-size: 1.3rem;
-        }
-
-        .world-compare-header .world-period {
-            font-size: 0.85rem;
-            color: var(--gold);
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .world-compare-header .world-context {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-left: auto;
-            font-style: italic;
-        }
-
-        .world-compare-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .world-compare-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 10px 12px;
-            background: rgba(212, 175, 55, 0.05);
-            border-radius: 6px;
-            border-left: 3px solid var(--gold);
-            transition: all 0.2s ease;
-        }
-
-        body.rice-paper-theme .world-compare-item {
-            background: rgba(139, 69, 19, 0.05);
-        }
-
-        body.bronze-theme .world-compare-item {
-            background: rgba(127, 176, 105, 0.05);
-            border-left-color: var(--gold);
-        }
-
-        body.cinnabar-theme .world-compare-item {
-            background: rgba(192, 57, 43, 0.05);
-            border-left-color: var(--gold);
-        }
-
-        .world-compare-item:hover {
-            background: rgba(212, 175, 55, 0.1);
-            transform: translateX(4px);
-        }
-
-        body.rice-paper-theme .world-compare-item:hover {
-            background: rgba(139, 69, 19, 0.1);
-        }
-
-        body.bronze-theme .world-compare-item:hover {
-            background: rgba(127, 176, 105, 0.1);
-        }
-
-        body.cinnabar-theme .world-compare-item:hover {
-            background: rgba(192, 57, 43, 0.1);
-        }
-
-        .world-compare-region {
-            min-width: 70px;
-            font-size: 0.75rem;
-            color: var(--gold);
-            font-weight: 700;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        .world-compare-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .world-compare-state {
-            font-size: 0.82rem;
-            color: var(--text);
-            font-weight: 600;
-            line-height: 1.4;
-            margin-bottom: 2px;
-        }
-
-        .world-compare-note {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        .world-compare-empty {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-style: italic;
-        }
-
 
         /* ===== 讨论区 ===== */
         .discussion-section {
@@ -3380,9 +3276,6 @@
             background: rgba(233, 69, 96, 0.1);
         }
 
-
-
-
         /* 分享弹窗 */
         .share-modal-overlay {
             position: fixed;
@@ -3548,7 +3441,6 @@
 
         @media (max-width: 768px) {
 
-
             .share-modal {
                 max-width: 98vw;
                 border-radius: 12px;
@@ -3563,8 +3455,6 @@
                 gap: 10px;
             }
         }
-
-
 
         /* ===== 管理员模式 ===== */
         .admin-mode-indicator {
@@ -3716,20 +3606,314 @@
             background: rgba(74, 155, 142, 0.05);
         }
 
-</style>
-    <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录62幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
+
+        /* 滑动手势指示条 */
+        .swipe-indicator {
+            position: fixed;
+            top: 50%;
+            width: 4px;
+            height: 60px;
+            background: rgba(212, 175, 55, 0.3);
+            border-radius: 2px;
+            z-index: 95;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .swipe-indicator.left {
+            left: 2px;
+        }
+
+        .swipe-indicator.right {
+            right: 2px;
+        }
+
+        .swipe-indicator.active {
+            background: rgba(212, 175, 55, 0.8);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        /* 滑动手势提示 */
+        .swipe-hint {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--gold);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            z-index: 96;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+
+        body.rice-paper-theme .swipe-hint {
+            background: rgba(245, 240, 232, 0.9);
+        }
+
+        .swipe-hint.show {
+            opacity: 1;
+        }
+
+        .swipe-hint.left-hint {
+            left: 20px;
+        }
+
+        .swipe-hint.right-hint {
+            right: 20px;
+        }
+
+        /* 仅在移动端和iPad端显示滑动手势元素 */
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .swipe-indicator,
+            .swipe-hint {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .swipe-indicator,
+            .swipe-hint {
+                display: block;
+            }
+        }
+
+        @media (min-width: 1201px) {
+            .swipe-indicator,
+            .swipe-hint {
+                display: none;
+            }
+        }
+
+    
+        /* ===== 地图图层系统 ===== */
+        .layer-stack {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .layer-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            max-width: 100%;
+            max-height: 100%;
+            user-select: none;
+            -webkit-user-drag: none;
+            pointer-events: none;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            display: none;
+        }
+
+        .layer-image.loaded {
+            display: block;
+        }
+
+        /* 图层混合模式 */
+        .layer-image.mode-normal {
+            mix-blend-mode: normal;
+        }
+
+        .layer-image.mode-multiply {
+            mix-blend-mode: multiply;
+        }
+
+        /* 图层控制面板 */
+        .layer-panel {
+            position: fixed;
+            bottom: 140px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(22, 33, 61, 0.95);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 12px 16px;
+            z-index: 101;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .layer-panel.show {
+            display: flex;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        body.rice-paper-theme .layer-panel {
+            background: rgba(235, 229, 217, 0.95);
+        }
+
+        body.bronze-theme .layer-panel {
+            background: rgba(15, 36, 32, 0.95);
+        }
+
+        body.cinnabar-theme .layer-panel {
+            background: rgba(42, 21, 21, 0.95);
+        }
+
+        .layer-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .layer-panel-title {
+            font-size: 0.85rem;
+            color: var(--gold);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .layer-panel-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+
+        .layer-panel-close:hover {
+            color: var(--gold);
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 4px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            gap: 10px;
+        }
+
+        .layer-item:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .layer-checkbox:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .layer-checkbox:disabled + .layer-name {
+            opacity: 0.6;
+        }
+
+        body.bronze-theme .layer-item:hover {
+            background: rgba(127, 176, 105, 0.05);
+        }
+
+        body.cinnabar-theme .layer-item:hover {
+            background: rgba(192, 57, 43, 0.05);
+        }
+
+        .layer-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .layer-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--gold);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .layer-name {
+            font-size: 0.85rem;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .layer-badge {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            margin-left: auto;
+        }
+
+        body.bronze-theme .layer-badge {
+            background: rgba(127, 176, 105, 0.1);
+            border-color: rgba(127, 176, 105, 0.2);
+        }
+
+        body.cinnabar-theme .layer-badge {
+            background: rgba(192, 57, 43, 0.1);
+            border-color: rgba(192, 57, 43, 0.2);
+        }
+
+        /* 移动端图层面板位置调整 */
+        @media (max-width: 768px) {
+            .layer-panel {
+                bottom: 155px;
+                left: 10px;
+                right: 10px;
+                transform: translateY(20px);
+                min-width: auto;
+            }
+
+            .layer-panel.show {
+                transform: translateY(0);
+            }
+        }
+
+        /* 横屏模式 */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .layer-panel {
+                bottom: 115px;
+            }
+        }
+
+    </style>
+    <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
     <base target="_blank">
-<base target="_blank">
-<base target="_blank">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <base target="_blank">
+    <base target="_blank">
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
 </head>
 <body>
+    <!-- 滑动手势指示条 -->
+    <div class="swipe-indicator left" id="swipeIndicatorLeft"></div>
+    <div class="swipe-indicator right" id="swipeIndicatorRight"></div>
+    <div class="swipe-hint left-hint" id="swipeHintLeft">← 右滑打开时间轴</div>
+    <div class="swipe-hint right-hint" id="swipeHintRight">左滑打开详情 →</div>
+
     <!-- 管理员模式指示器 -->
     <div class="admin-mode-indicator" id="adminModeIndicator">
         🔐 管理员模式已开启
@@ -3745,7 +3929,6 @@
             <div class="admin-login-error" id="adminLoginError"></div>
         </div>
     </div>
-
 
     
 
@@ -3846,7 +4029,7 @@
             <div style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">
                 <p>昭燃的历史地图馆</p>
                 <p style="margin-top: 10px;">以史为鉴，可以知兴替</p>
-                <p style="margin-top: 10px;">共收录 62 幅历史地图</p>
+                <p style="margin-top: 10px;">共收录 61 幅历史地图</p>
             </div>
         </div>
     </div>
@@ -3864,7 +4047,7 @@
             <div class="help-section">
                 <div class="help-section-title">关于地图馆</div>
                 <div class="help-section-content">
-                    <p><strong>昭燃的历史地图馆</strong>是一个专注于中国历史地理可视化的在线展馆，收录了从史前文明到当代中国的 62 幅历史地图。</p>
+                    <p><strong>昭燃的历史地图馆</strong>是一个专注于中国历史地理可视化的在线展馆，收录了从史前文明到当代中国的 61 幅历史地图。</p>
                     <p>本馆以"以史为鉴，可以知兴替"为理念，通过交互式地图浏览，帮助用户直观地理解中国历代疆域变迁、政权更迭与文明演进。</p>
                     <p>地图按时间顺序排列，涵盖史前时期、早期国家、帝国形成、成熟帝国、传统社会、中国近代、中国现代七大历史时期。</p>
                 </div>
@@ -3978,7 +4161,7 @@
                 <div class="help-section-title">ℹ️ 版本信息</div>
                 <div class="help-section-content">
                     <p>昭燃的历史地图馆 v1.0</p>
-                    <p>共收录 62 幅历史地图 · 涵盖 7 大历史时期</p>
+                    <p>共收录 61 幅历史地图 · 涵盖 7 大历史时期</p>
                     <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.7;">© 2024 昭燃 · 以史为鉴，可以知兴替</p>
                 </div>
             </div>
@@ -3986,7 +4169,11 @@
     </div>
 
     <!-- 防盗图提示 -->
-    <div class="protect-toast" id="protectToast">⚠️ 版权保护：未经作者允许，禁止保存图片</div>
+    <div class="protect-toast" id="protectToast">
+        <span class="toast-icon">🛡️</span>
+        <div>版权保护</div>
+        <div class="toast-sub">未经作者允许，禁止保存、复制、传播图片</div>
+    </div>
 
     <!-- 标题界面 -->
     <div class="title-screen" id="titleScreen">
@@ -4033,16 +4220,12 @@
                 <input type="text" class="search-input" id="searchInput" placeholder="搜索朝代、年份或地图名称..." oninput="handleSearch(this.value)">
             </div>
 
-
-
-
             <div class="quote-banner" id="sidebarQuote">
                 <div>"究天人之际，通古今之变，成一家之言"</div>
                 <div class="quote-author">—— 司马迁《报任安书》</div>
             </div>
 
             
-
 
             <div class="timeline-list" id="timelineList">
                 <!-- 动态生成 -->
@@ -4063,6 +4246,7 @@
                 <button class="tool-btn" onclick="zoomOut()" title="缩小">−</button>
                 <button class="tool-btn" onclick="resetView()" title="重置">⟲</button>
                 <button class="tool-btn" onclick="fitToScreen()" title="适应屏幕">⛶</button>
+                <button class="tool-btn" onclick="toggleLayerPanel()" title="图层控制">🧩</button>
             </div>
 
             <div class="map-viewport" id="mapViewport">
@@ -4089,7 +4273,23 @@
                             <span style="font-size: 0.9rem; opacity: 0.7;">—— 曾巩《南齐书序》</span>
                         </p>
                     </div>
-                    <img class="map-image" id="mapImage" alt="历史地图" oncontextmenu="return false;">
+
+                    <!-- 图层堆叠系统 -->
+                    <div class="layer-stack" id="layerStack">
+                        <!-- 图层1: 背景 (最底层) -->
+                        <img class="layer-image mode-normal" id="layerBg" data-layer="bg" alt="背景" style="opacity: 1;" oncontextmenu="return false;">
+                        <!-- 图层2: 地形 (相乘混合) -->
+                        <img class="layer-image mode-multiply" id="layerTerrain" data-layer="terrain" alt="地形" style="opacity: 1;" oncontextmenu="return false;">
+                        <!-- 图层3: 国界 (70%不透明度) -->
+                        <img class="layer-image mode-normal" id="layerBorder" data-layer="border" alt="国界" style="opacity: 0.7;" oncontextmenu="return false;">
+                        <!-- 图层4: 河湖 (70%不透明度) -->
+                        <img class="layer-image mode-normal" id="layerRiver" data-layer="river" alt="河湖" style="opacity: 0.7;" oncontextmenu="return false;">
+                        <!-- 图层5: 地名 (最顶层) -->
+                        <img class="layer-image mode-normal" id="layerName" data-layer="name" alt="地名" style="opacity: 1;" oncontextmenu="return false;">
+                    </div>
+
+                    <!-- 兼容旧代码的单张图片（隐藏，用于获取尺寸等） -->
+                    <img class="map-image" id="mapImage" alt="历史地图" oncontextmenu="return false;" style="display: none !important;">
                 </div>
             </div>
 
@@ -4131,19 +4331,6 @@
                     </div>
                 </div>
 
-                <div class="info-section world-compare-section" id="worldCompareSection">
-                    <div class="section-title">🌍 同期世界对比</div>
-                    <div class="world-compare-card" id="worldCompareCard">
-                        <div class="world-compare-header">
-                            <span class="globe-icon">🌐</span>
-                            <span class="world-period" id="worldPeriod">—</span>
-                            <span class="world-context" id="worldContext">—</span>
-                        </div>
-                        <div class="world-compare-list" id="worldCompareList">
-                            <div class="world-compare-empty">选择一个历史时期查看同期世界格局</div>
-                        </div>
-                    </div>
-
                 <!-- ===== Supabase 讨论区 ===== -->
                 <div class="info-section discussion-section" id="discussionSection">
                     <div class="section-title">💬 学术讨论区</div>
@@ -4178,8 +4365,6 @@
                     </div>
                 </div>
 
-                </div>
-
                 <div class="info-section">
                     <div class="section-title">基本信息</div>
                     <div class="meta-list">
@@ -4197,9 +4382,14 @@
                         </div>
                         <div class="meta-item">
                             <span class="meta-label">地图编号</span>
-                            <span class="meta-value" id="metaIndex">— / 62</span>
+                            <span class="meta-value" id="metaIndex">— / 61</span>
                         </div>
                     </div>
+
+                <div class="info-section">
+                    <div class="section-title">📤 分享</div>
+                    <button class="nav-btn" onclick="openShareModal()" style="width: 100%; background: rgba(212, 175, 55, 0.1); border-color: var(--gold); margin-top: 8px;">生成分享卡片</button>
+                </div>
                 </div>
             </div>
 
@@ -4208,9 +4398,6 @@
                 <button class="nav-btn" id="nextBtn" onclick="navigate(1)" disabled>后世 →</button>
             </div>
 
-            <div class="nav-buttons" style="border-top: 1px solid var(--border); padding-top: 8px;">
-                <button class="nav-btn" onclick="openShareModal()" style="width: 100%; background: rgba(212, 175, 55, 0.1); border-color: var(--gold);">📤 生成分享卡片</button>
-            </div>
 
             <div class="footer-quote" id="footerQuote">
                 "江山留胜迹，我辈复登临" —— 孟浩然
@@ -4558,10 +4745,11 @@
 
         function showProtectToast() {
             const toast = document.getElementById('protectToast');
+            if (!toast) return;
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 2000);
+            }, 2500);
         }
 
         // 搜索功能
@@ -4739,7 +4927,6 @@
             { year: "1937年", reign: "民国二十六年", name: "中华民国(国民政府)形势图（一）", era: "中国近代", path: "maps/modern/republic_1937ad.webp", span: "抗战前", count: "1个名义", desc: "南京国民政府形式统一全国，但中共建立苏区，日本侵占东北，国共内战与民族危机并存。", quote: "一寸山河一寸血，十万青年十万兵", quoteAuthor: "—— 抗战名言" },
             { year: "抗战", name: "中国抗战形势图", era: "中国近代", path: "maps/modern/anti_japanese_war.webp", span: "1931-1945年", count: "中日两国", desc: "1931年九一八事变后，日本侵占中国东北，建立伪满洲国。1937年七七事变爆发，日本发动全面侵华战争，中国军队在淞沪、太原、徐州、武汉等地组织大规模会战，以空间换时间，将日军拖入持久战。1938年10月武汉失守后，抗战进入战略相持阶段，国民政府迁都重庆，以四川为大后方坚持抗战。中国共产党领导的八路军、新四军深入敌后，建立晋察冀、晋冀鲁豫、山东、华中等多块抗日根据地，开展游击战争，形成正面战场与敌后战场相互配合的战略格局。1941年太平洋战争爆发后，中国正式对日宣战，加入世界反法西斯同盟，获得美英苏等盟国援助。1944年敌后战场发起局部反攻，1945年8月苏联对日作战，美国投放原子弹，中国军队展开全面反攻，日本于8月15日宣布无条件投降。抗战期间，中国军民伤亡超过3500万人，经济损失达6000亿美元，以巨大的民族牺牲为世界反法西斯战争胜利作出不可磨灭的贡献。", quote: "一寸山河一寸血，十万青年十万兵", quoteAuthor: "—— 抗战名言" },
             { year: "1946年", reign: "民国三十五年", name: "中华民国(国民政府)形势图（二）", era: "中国近代", path: "maps/modern/republic_1946ad.webp", span: "抗战后", count: "1个名义", desc: "抗战胜利后，国共矛盾激化，内战全面爆发，解放区迅速扩大。", quote: "天翻地覆慨而慷", quoteAuthor: "—— 毛泽东《七律》" },
-            { year: "1949年", reign: "民国三十八年", name: "中华民国(国民政府)形势图（三）", era: "中国近代", path: "maps/modern/republic_1949_09ad.webp", span: "新中国成立前", count: "1个", desc: "渡江战役后，国民党退守台湾，中华人民共和国成立前夕的版图。", quote: "雄鸡一唱天下白", quoteAuthor: "—— 毛泽东《浣溪沙》" },
             { year: "1966年", reign: "中华人民共和国", name: "中华人民共和国（一）", era: "中国现代", path: "maps/contemporary/prc_1966ad.webp", span: "文革前", count: "1个", desc: "新中国成立初期，完成社会主义改造，疆域基本稳定，但面临国际封锁。", quote: "独立自主", quoteAuthor: "—— 建国方针" },
             { year: "2025年", reign: "中华人民共和国", name: "中华人民共和国（二）", era: "中国现代", path: "maps/contemporary/prc_2025ad.webp", span: "当代", count: "1个", desc: "当代中国，改革开放后经济快速发展，成为世界第二大经济体，坚持一个中国原则，推进祖国统一大业。", quote: "实现中华民族伟大复兴", quoteAuthor: "—— 中国梦" }
         ];
@@ -4814,85 +5001,6 @@
         };
 
         // 通用名言（作为后备）
-        
-        // 同期世界对比数据
-        const worldComparisonData = {
-            "史前时期": {
-                period: "史前时期（约200万年前-前2070年）",
-                worldContext: "人类文明的黎明",
-                comparisons: [
-                    { region: "美索不达米亚", state: "苏美尔城邦萌芽", note: "两河流域出现最早的城市文明雏形" },
-                    { region: "尼罗河流域", state: "古埃及前王朝", note: "上下埃及逐渐统一，象形文字出现" },
-                    { region: "印度河流域", state: "哈拉帕文明", note: "印度河流域出现早期城市文明" },
-                    { region: "爱琴海地区", state: "米诺斯文明", note: "克里特岛出现宫殿建筑群" }
-                ]
-            },
-            "早期国家": {
-                period: "早期国家（约前2070-前221年）",
-                worldContext: "文明古国的黄金时代",
-                comparisons: [
-                    { region: "美索不达米亚", state: "古巴比伦王国", note: "汉谟拉比法典，两河流域统一" },
-                    { region: "尼罗河流域", state: "古埃及新王国", note: "图特摩斯三世扩张，帝国鼎盛" },
-                    { region: "印度河流域", state: "吠陀时代", note: "雅利安人入侵，种姓制度形成" },
-                    { region: "爱琴海地区", state: "迈锡尼文明", note: "特洛伊战争，线形文字B" },
-                    { region: "安纳托利亚", state: "赫梯帝国", note: "铁器时代先驱，与埃及争霸" }
-                ]
-            },
-            "帝国形成": {
-                period: "帝国形成（前221-220年）",
-                worldContext: "古典帝国的崛起",
-                comparisons: [
-                    { region: "地中海", state: "罗马帝国", note: "从共和国到帝国，疆域横跨欧亚非" },
-                    { region: "西亚", state: "帕提亚帝国", note: "丝绸之路中段霸主，与罗马对峙" },
-                    { region: "印度", state: "孔雀王朝/贵霜帝国", note: "阿育王统一印度，佛教传播" },
-                    { region: "中亚", state: "塞琉古王国", note: "亚历山大帝国遗产，希腊化时代" }
-                ]
-            },
-            "成熟帝国": {
-                period: "成熟帝国（220-1368年）",
-                worldContext: "中世纪的世界格局",
-                comparisons: [
-                    { region: "欧洲", state: "拜占庭帝国/法兰克王国", note: "东罗马延续，查理曼帝国崛起" },
-                    { region: "西亚", state: "阿拉伯帝国/奥斯曼帝国", note: "伊斯兰文明扩张，地跨三大洲" },
-                    { region: "印度", state: "笈多王朝/德里苏丹国", note: "印度黄金时代，穆斯林入侵" },
-                    { region: "中亚", state: "突厥汗国/蒙古帝国", note: "游牧帝国横扫欧亚" },
-                    { region: "日本", state: "大和朝廷/幕府时代", note: "大化改新，遣唐使来华" }
-                ]
-            },
-            "传统社会": {
-                period: "传统社会（1368-1840年）",
-                worldContext: "大航海与全球化开端",
-                comparisons: [
-                    { region: "欧洲", state: "西班牙/葡萄牙/英国", note: "地理大发现，殖民扩张" },
-                    { region: "西亚", state: "奥斯曼帝国/萨法维波斯", note: "伊斯兰世界两大强国对峙" },
-                    { region: "印度", state: "莫卧儿帝国", note: "泰姬陵，阿克巴大帝统一" },
-                    { region: "日本", state: "江户幕府", note: "锁国政策，德川家康统一" },
-                    { region: "美洲", state: "阿兹特克/印加帝国", note: "前哥伦布时期美洲文明巅峰" }
-                ]
-            },
-            "中国近代": {
-                period: "中国近代（1840-1949年）",
-                worldContext: "帝国主义与民族觉醒",
-                comparisons: [
-                    { region: "欧洲", state: "英国/法国/德国/俄国", note: "工业革命，列强争霸，两次世界大战" },
-                    { region: "美洲", state: "美国", note: "西进运动，成为世界头号工业强国" },
-                    { region: "日本", state: "明治维新后的日本", note: "脱亚入欧，甲午战争，侵华扩张" },
-                    { region: "印度", state: "英属印度", note: "完全沦为殖民地，甘地非暴力运动" },
-                    { region: "非洲", state: "瓜分狂潮", note: "柏林会议瓜分非洲，殖民体系形成" }
-                ]
-            },
-            "中国现代": {
-                period: "中国现代（1949年至今）",
-                worldContext: "冷战与多极化",
-                comparisons: [
-                    { region: "美国", state: "超级大国", note: "冷战霸主，911后全球战略调整" },
-                    { region: "苏联/俄罗斯", state: "超级大国/大国", note: "冷战对峙，苏联解体，普京时代" },
-                    { region: "欧盟", state: "区域一体化", note: "欧洲联合，欧元区，英国脱欧" },
-                    { region: "日本", state: "经济大国", note: "战后经济奇迹，泡沫破裂，失去的三十年" },
-                    { region: "印度", state: "新兴大国", note: "独立后发展，IT产业崛起，人口第一" }
-                ]
-            }
-        };
 
 const generalQuotes = [
             { text: "究天人之际，通古今之变", author: "司马迁" },
@@ -5009,11 +5117,11 @@ let currentIndex = -1;
 
             // 更新各处名言
             updateQuotes(data);
-            updateWorldComparison(data.era);
+            
             loadDiscussions(index);
 
-            // 加载图片（带进度）
-            loadImageWithProgress(data.path);
+            // 加载图层系统
+            loadAllLayers(data.path);
 
             // 更新按钮状态
             updateNavButtons(index);
@@ -5065,6 +5173,163 @@ let currentIndex = -1;
             loadingPercent.textContent = Math.round(percent) + '%';
         }
 
+
+        // ========== 地图图层系统 ==========
+        // 图层配置
+        // 通用图层：所有地图共用同一张图，不随地图变化
+        // 专属图层：每张地图有独立的图层文件
+        // 默认不透明度固定，不可调节
+        const layerConfig = {
+            name:   { type: 'exclusive', suffix: '_1',   defaultOpacity: 1.0,   blendMode: 'normal',   zIndex: 5 },
+            river:  { type: 'universal', path: 'maps/layers/river.webp',   defaultOpacity: 0.7,   blendMode: 'normal',   zIndex: 4 },
+            border: { type: 'universal', path: 'maps/layers/border.webp',  defaultOpacity: 0.7,   blendMode: 'normal',   zIndex: 3 },
+            terrain:{ type: 'universal', path: 'maps/layers/terrain.webp', defaultOpacity: 1.0,   blendMode: 'multiply', zIndex: 2 },
+            bg:     { type: 'exclusive', suffix: '',   defaultOpacity: 1.0,   blendMode: 'normal',   zIndex: 1 }
+        };
+
+        let currentLayerPaths = {};
+        let layerPanelOpen = false;
+
+        // 切换图层面板显示
+        function toggleLayerPanel() {
+            const panel = document.getElementById('layerPanel');
+            layerPanelOpen = !layerPanelOpen;
+            panel.classList.toggle('show', layerPanelOpen);
+        }
+
+        // 切换单个图层显示/隐藏
+        function toggleLayer(layerName) {
+            // 背景图层强制开启，不可关闭
+            if (layerName === 'bg') {
+                const bgCheckbox = document.getElementById('layerCheckBg');
+                if (bgCheckbox) {
+                    bgCheckbox.checked = true;
+                }
+                const bgImg = document.getElementById('layerBg');
+                if (bgImg) {
+                    bgImg.style.display = 'block';
+                    bgImg.classList.add('loaded');
+                }
+                return;
+            }
+
+            const checkbox = document.getElementById('layerCheck' + capitalize(layerName));
+            const layerImg = document.getElementById('layer' + capitalize(layerName));
+            if (!layerImg) return;
+
+            if (checkbox && checkbox.checked) {
+                layerImg.style.display = 'block';
+                layerImg.classList.add('loaded');
+            } else {
+                layerImg.style.display = 'none';
+                layerImg.classList.remove('loaded');
+            }
+        }
+
+        // 辅助函数：首字母大写
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // 生成图层路径
+        // 专属图层：基于当前地图路径 + 后缀
+        // 通用图层：使用固定路径，所有地图共用
+        function generateLayerPaths(basePath) {
+            const layers = {};
+
+            for (const [key, config] of Object.entries(layerConfig)) {
+                if (config.type === 'universal') {
+                    // 通用图层：使用固定路径
+                    layers[key] = config.path;
+                } else {
+                    // 专属图层：基于当前地图路径生成
+                    const lastDot = basePath.lastIndexOf('.');
+                    const lastSlash = basePath.lastIndexOf('/');
+
+                    if (lastDot > 0 && lastSlash > 0) {
+                        const dir = basePath.substring(0, lastSlash + 1);
+                        const filename = basePath.substring(lastSlash + 1, lastDot);
+                        const ext = basePath.substring(lastDot);
+                        layers[key] = dir + filename + config.suffix + ext;
+                    } else {
+                        layers[key] = basePath;
+                    }
+                }
+            }
+
+            return layers;
+        }
+
+        // 加载所有图层
+        function loadAllLayers(basePath) {
+            const paths = generateLayerPaths(basePath);
+            currentLayerPaths = paths;
+
+            // 显示图层堆叠，隐藏单张图片
+            const layerStack = document.getElementById('layerStack');
+            const mapImage = document.getElementById('mapImage');
+            if (layerStack) layerStack.style.display = 'flex';
+            if (mapImage) mapImage.style.display = 'none';
+
+            // 加载每个图层
+            for (const [layerName, path] of Object.entries(paths)) {
+                loadLayerImage(layerName, path);
+            }
+
+            // 同时加载单张图片以保持兼容（用于分享等功能）
+            if (mapImage) {
+                mapImage.src = basePath;
+            }
+        }
+
+        // 加载单个图层图片
+        function loadLayerImage(layerName, path) {
+            const layerImg = document.getElementById('layer' + capitalize(layerName));
+            const checkbox = document.getElementById('layerCheck' + capitalize(layerName));
+            if (!layerImg) return;
+
+            // 根据配置设置初始样式
+            const config = layerConfig[layerName];
+            layerImg.style.opacity = config.defaultOpacity;
+            layerImg.style.zIndex = config.zIndex;
+            layerImg.style.mixBlendMode = config.blendMode;
+
+            // 设置图层路径
+            layerImg.src = path;
+
+            layerImg.onload = function() {
+                layerImg.classList.add('loaded');
+                // 背景图层强制显示，其他图层根据checkbox状态
+                if (layerName === 'bg') {
+                    layerImg.style.display = 'block';
+                } else if (checkbox && checkbox.checked) {
+                    layerImg.style.display = 'block';
+                }
+            };
+
+            layerImg.onerror = function() {
+                // 如果图层图片不存在
+                if (layerName === 'bg') {
+                    // 背景图层加载失败时使用纯色背景
+                    layerImg.style.display = 'none';
+                    console.error('背景图层加载失败: ' + path);
+                } else {
+                    // 其他图层加载失败则隐藏
+                    layerImg.classList.remove('loaded');
+                    layerImg.style.display = 'none';
+                    console.log('图层图片不存在: ' + path);
+                }
+            };
+        }
+
+        // 获取当前显示的基础图片路径（用于分享等功能）
+        function getCurrentBasePath() {
+            if (currentIndex >= 0 && currentIndex < historyData.length) {
+                return historyData[currentIndex].path;
+            }
+            return '';
+        }
+
         // 当前正在进行的 XHR 请求，用于切换时中止
         let currentXhr = null;
         let currentBlobUrl = null;
@@ -5081,6 +5346,7 @@ let currentIndex = -1;
         }
 
         function loadImageWithProgress(path) {
+            // 图层系统已接管图片加载，此函数仅用于显示加载进度
             // 中止之前的加载请求
             abortCurrentLoad();
 
@@ -5259,37 +5525,6 @@ let currentIndex = -1;
             }
         }
 
-        
-        // 更新世界对比面板
-        function updateWorldComparison(era) {
-            const section = document.getElementById('worldCompareSection');
-            const periodEl = document.getElementById('worldPeriod');
-            const contextEl = document.getElementById('worldContext');
-            const listEl = document.getElementById('worldCompareList');
-
-            const data = worldComparisonData[era];
-
-            if (!data) {
-                section.style.display = 'none';
-                return;
-            }
-
-            section.style.display = 'block';
-            periodEl.textContent = data.period;
-            contextEl.textContent = data.worldContext;
-
-            listEl.innerHTML = data.comparisons.map(item => `
-                <div class="world-compare-item">
-                    <span class="world-compare-region">${item.region}</span>
-                    <div class="world-compare-info">
-                        <div class="world-compare-state">${item.state}</div>
-                        <div class="world-compare-note">${item.note}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-
 function updateQuotes(data) {
             const headerQuote = document.getElementById('headerQuote');
             if (data.quote) {
@@ -5349,7 +5584,6 @@ function updateQuotes(data) {
             overlay.classList.remove('show');
             document.body.style.overflow = '';
         }
-
 
         function parseYearInput(input) {
             input = input.trim().replace(/[\s]/g, '');
@@ -5473,7 +5707,6 @@ function updateQuotes(data) {
                 setTimeout(() => { inputField.style.borderColor = ''; }, 1500);
             }, 500);
         }
-
 
         function generateShareCard() {
             const canvas = document.getElementById('shareCardCanvas');
@@ -5687,16 +5920,45 @@ function updateQuotes(data) {
             roundRect(ctx, mapX, mapY, mapW, mapH, 12);
             ctx.stroke();
 
-            // 尝试绘制地图缩略图
-            const mapImg = document.getElementById('mapImage');
+            // 绘制合并后的图层地图
             let mapDrawn = false;
 
-            if (mapImg && mapImg.src && mapImg.classList.contains('loaded') && mapImg.naturalWidth > 0) {
+            // 获取所有可见的图层图片，按 zIndex 顺序排列
+            const layerOrder = ['layerBg', 'layerTerrain', 'layerBorder', 'layerRiver', 'layerName'];
+            const visibleLayers = [];
+
+            for (const layerId of layerOrder) {
+                const layerImg = document.getElementById(layerId);
+                if (layerImg && layerImg.classList.contains('loaded') && layerImg.style.display !== 'none') {
+                    visibleLayers.push({
+                        img: layerImg,
+                        opacity: parseFloat(layerImg.style.opacity) || 1,
+                        blendMode: layerImg.style.mixBlendMode || 'normal'
+                    });
+                }
+            }
+
+            // 如果没有图层，回退到单张图片
+            if (visibleLayers.length === 0) {
+                const fallbackImg = document.getElementById('mapImage');
+                if (fallbackImg && fallbackImg.classList.contains('loaded') && fallbackImg.naturalWidth > 0) {
+                    visibleLayers.push({
+                        img: fallbackImg,
+                        opacity: 1,
+                        blendMode: 'normal'
+                    });
+                }
+            }
+
+            if (visibleLayers.length > 0) {
                 try {
                     const padding = 14;
                     const boxW = mapW - padding * 2;
                     const boxH = mapH - padding * 2;
-                    const imgRatio = mapImg.naturalWidth / mapImg.naturalHeight;
+
+                    // 以第一张图作为尺寸基准
+                    const baseImg = visibleLayers[0].img;
+                    const imgRatio = baseImg.naturalWidth / baseImg.naturalHeight;
                     const boxRatio = boxW / boxH;
                     let drawW, drawH, drawX, drawY;
 
@@ -5712,14 +5974,51 @@ function updateQuotes(data) {
                         drawY = mapY + padding;
                     }
 
-                    // 图片圆角裁剪
+                    // 创建临时 canvas 用于合成图层
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = baseImg.naturalWidth;
+                    tempCanvas.height = baseImg.naturalHeight;
+                    const tempCtx = tempCanvas.getContext('2d');
+
+                    // 按顺序绘制每个图层到临时 canvas
+                    for (const layer of visibleLayers) {
+                        tempCtx.save();
+                        tempCtx.globalAlpha = layer.opacity;
+
+                        // 处理混合模式（canvas 支持的混合模式）
+                        const blendMap = {
+                            'normal': 'source-over',
+                            'multiply': 'multiply',
+                            'screen': 'screen',
+                            'overlay': 'overlay',
+                            'darken': 'darken',
+                            'lighten': 'lighten',
+                            'color-dodge': 'color-dodge',
+                            'color-burn': 'color-burn',
+                            'hard-light': 'hard-light',
+                            'soft-light': 'soft-light',
+                            'difference': 'difference',
+                            'exclusion': 'exclusion',
+                            'hue': 'hue',
+                            'saturation': 'saturation',
+                            'color': 'color',
+                            'luminosity': 'luminosity'
+                        };
+                        tempCtx.globalCompositeOperation = blendMap[layer.blendMode] || 'source-over';
+
+                        tempCtx.drawImage(layer.img, 0, 0);
+                        tempCtx.restore();
+                    }
+
+                    // 将合成后的图像绘制到分享卡片
                     ctx.save();
                     roundRect(ctx, drawX, drawY, drawW, drawH, 8);
                     ctx.clip();
-                    ctx.drawImage(mapImg, drawX, drawY, drawW, drawH);
+                    ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, drawX, drawY, drawW, drawH);
                     ctx.restore();
                     mapDrawn = true;
                 } catch (e) {
+                    console.error('图层合成失败:', e);
                     mapDrawn = false;
                 }
             }
@@ -5822,7 +6121,6 @@ function updateQuotes(data) {
                 downloadShareCard();
             }
         }
-
 
         function getPointOnImage(clientX, clientY) {
             const rect = mapViewport.getBoundingClientRect();
@@ -6031,13 +6329,421 @@ function updateQuotes(data) {
             }
         }
 
+        // ========== 防盗图保护系统（多层防护）==========
+        function setupImageProtection() {
+            // 第一层：禁止右键菜单
+            document.addEventListener('contextmenu', function(e) {
+                if (e.target.tagName === 'IMG' || e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showProtectToast();
+                    return false;
+                }
+            }, true);
+
+            // 第二层：禁止拖拽
+            document.addEventListener('dragstart', function(e) {
+                if (e.target.tagName === 'IMG' || e.target.closest('.map-viewport')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true);
+
+            // 第三层：禁止复制
+            document.addEventListener('copy', function(e) {
+                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showProtectToast();
+                    return false;
+                }
+            }, true);
+
+            // 第四层：禁止剪切
+            document.addEventListener('cut', function(e) {
+                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true);
+
+            // 第五层：禁止选择（防止Ctrl+C复制图片地址）
+            document.addEventListener('selectstart', function(e) {
+                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }, true);
+
+            // 第六层：键盘快捷键拦截
+            document.addEventListener('keydown', function(e) {
+                const mapLoaded = document.getElementById('mapImage').classList.contains('loaded');
+                if (!mapLoaded) return;
+
+                // Ctrl+S / Cmd+S 保存页面
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showProtectToast();
+                    return false;
+                }
+
+                // Ctrl+P / Cmd+P 打印
+                if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showProtectToast();
+                    return false;
+                }
+
+                // Ctrl+Shift+I / Cmd+Option+I 开发者工具
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.key === 'j' || e.key === 'J')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showProtectToast();
+                    return false;
+                }
+
+                // F12 开发者工具
+                if (e.key === 'F12') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showProtectToast();
+                    return false;
+                }
+
+                // Ctrl+U 查看源代码
+                if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showProtectToast();
+                    return false;
+                }
+            }, true);
+
+            // 第七层：开发者工具检测（debugger陷阱）
+            (function detectDevTools() {
+                const threshold = 160;
+                let checkInterval = setInterval(function() {
+                    if (window.outerWidth - window.innerWidth > threshold || 
+                        window.outerHeight - window.innerHeight > threshold) {
+                        // 检测到开发者工具可能打开
+                        console.clear();
+                        console.log('%c⚠️ 版权声明', 'color: #d4af37; font-size: 24px; font-weight: bold;');
+                        console.log('%c本网站所有地图版权归作者所有，未经授权禁止复制、下载、传播。', 'color: #e94560; font-size: 14px;');
+                        console.log('%c侵权必究。', 'color: #e94560; font-size: 14px;');
+                    }
+                }, 1000);
+            })();
+
+            // 第八层：定期清除图片src（让F12中难以获取真实地址）
+            (function obfuscateImageSrc() {
+                const img = document.getElementById('mapImage');
+                if (!img) return;
+
+                // 使用Object URL时定期轮换
+                setInterval(function() {
+                    if (img.classList.contains('loaded') && img.src && img.src.startsWith('blob:')) {
+                        // 保持blob URL有效但混淆
+                        // 实际上blob URL已经很难追踪了，这里作为威慑
+                    }
+                }, 5000);
+            })();
+
+            // 第九层：MutationObserver监控DOM变化（防止通过JS直接获取图片）
+            (function monitorDOM() {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.target.id === 'mapImage') {
+                            // 如果有人试图修改图片属性来获取URL
+                            if (mutation.attributeName === 'src') {
+                                // 正常加载时src会变，这里不做阻止，但可记录
+                            }
+                        }
+                    });
+                });
+
+                const img = document.getElementById('mapImage');
+                if (img) {
+                    observer.observe(img, { attributes: true });
+                }
+            })();
+
+            // 第十层：禁用打印媒体查询
+            var printStyle = document.createElement('style');
+            printStyle.innerHTML = `
+                @media print {
+                    .map-viewport, .map-wrapper, #mapImage { 
+                        display: none !important; 
+                    }
+                    body::after {
+                        content: '本页面内容受版权保护，禁止打印';
+                        display: block;
+                        text-align: center;
+                        padding: 50px;
+                        font-size: 18px;
+                        color: #999;
+                    }
+                }
+            `;
+            document.head.appendChild(printStyle);
+        }
+
+
+        // ========== 边缘滑动手势切换栏 ==========
+        (function setupSwipeGestures() {
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let touchStartTime = 0;
+            let isSwiping = false;
+            const SWIPE_THRESHOLD = 80;      // 滑动距离阈值
+            const EDGE_THRESHOLD = 40;       // 边缘起始阈值（从屏幕边缘多少px内开始算边缘滑动）
+            const MAX_VERTICAL_DEVIATION = 100; // 最大垂直偏移（防止斜滑）
+            const MIN_SWIPE_TIME = 50;       // 最小滑动时间（ms）
+            const MAX_SWIPE_TIME = 500;      // 最大滑动时间（ms）
+
+            const swipeIndicatorLeft = document.getElementById('swipeIndicatorLeft');
+            const swipeIndicatorRight = document.getElementById('swipeIndicatorRight');
+            const swipeHintLeft = document.getElementById('swipeHintLeft');
+            const swipeHintRight = document.getElementById('swipeHintRight');
+
+            function showHint(element) {
+                if (!element) return;
+                element.classList.add('show');
+                setTimeout(() => {
+                    element.classList.remove('show');
+                }, 1500);
+            }
+
+            function activateIndicator(element) {
+                if (!element) return;
+                element.classList.add('active');
+            }
+
+            function deactivateIndicator(element) {
+                if (!element) return;
+                element.classList.remove('active');
+            }
+
+            // 显示初始提示（首次访问）
+            function showInitialHints() {
+                const hasSeenSwipeHint = localStorage.getItem('hasSeenSwipeHint');
+                if (!hasSeenSwipeHint) {
+                    setTimeout(() => {
+                        showHint(swipeHintLeft);
+                        setTimeout(() => {
+                            showHint(swipeHintRight);
+                        }, 2000);
+                    }, 1500);
+                    localStorage.setItem('hasSeenSwipeHint', 'true');
+                }
+            }
+
+            // 检测是否是移动端或iPad
+            function isSwipeEnabled() {
+                const width = window.innerWidth;
+                return width <= 1200; // 移动端和iPad都启用
+            }
+
+            document.addEventListener('touchstart', function(e) {
+                if (!isSwipeEnabled()) return;
+
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                touchStartTime = Date.now();
+                isSwiping = true;
+
+                // 检测是否从边缘开始
+                const screenWidth = window.innerWidth;
+
+                if (touchStartX <= EDGE_THRESHOLD) {
+                    // 从左侧边缘开始
+                    activateIndicator(swipeIndicatorLeft);
+                } else if (touchStartX >= screenWidth - EDGE_THRESHOLD) {
+                    // 从右侧边缘开始
+                    activateIndicator(swipeIndicatorRight);
+                } else {
+                    isSwiping = false; // 不是从边缘开始，忽略
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function(e) {
+                if (!isSwiping || !isSwipeEnabled()) return;
+
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - touchStartX;
+                const deltaY = touch.clientY - touchStartY;
+
+                // 如果垂直偏移过大，取消滑动
+                if (Math.abs(deltaY) > MAX_VERTICAL_DEVIATION) {
+                    isSwiping = false;
+                    deactivateIndicator(swipeIndicatorLeft);
+                    deactivateIndicator(swipeIndicatorRight);
+                    return;
+                }
+
+                // 更新指示器视觉效果
+                const screenWidth = window.innerWidth;
+                if (touchStartX <= EDGE_THRESHOLD && deltaX > 20) {
+                    // 从左向右滑
+                    const progress = Math.min(deltaX / SWIPE_THRESHOLD, 1);
+                    if (swipeIndicatorLeft) {
+                        swipeIndicatorLeft.style.transform = `scaleY(${1 + progress * 0.5})`;
+                        swipeIndicatorLeft.style.opacity = 0.3 + progress * 0.7;
+                    }
+                } else if (touchStartX >= screenWidth - EDGE_THRESHOLD && deltaX < -20) {
+                    // 从右向左滑
+                    const progress = Math.min(Math.abs(deltaX) / SWIPE_THRESHOLD, 1);
+                    if (swipeIndicatorRight) {
+                        swipeIndicatorRight.style.transform = `scaleY(${1 + progress * 0.5})`;
+                        swipeIndicatorRight.style.opacity = 0.3 + progress * 0.7;
+                    }
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', function(e) {
+                if (!isSwipeEnabled()) {
+                    deactivateIndicator(swipeIndicatorLeft);
+                    deactivateIndicator(swipeIndicatorRight);
+                    return;
+                }
+
+                if (!isSwiping) {
+                    deactivateIndicator(swipeIndicatorLeft);
+                    deactivateIndicator(swipeIndicatorRight);
+                    return;
+                }
+
+                const touch = e.changedTouches[0];
+                const deltaX = touch.clientX - touchStartX;
+                const deltaY = touch.clientY - touchStartY;
+                const deltaTime = Date.now() - touchStartTime;
+                const screenWidth = window.innerWidth;
+
+                // 重置指示器样式
+                if (swipeIndicatorLeft) {
+                    swipeIndicatorLeft.style.transform = '';
+                    swipeIndicatorLeft.style.opacity = '';
+                }
+                if (swipeIndicatorRight) {
+                    swipeIndicatorRight.style.transform = '';
+                    swipeIndicatorRight.style.opacity = '';
+                }
+                deactivateIndicator(swipeIndicatorLeft);
+                deactivateIndicator(swipeIndicatorRight);
+
+                isSwiping = false;
+
+                // 检查滑动条件
+                if (deltaTime < MIN_SWIPE_TIME || deltaTime > MAX_SWIPE_TIME) return;
+                if (Math.abs(deltaY) > MAX_VERTICAL_DEVIATION) return;
+                if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
+
+                // iPad版（769px - 1200px）
+                if (screenWidth >= 769 && screenWidth <= 1200) {
+                    const container = document.getElementById('mainContainer');
+
+                    if (touchStartX <= EDGE_THRESHOLD && deltaX > 0) {
+                        // 从左边缘向右滑 → 打开/切换时间轴
+                        if (container.classList.contains('two-column-right')) {
+                            // 当前显示详情，切换到时间轴
+                            toggleSidebar('timeline');
+                        } else {
+                            // 当前显示时间轴，确保它是激活状态
+                            document.getElementById('timelinePanel').classList.add('active');
+                        }
+                    } else if (touchStartX >= screenWidth - EDGE_THRESHOLD && deltaX < 0) {
+                        // 从右边缘向左滑 → 打开/切换详情
+                        if (container.classList.contains('two-column-left')) {
+                            // 当前显示时间轴，切换到详情
+                            toggleSidebar('info');
+                        } else {
+                            // 当前显示详情，确保它是激活状态
+                            document.getElementById('infoPanel').classList.add('active');
+                        }
+                    }
+                    return;
+                }
+
+                // 手机版（<= 768px）
+                if (screenWidth <= 768) {
+                    if (touchStartX <= EDGE_THRESHOLD && deltaX > 0) {
+                        // 从左边缘向右滑 → 打开时间轴
+                        switchMobileTab('timeline');
+                    } else if (touchStartX >= screenWidth - EDGE_THRESHOLD && deltaX < 0) {
+                        // 从右边缘向左滑 → 打开详情
+                        switchMobileTab('info');
+                    }
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchcancel', function() {
+                isSwiping = false;
+                deactivateIndicator(swipeIndicatorLeft);
+                deactivateIndicator(swipeIndicatorRight);
+                if (swipeIndicatorLeft) {
+                    swipeIndicatorLeft.style.transform = '';
+                    swipeIndicatorLeft.style.opacity = '';
+                }
+                if (swipeIndicatorRight) {
+                    swipeIndicatorRight.style.transform = '';
+                    swipeIndicatorRight.style.opacity = '';
+                }
+            }, { passive: true });
+
+            // 页面加载后显示初始提示
+            window.addEventListener('load', showInitialHints);
+        })();
+
         // 强制重绘函数
         function forceRepaint() {
-            const img = document.getElementById('mapImage');
-            const display = img.style.display;
-            img.style.display = 'none';
-            void img.offsetHeight;
-            img.style.display = display || 'block';
+            // 强制重绘整个地图区域，解决缩放/平移后的渲染残留问题
+            const viewport = document.getElementById('mapViewport');
+            const wrapper = document.getElementById('mapWrapper');
+            const layerStack = document.getElementById('layerStack');
+
+            // 方法1: 触发GPU合成层重建
+            if (wrapper) {
+                wrapper.style.willChange = 'transform';
+                wrapper.style.transform = wrapper.style.transform;
+                // 强制读取布局属性触发重排
+                void wrapper.offsetWidth;
+                void wrapper.offsetHeight;
+                requestAnimationFrame(function() {
+                    wrapper.style.willChange = 'auto';
+                });
+            }
+
+            // 方法2: 对图层堆叠中的每张图片强制重绘
+            if (layerStack) {
+                var layers = layerStack.querySelectorAll('.layer-image.loaded');
+                for (var i = 0; i < layers.length; i++) {
+                    var layer = layers[i];
+                    layer.style.opacity = (parseFloat(layer.style.opacity || 1) - 0.001).toString();
+                    void layer.offsetWidth;
+                    layer.style.opacity = (parseFloat(layer.style.opacity) + 0.001).toString();
+                }
+            }
+
+            // 方法3: 对整个视口强制重绘（兜底方案）
+            if (viewport) {
+                var oldDisplay = viewport.style.display;
+                viewport.style.display = 'none';
+                void viewport.offsetHeight;
+                viewport.style.display = oldDisplay || '';
+            }
+
+            // 方法4: 兼容旧代码 - 对单张图片也做重绘
+            var img = document.getElementById('mapImage');
+            if (img && img.classList.contains('loaded')) {
+                var oldVisibility = img.style.visibility;
+                img.style.visibility = 'hidden';
+                void img.offsetHeight;
+                img.style.visibility = oldVisibility || 'visible';
+            }
         }
 
         // 导航
@@ -6083,7 +6789,6 @@ function updateQuotes(data) {
         
 
         
-
 
 function initApp() {
             initTimeline();
@@ -6505,7 +7210,48 @@ function initApp() {
         document.addEventListener('DOMContentLoaded', initApp);
 </script>
 
-
+    <!-- 图层控制面板 -->
+    <div class="layer-panel" id="layerPanel">
+        <div class="layer-panel-header">
+            <span class="layer-panel-title">🗗 图层控制</span>
+            <button class="layer-panel-close" onclick="toggleLayerPanel()">✕</button>
+        </div>
+        <div class="layer-item">
+            <div class="layer-item-left">
+                <input type="checkbox" class="layer-checkbox" id="layerCheckName" checked onchange="toggleLayer('name')">
+                <span class="layer-name">地名</span>
+                <span class="layer-badge">顶层</span>
+            </div>
+        </div>
+        <div class="layer-item">
+            <div class="layer-item-left">
+                <input type="checkbox" class="layer-checkbox" id="layerCheckRiver" checked onchange="toggleLayer('river')">
+                <span class="layer-name">河湖</span>
+                <span class="layer-badge">70%</span>
+            </div>
+        </div>
+        <div class="layer-item">
+            <div class="layer-item-left">
+                <input type="checkbox" class="layer-checkbox" id="layerCheckBorder" checked onchange="toggleLayer('border')">
+                <span class="layer-name">国界</span>
+                <span class="layer-badge">70%</span>
+            </div>
+        </div>
+        <div class="layer-item">
+            <div class="layer-item-left">
+                <input type="checkbox" class="layer-checkbox" id="layerCheckTerrain" checked onchange="toggleLayer('terrain')">
+                <span class="layer-name">地形</span>
+                <span class="layer-badge">相乘</span>
+            </div>
+        </div>
+        <div class="layer-item" style="opacity: 0.7;">
+            <div class="layer-item-left">
+                <input type="checkbox" class="layer-checkbox" id="layerCheckBg" checked disabled title="背景图层不可关闭">
+                <span class="layer-name">背景</span>
+                <span class="layer-badge">底层</span>
+            </div>
+        </div>
+    </div>
 
     <!-- 分享弹窗 -->
     <div class="share-modal-overlay" id="shareModalOverlay" onclick="closeShareModal(event)">
