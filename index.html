@@ -3933,6 +3933,8 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -5224,7 +5226,7 @@ let currentIndex = -1;
         // 默认不透明度固定，不可调节
         const layerConfig = {
             name:   { type: 'exclusive', suffix: '_1',   defaultOpacity: 1.0,   blendMode: 'normal',   zIndex: 5 },
-            river:  { type: 'universal', path: 'maps/layers/river.webp',   defaultOpacity: 0.7,   blendMode: 'normal',   zIndex: 4 },
+            river:  { type: 'dual',      suffix: '_2',   universalPath: 'maps/layers/river.webp',   defaultOpacity: 0.7,   blendMode: 'normal',   zIndex: 4 },
             border: { type: 'universal', path: 'maps/layers/border.webp',  defaultOpacity: 0.7,   blendMode: 'normal',   zIndex: 3 },
             terrain:{ type: 'universal', path: 'maps/layers/terrain.webp', defaultOpacity: 1.0,   blendMode: 'multiply', zIndex: 2 },
             bg:     { type: 'exclusive', suffix: '',   defaultOpacity: 1.0,   blendMode: 'normal',   zIndex: 1 }
@@ -5284,6 +5286,21 @@ let currentIndex = -1;
                 if (config.type === 'universal') {
                     // 通用图层：使用固定路径
                     layers[key] = config.path;
+                } else if (config.type === 'dual') {
+                    // 双模式图层：先尝试专属图层路径，加载失败时回退到通用图层
+                    const lastDot = basePath.lastIndexOf('.');
+                    const lastSlash = basePath.lastIndexOf('/');
+
+                    if (lastDot > 0 && lastSlash > 0) {
+                        const dir = basePath.substring(0, lastSlash + 1);
+                        const filename = basePath.substring(lastSlash + 1, lastDot);
+                        const ext = basePath.substring(lastDot);
+                        layers[key] = dir + filename + config.suffix + ext;
+                    } else {
+                        layers[key] = basePath;
+                    }
+                    // 同时保存通用路径供回退使用
+                    layers[key + '_universal'] = config.universalPath;
                 } else {
                     // 专属图层：基于当前地图路径生成
                     const lastDot = basePath.lastIndexOf('.');
@@ -5356,6 +5373,16 @@ let currentIndex = -1;
                     // 背景图层加载失败时使用纯色背景
                     layerImg.style.display = 'none';
                     console.error('背景图层加载失败: ' + path);
+                } else if (config.type === 'dual' && currentLayerPaths[layerName + '_universal']) {
+                    // dual 类型图层：专属图层加载失败，回退到通用图层
+                    console.log('专属图层不存在，回退到通用图层: ' + currentLayerPaths[layerName + '_universal']);
+                    layerImg.src = currentLayerPaths[layerName + '_universal'];
+                    // onerror 会再次触发，如果通用图层也不存在则走下面的 else 分支
+                    layerImg.onerror = function() {
+                        layerImg.classList.remove('loaded');
+                        layerImg.style.display = 'none';
+                        console.log('通用图层也不存在: ' + currentLayerPaths[layerName + '_universal']);
+                    };
                 } else {
                     // 其他图层加载失败则隐藏
                     layerImg.classList.remove('loaded');
@@ -6202,6 +6229,7 @@ function updateQuotes(data) {
         const PERF_CONFIG = {
             dragThrottleMs: 16,
             zoomThrottleMs: 16,
+            zoomWheelThrottleMs: 16,
             maxScale: 10,
             minScale: 0.2,
             zoomStep: 1.15,
@@ -6212,6 +6240,7 @@ function updateQuotes(data) {
         let pendingTransform = null;
         let lastDragTime = 0;
         let lastZoomTime = 0;
+        let lastZoomWheelTime = 0;
         let qualityTimer = null;
 
         function updateTransform() {
@@ -6321,12 +6350,21 @@ function updateQuotes(data) {
                 mapViewport.addEventListener('wheel', (e) => {
                     e.preventDefault();
                     const now = performance.now();
-                    if (now - lastZoomTime < PERF_CONFIG.zoomThrottleMs) return;
-                    lastZoomTime = now;
+                    if (now - lastZoomWheelTime < PERF_CONFIG.zoomWheelThrottleMs) return;
+                    lastZoomWheelTime = now;
+                    // 滚轮缩放时开启流畅模式（降低画质）
+                    if (smoothMode) setDragQuality(true);
                     const delta = e.deltaY > 0 ? 0.9 : 1.1;
                     const newScale = Math.max(PERF_CONFIG.minScale, Math.min(PERF_CONFIG.maxScale, scale * delta));
                     const point = getPointOnImage(e.clientX, e.clientY);
                     zoomAtPoint(point.x, point.y, newScale);
+                    // 滚轮结束后恢复画质（防抖）
+                    if (smoothMode) {
+                        clearTimeout(qualityTimer);
+                        qualityTimer = setTimeout(() => {
+                            setDragQuality(false);
+                        }, PERF_CONFIG.qualityRestoreDelay);
+                    }
                 }, { passive: false });
             }
 
@@ -7310,7 +7348,7 @@ function initApp() {
             <div class="layer-item-left">
                 <input type="checkbox" class="layer-checkbox" id="layerCheckRiver" checked onchange="toggleLayer('river')">
                 <span class="layer-name">河湖</span>
-                <span class="layer-badge">70%</span>
+                <span class="layer-badge">专属/通用</span>
             </div>
         </div>
         <div class="layer-item">
