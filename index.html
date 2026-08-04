@@ -5814,20 +5814,34 @@ let currentIndex = -1;
             layerImg.style.zIndex = config.zIndex;
             layerImg.style.mixBlendMode = config.blendMode;
 
-            // 检查是否有预加载的缓存（通用图层）
+            // 对于 dual 类型图层（如河湖），先显示预加载的通用图层作为保底
             var preloaded = getPreloadedLayer(layerName);
             if (preloaded && layerName !== 'bg' && layerName !== 'name') {
+                // 立即显示预加载的通用图层
                 layerImg.src = preloaded.src;
                 layerImg.classList.add('loaded');
-                if (layerName === 'bg') {
+                if (checkbox && checkbox.checked) {
                     layerImg.style.display = 'block';
-                } else if (checkbox && checkbox.checked) {
-                    layerImg.style.display = 'block';
+                }
+
+                // 如果是 dual 类型，继续尝试加载专属图层（在后台静默替换）
+                if (config.type === 'dual' && path) {
+                    var exclusiveImg = new Image();
+                    exclusiveImg.onload = function() {
+                        // 专属图层加载成功，替换通用图层
+                        layerImg.src = exclusiveImg.src;
+                        console.log(layerName + ' 专属图层加载成功，已替换通用图层');
+                    };
+                    exclusiveImg.onerror = function() {
+                        // 专属图层不存在，保持通用图层显示
+                        console.log(layerName + ' 专属图层不存在，保持通用图层显示');
+                    };
+                    exclusiveImg.src = path;
                 }
                 return;
             }
 
-            // 设置图层路径
+            // 没有预加载缓存的情况，直接加载指定路径
             layerImg.src = path;
 
             layerImg.onload = function() {
@@ -5846,7 +5860,7 @@ let currentIndex = -1;
                     // 背景图层加载失败时使用纯色背景
                     layerImg.style.display = 'none';
                     console.error('背景图层加载失败: ' + path);
-                } else if (config.type === 'dual' && currentLayerPaths[layerName + '_universal']) {
+                } else if (config.type === 'dual' && currentLayerPaths && currentLayerPaths[layerName + '_universal']) {
                     // dual 类型图层：专属图层加载失败，回退到通用图层
                     console.log('专属图层不存在，回退到通用图层: ' + currentLayerPaths[layerName + '_universal']);
                     layerImg.src = currentLayerPaths[layerName + '_universal'];
@@ -5856,6 +5870,13 @@ let currentIndex = -1;
                         layerImg.style.display = 'none';
                         console.log('通用图层也不存在: ' + currentLayerPaths[layerName + '_universal']);
                     };
+                } else if (preloaded) {
+                    // 有预加载缓存但上面没走到的兜底
+                    layerImg.src = preloaded.src;
+                    layerImg.classList.add('loaded');
+                    if (checkbox && checkbox.checked) {
+                        layerImg.style.display = 'block';
+                    }
                 } else {
                     // 其他图层加载失败则隐藏
                     layerImg.classList.remove('loaded');
@@ -5919,7 +5940,7 @@ let currentIndex = -1;
                 currentLayerPaths = paths;
             }
 
-            // 定义需要加载的图层（排除背景，背景通常较小）
+            // 定义需要加载的图层
             var layersToLoad = [];
             var layerConfigMap = {
                 'name': { name: '地名图层', priority: 1 },
@@ -5929,10 +5950,11 @@ let currentIndex = -1;
                 'bg': { name: '背景图层', priority: 5 }
             };
 
-            // 检查每个图层是否需要加载（根据checkbox状态和低画质设置）
+            // 检查每个图层是否需要加载
             for (var layerName in layerConfigMap) {
                 var config = layerConfigMap[layerName];
                 var layerPath = paths[layerName];
+                var layerConfigDef = layerConfig[layerName];
 
                 // 低画质模式下跳过地形图层
                 if (layerName === 'terrain' && currentQuality === 'low') continue;
@@ -5941,31 +5963,34 @@ let currentIndex = -1;
                 var checkbox = document.getElementById('layerCheck' + capitalize(layerName));
                 if (checkbox && !checkbox.checked && layerName !== 'bg') continue;
 
-                // 检查是否有预加载的缓存
+                // 先设置预加载的通用图层作为保底（如果有的话）
                 var preloaded = getPreloadedLayer(layerName);
-                if (preloaded && layerName !== 'bg' && layerName !== 'name') {
-                    // 使用预加载的缓存，不需要XHR加载
-                    var layerImg = document.getElementById('layer' + capitalize(layerName));
-                    if (layerImg) {
-                        layerImg.src = preloaded.src;
-                        layerImg.classList.add('loaded');
-                        layerImg.style.display = 'block';
-                    }
-                    continue; // 跳过XHR加载
+                var layerImg = document.getElementById('layer' + capitalize(layerName));
+
+                if (preloaded && layerImg && layerName !== 'bg' && layerName !== 'name') {
+                    // 立即显示预加载的通用图层作为保底
+                    layerImg.src = preloaded.src;
+                    layerImg.classList.add('loaded');
+                    layerImg.style.display = 'block';
                 }
 
+                // 对于 dual 类型（如河湖），同时尝试加载专属图层
+                // 对于 universal 类型（如地形、国界），直接用预加载或 XHR
+                // 对于 exclusive 类型（如背景、地名），必须 XHR 加载
                 if (layerPath) {
                     layersToLoad.push({
                         name: layerName,
                         displayName: config.name,
                         path: layerPath,
-                        priority: config.priority
+                        priority: config.priority,
+                        type: layerConfigDef ? layerConfigDef.type : 'exclusive',
+                        hasPreloaded: !!preloaded,
+                        universalPath: layerConfigDef && layerConfigDef.type === 'dual' ? paths[layerName + '_universal'] : null
                     });
                 }
             }
 
             if (layersToLoad.length === 0) {
-                // 所有图层都已缓存或不需要加载
                 hideLoading();
                 forceRepaint();
                 return;
@@ -5993,6 +6018,25 @@ let currentIndex = -1;
             var completedLayers = 0;
 
             layersToLoad.forEach(function(layer) {
+                // 如果已有预加载缓存且不是 dual 类型，跳过 XHR
+                if (layer.hasPreloaded && layer.type !== 'dual' && layer.type !== 'exclusive') {
+                    var state = layerLoadStates[layer.name];
+                    if (state) {
+                        state.done = true;
+                        state.loaded = 1;
+                        state.total = 1;
+                    }
+                    completedLayers++;
+                    updateLayerLoadingDisplay();
+                    if (completedLayers >= totalLayers) {
+                        setTimeout(function() {
+                            hideLoading();
+                            forceRepaint();
+                        }, 300);
+                    }
+                    return;
+                }
+
                 var xhr = new XMLHttpRequest();
                 layerXhrs[layer.name] = xhr;
 
@@ -6031,7 +6075,7 @@ let currentIndex = -1;
                     completedLayers++;
 
                     if (xhr.status === 200) {
-                        // 将加载的blob设置到对应图层图片
+                        // 专属图层加载成功，替换预加载的通用图层
                         var blobUrl = URL.createObjectURL(xhr.response);
                         var layerImg = document.getElementById('layer' + capitalize(layer.name));
                         if (layerImg) {
@@ -6049,6 +6093,9 @@ let currentIndex = -1;
                             mapImage.src = blobUrl;
                             mapImage.classList.add('loaded');
                         }
+                    } else {
+                        // 专属图层加载失败（404等），保持预加载的通用图层显示
+                        console.log(layer.displayName + ' 专属版本不存在，已使用预加载通用图层');
                     }
 
                     updateLayerLoadingDisplay();
@@ -6066,7 +6113,8 @@ let currentIndex = -1;
                     var state = layerLoadStates[layer.name];
                     if (state) state.done = true;
                     completedLayers++;
-                    console.warn('图层加载失败: ' + layer.displayName);
+                    // 网络错误时，保持预加载的通用图层显示
+                    console.log(layer.displayName + ' 加载失败，已使用预加载通用图层保底');
                     updateLayerLoadingDisplay();
 
                     if (completedLayers >= totalLayers) {
