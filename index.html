@@ -5660,7 +5660,7 @@ let currentIndex = -1;
         // 默认不透明度固定，不可调节
         const layerConfig = {
             name:   { type: 'exclusive', suffix: '_1',   defaultOpacity: 1.0,   blendMode: 'normal',   zIndex: 5 },
-            river:  { type: 'dual',      suffix: '_2',   universalPath: 'maps/layers/river.webp',   defaultOpacity: 0.7,   blendMode: 'normal',   zIndex: 4 },
+            river:  { type: 'universal', path: 'maps/layers/river.webp',   defaultOpacity: 0.7,   blendMode: 'normal',   zIndex: 4 },
             border: { type: 'universal', path: 'maps/layers/border.webp',  defaultOpacity: 0.7,   blendMode: 'normal',   zIndex: 3 },
             terrain:{ type: 'universal', path: 'maps/layers/terrain.webp', defaultOpacity: 1.0,   blendMode: 'multiply', zIndex: 2 },
             bg:     { type: 'exclusive', suffix: '',   defaultOpacity: 1.0,   blendMode: 'normal',   zIndex: 1 }
@@ -5728,25 +5728,13 @@ let currentIndex = -1;
         function generateLayerPaths(basePath) {
             const layers = {};
 
+            // 判断是否是抗战地图（唯一使用专属河湖图层的地图）
+            var isAntiJapanese = basePath.indexOf('anti_japanese') >= 0;
+
             for (const [key, config] of Object.entries(layerConfig)) {
                 if (config.type === 'universal') {
-                    // 通用图层：使用固定路径
+                    // 通用图层：所有地图共用固定路径
                     layers[key] = config.path;
-                } else if (config.type === 'dual') {
-                    // 双模式图层：先尝试专属图层路径，加载失败时回退到通用图层
-                    const lastDot = basePath.lastIndexOf('.');
-                    const lastSlash = basePath.lastIndexOf('/');
-
-                    if (lastDot > 0 && lastSlash > 0) {
-                        const dir = basePath.substring(0, lastSlash + 1);
-                        const filename = basePath.substring(lastSlash + 1, lastDot);
-                        const ext = basePath.substring(lastDot);
-                        layers[key] = dir + filename + config.suffix + ext;
-                    } else {
-                        layers[key] = basePath;
-                    }
-                    // 同时保存通用路径供回退使用
-                    layers[key + '_universal'] = config.universalPath;
                 } else {
                     // 专属图层：基于当前地图路径生成
                     const lastDot = basePath.lastIndexOf('.');
@@ -5760,6 +5748,18 @@ let currentIndex = -1;
                     } else {
                         layers[key] = basePath;
                     }
+                }
+            }
+
+            // 抗战地图额外添加专属河湖图层路径
+            if (isAntiJapanese) {
+                const lastDot = basePath.lastIndexOf('.');
+                const lastSlash = basePath.lastIndexOf('/');
+                if (lastDot > 0 && lastSlash > 0) {
+                    const dir = basePath.substring(0, lastSlash + 1);
+                    const filename = basePath.substring(lastSlash + 1, lastDot);
+                    const ext = basePath.substring(lastDot);
+                    layers['river_exclusive'] = dir + filename + '_2' + ext;
                 }
             }
 
@@ -5815,51 +5815,42 @@ let currentIndex = -1;
             layerImg.style.mixBlendMode = config.blendMode;
 
             var preloaded = getPreloadedLayer(layerName);
-            var isDual = config.type === 'dual';
-            var universalPath = isDual && currentLayerPaths && currentLayerPaths[layerName + '_universal'] 
-                ? currentLayerPaths[layerName + '_universal'] 
-                : null;
+            var isRiver = layerName === 'river';
+            var isUniversal = config.type === 'universal';
 
-            // ===== 策略：先显示能显示的，再尝试更好的 =====
-
-            // Step 1: 如果有预加载缓存，立即显示
-            if (preloaded && layerName !== 'bg' && layerName !== 'name') {
-                layerImg.src = preloaded.src;
+            // ===== 河湖图层：所有地图默认用通用路径 =====
+            if (isRiver) {
+                var riverSrc = preloaded ? preloaded.src : config.path;
+                layerImg.src = riverSrc;
                 layerImg.classList.add('loaded');
-                if (checkbox && checkbox.checked) {
-                    layerImg.style.display = 'block';
-                }
+                layerImg.style.display = 'block';
 
-                // dual 类型：后台尝试专属图层
-                if (isDual && path) {
+                // 如果传入了专属路径（抗战地图），后台尝试加载替换
+                if (path && path !== config.path && path !== riverSrc) {
                     var exclusiveImg = new Image();
                     exclusiveImg.onload = function() {
                         layerImg.src = exclusiveImg.src;
+                        console.log('河湖专属图层加载成功，已替换通用图层');
+                    };
+                    exclusiveImg.onerror = function() {
+                        console.log('河湖专属图层不存在，保持通用图层');
                     };
                     exclusiveImg.src = path;
                 }
                 return;
             }
 
-            // Step 2: 没有预加载，dual/universal 类型用通用路径直接显示
-            if (isDual && universalPath) {
-                layerImg.src = universalPath;
+            // ===== 其他 universal 图层（地形、国界）=====
+            if (isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
+                layerImg.src = preloaded.src;
                 layerImg.classList.add('loaded');
                 if (checkbox && checkbox.checked) {
                     layerImg.style.display = 'block';
                 }
-                // 后台尝试专属
-                if (path) {
-                    var exclusiveImg2 = new Image();
-                    exclusiveImg2.onload = function() {
-                        layerImg.src = exclusiveImg2.src;
-                    };
-                    exclusiveImg2.src = path;
-                }
                 return;
             }
 
-            // Step 3: exclusive 类型（背景、地名），只能直接加载
+            // ===== exclusive 图层（背景、地名）=====
             layerImg.src = path;
 
             layerImg.onload = function() {
@@ -5875,13 +5866,6 @@ let currentIndex = -1;
                 if (layerName === 'bg') {
                     layerImg.style.display = 'none';
                     console.error('背景图层加载失败: ' + path);
-                } else if (isDual && universalPath) {
-                    // 专属失败，回退通用
-                    layerImg.src = universalPath;
-                    layerImg.onerror = function() {
-                        layerImg.classList.remove('loaded');
-                        layerImg.style.display = 'none';
-                    };
                 } else {
                     layerImg.classList.remove('loaded');
                     layerImg.style.display = 'none';
@@ -5890,7 +5874,7 @@ let currentIndex = -1;
             };
         }
 
-        // 获取当前显示的基础图片路径（用于分享等功能）
+
         function getCurrentBasePath() {
             if (currentIndex >= 0 && currentIndex < historyData.length) {
                 return historyData[currentIndex].path;
@@ -5941,6 +5925,9 @@ let currentIndex = -1;
                 currentLayerPaths = paths;
             }
 
+            // 判断是否是抗战地图
+            var isAntiJapanese = path.indexOf('anti_japanese') >= 0;
+
             var layersToLoad = [];
             var layerConfigMap = {
                 'name': { name: '地名图层', priority: 1 },
@@ -5952,8 +5939,8 @@ let currentIndex = -1;
 
             for (var layerName in layerConfigMap) {
                 var config = layerConfigMap[layerName];
-                var layerPath = paths[layerName];
                 var layerDef = layerConfig[layerName];
+                var layerPath = paths[layerName];
 
                 if (layerName === 'terrain' && currentQuality === 'low') continue;
 
@@ -5962,46 +5949,43 @@ let currentIndex = -1;
 
                 var layerImg = document.getElementById('layer' + capitalize(layerName));
                 var preloaded = getPreloadedLayer(layerName);
-                var isDual = layerDef && layerDef.type === 'dual';
-                var isUniversal = layerDef && layerDef.type === 'universal';
-                var universalPath = isDual && paths[layerName + '_universal'] ? paths[layerName + '_universal'] : null;
 
-                // ===== 第一步：确保图层有东西显示（保底）=====
+                // ===== 立即显示图层（零等待）=====
                 if (layerImg) {
-                    if (preloaded && layerName !== 'bg' && layerName !== 'name') {
-                        // 有预加载缓存：立即显示
+                    if (layerName === 'river') {
+                        // 河湖图层：所有地图先用通用路径显示
+                        var riverSrc = preloaded ? preloaded.src : layerPath;
+                        layerImg.src = riverSrc;
+                        layerImg.classList.add('loaded');
+                        layerImg.style.display = 'block';
+                    } else if (preloaded && layerName !== 'bg' && layerName !== 'name') {
+                        // 其他通用图层：有预加载则直接显示
                         layerImg.src = preloaded.src;
                         layerImg.classList.add('loaded');
                         layerImg.style.display = 'block';
-                    } else if (isUniversal && universalPath) {
-                        // universal 类型但没有预加载：直接用通用路径
-                        layerImg.src = universalPath;
-                        layerImg.classList.add('loaded');
-                        layerImg.style.display = 'block';
                     } else if (layerName === 'bg') {
-                        // 背景必须加载，先显示空白等XHR
+                        // 背景：等 XHR 加载
                         layerImg.style.display = 'block';
                     }
                 }
 
-                // ===== 第二步：决定是否需要 XHR =====
-                // exclusive（背景、地名）：必须 XHR
-                // dual（河湖）：XHR 尝试专属，已有通用保底
-                // universal（地形、国界）：有预加载则跳过，无预加载则 XHR 通用路径
+                // ===== 决定是否需要 XHR =====
                 var needsXHR = false;
                 var xhrPath = layerPath;
 
                 if (layerName === 'bg' || layerName === 'name') {
-                    // exclusive：必须 XHR 加载专属
+                    // 背景、地名：必须 XHR 加载专属
                     needsXHR = true;
-                } else if (isDual) {
-                    // dual：XHR 尝试专属，通用已保底
-                    needsXHR = true;
-                    xhrPath = layerPath; // 专属路径
-                } else if (isUniversal) {
-                    // universal：有预加载则跳过，没有则 XHR 通用
+                } else if (layerName === 'river') {
+                    // 河湖：非抗战地图不需要 XHR（通用已显示）
+                    // 抗战地图：XHR 加载专属河湖图层替换通用版
+                    if (isAntiJapanese && paths['river_exclusive']) {
+                        needsXHR = true;
+                        xhrPath = paths['river_exclusive'];
+                    }
+                } else {
+                    // 地形、国界：universal 类型，无预加载则 XHR
                     needsXHR = !preloaded;
-                    xhrPath = universalPath || layerPath;
                 }
 
                 if (needsXHR && xhrPath) {
@@ -6010,14 +5994,12 @@ let currentIndex = -1;
                         displayName: config.name,
                         path: xhrPath,
                         priority: config.priority,
-                        type: layerDef ? layerDef.type : 'exclusive',
-                        hasPreloaded: !!preloaded,
-                        isFallback: false
+                        isExclusive: isAntiJapanese && layerName === 'river'
                     });
                 }
             }
 
-            // 初始化加载状态（包括已跳过的）
+            // 初始化加载状态
             for (var ln in layerConfigMap) {
                 layerLoadStates[ln] = {
                     loaded: 0,
@@ -6030,9 +6012,8 @@ let currentIndex = -1;
                 };
             }
 
-            // 如果没有需要 XHR 的图层，直接完成
+            // 无需 XHR 的情况（大部分地图）
             if (layersToLoad.length === 0) {
-                // 标记所有为完成
                 for (var ln2 in layerLoadStates) {
                     layerLoadStates[ln2].done = true;
                     layerLoadStates[ln2].loaded = 1;
@@ -6042,7 +6023,7 @@ let currentIndex = -1;
                 setTimeout(function() {
                     hideLoading();
                     forceRepaint();
-                }, 200);
+                }, 150);
                 return;
             }
 
@@ -6091,21 +6072,19 @@ let currentIndex = -1;
                         var blobUrl = URL.createObjectURL(xhr.response);
                         layerImg.src = blobUrl;
                         layerImg.classList.add('loaded');
-                        if (layer.name !== 'bg' || document.getElementById('layerCheckBg').checked) {
-                            layerImg.style.display = 'block';
-                        }
+                        layerImg.style.display = 'block';
+
                         if (layer.name === 'bg') {
                             if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
                             currentBlobUrl = blobUrl;
                             mapImage.src = blobUrl;
                             mapImage.classList.add('loaded');
                         }
+                        if (layer.isExclusive) {
+                            console.log('抗战专属河湖图层加载成功');
+                        }
                     } else if (xhr.status === 404) {
-                        // 404：专属图层不存在，保持已显示的通用图层
-                        console.log(layer.displayName + ' 专属图层不存在(404)，保持通用图层');
-                        if (state) state.loaded = 1;
-                    } else {
-                        console.log(layer.displayName + ' 加载失败(status=' + xhr.status + ')');
+                        console.log(layer.displayName + ' 不存在(404)');
                         if (state) state.loaded = 1;
                     }
 
@@ -6126,7 +6105,6 @@ let currentIndex = -1;
                         state.loaded = 1;
                     }
                     completedXHR++;
-                    console.log(layer.displayName + ' 网络错误，保持已有显示');
                     updateLayerLoadingDisplay();
                     if (completedXHR >= totalXHR) {
                         setTimeout(function() {
@@ -6154,7 +6132,6 @@ let currentIndex = -1;
                 xhr.send();
             });
         }
-
         function formatSpeed(speedBps) {
             if (speedBps > 1024 * 1024) {
                 return (speedBps / (1024 * 1024)).toFixed(1) + ' MB/s';
