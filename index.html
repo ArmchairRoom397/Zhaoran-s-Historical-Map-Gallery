@@ -1405,9 +1405,11 @@
             color: var(--text-muted);
             font-family: "Courier New", monospace;
             word-break: break-all;
-            max-width: 300px;
+            max-width: 340px;
             margin: 0 auto;
-            opacity: 0.7;
+            opacity: 0.85;
+            line-height: 1.5;
+            min-height: 36px;
         }
 
         .loading-progress {
@@ -1443,11 +1445,12 @@
         }
 
         .loading-speed {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-top: 8px;
             font-family: "Courier New", monospace;
             min-height: 18px;
+            font-weight: 600;
         }
 
         .map-controls {
@@ -4135,7 +4138,23 @@
         .quality-explanation strong {
             color: var(--gold);
             font-weight: 700;
-        }</style>
+        }
+        /* 移动端加载进度适配 */
+        @media (max-width: 768px) {
+            .loading-container {
+                padding: 20px;
+                max-width: 90vw;
+            }
+            .loading-path {
+                max-width: 80vw;
+                font-size: 0.7rem;
+                min-height: 30px;
+            }
+            .loading-speed {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
@@ -4143,6 +4162,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <base target="_blank">
     <base target="_blank">
+<base target="_blank">
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
@@ -4462,7 +4482,10 @@
                 <p class="quote-author">—— 司马迁《报任安书》</p>
             </div>
             
-            <button class="enter-button" onclick="enterMuseum()">进入展馆</button>
+            <button class="enter-button" onclick="enterMuseum()" id="enterButton">进入展馆</button>
+            <div id="preloadStatus" style="margin-top: 15px; font-size: 0.75rem; color: var(--text-muted); opacity: 0; transition: opacity 0.5s ease; letter-spacing: 1px;">
+                <span id="preloadText">正在预加载基础图层...</span>
+            </div>
         </div>
 
         <div class="bottom-ornament">
@@ -4512,13 +4535,13 @@
                     <div class="loading-overlay" id="loadingOverlay">
                         <div class="loading-container">
                             <div class="loading-spinner"></div>
-                            <div class="loading-text">地图加载中</div>
-                            <div class="loading-path" id="loadingPath">maps/...</div>
+                            <div class="loading-text">图层加载中</div>
+                            <div class="loading-path" id="loadingPath">准备加载...</div>
                             <div class="loading-progress">
                                 <div class="loading-progress-bar" id="loadingProgressBar"></div>
                             </div>
                             <div class="loading-percent" id="loadingPercent">0%</div>
-                            <div class="loading-speed" id="loadingSpeed">连接中...</div>
+                            <div class="loading-speed" id="loadingSpeed">等待中...</div>
                         </div>
                     </div>
 
@@ -5575,8 +5598,8 @@ let currentIndex = -1;
             
             loadDiscussions(index);
 
-            // 加载图层系统
-            loadAllLayers(data.path);
+            // 加载图层系统（带进度显示）
+            loadAllLayersWithProgress(data.path);
 
             // 更新按钮状态
             updateNavButtons(index);
@@ -5742,7 +5765,7 @@ let currentIndex = -1;
             return layers;
         }
 
-        // 加载所有图层
+        // 加载所有图层（无进度版本，用于初始化和简单切换）
         function loadAllLayers(basePath) {
             const paths = generateLayerPaths(basePath);
             currentLayerPaths = paths;
@@ -5764,6 +5787,21 @@ let currentIndex = -1;
             }
         }
 
+        // 加载所有图层（带进度显示版本）
+        function loadAllLayersWithProgress(basePath) {
+            const paths = generateLayerPaths(basePath);
+            currentLayerPaths = paths;
+
+            // 显示图层堆叠，隐藏单张图片
+            const layerStack = document.getElementById('layerStack');
+            const mapImage = document.getElementById('mapImage');
+            if (layerStack) layerStack.style.display = 'flex';
+            if (mapImage) mapImage.style.display = 'none';
+
+            // 使用新的进度加载系统
+            loadImageWithProgress(basePath);
+        }
+
         // 加载单个图层图片
         function loadLayerImage(layerName, path) {
             const layerImg = document.getElementById('layer' + capitalize(layerName));
@@ -5775,6 +5813,19 @@ let currentIndex = -1;
             layerImg.style.opacity = config.defaultOpacity;
             layerImg.style.zIndex = config.zIndex;
             layerImg.style.mixBlendMode = config.blendMode;
+
+            // 检查是否有预加载的缓存（通用图层）
+            var preloaded = getPreloadedLayer(layerName);
+            if (preloaded && layerName !== 'bg' && layerName !== 'name') {
+                layerImg.src = preloaded.src;
+                layerImg.classList.add('loaded');
+                if (layerName === 'bg') {
+                    layerImg.style.display = 'block';
+                } else if (checkbox && checkbox.checked) {
+                    layerImg.style.display = 'block';
+                }
+                return;
+            }
 
             // 设置图层路径
             layerImg.src = path;
@@ -5837,114 +5888,267 @@ let currentIndex = -1;
             }
         }
 
+        // 当前正在加载的图层XHR集合
+        let layerXhrs = {};
+        let layerLoadStates = {};
+
+        function abortAllLayerLoads() {
+            // 中止所有正在进行的图层加载
+            Object.keys(layerXhrs).forEach(function(key) {
+                if (layerXhrs[key]) {
+                    try { layerXhrs[key].abort(); } catch(e) {}
+                }
+            });
+            layerXhrs = {};
+            layerLoadStates = {};
+        }
+
         function loadImageWithProgress(path) {
-            // 图层系统已接管图片加载，此函数仅用于显示加载进度
-            // 中止之前的加载请求
+            // 图层系统已接管图片加载，此函数现在协调各图层的加载进度
+            // 中止之前的所有加载请求
+            abortAllLayerLoads();
             abortCurrentLoad();
 
             placeholder.style.display = 'none';
             mapImage.classList.remove('loaded');
 
-            let startTime = Date.now();
-            let lastLoaded = 0;
-            let lastTime = startTime;
-            let speedDisplay = document.getElementById('loadingSpeed');
-
-            // 使用 XMLHttpRequest 获取真实加载进度
-            const xhr = new XMLHttpRequest();
-            currentXhr = xhr;
-            xhr.open('GET', path, true);
-            xhr.responseType = 'blob';
-
-            xhr.onprogress = function(event) {
-                if (event.lengthComputable && smoothMode) {
-                    const percent = (event.loaded / event.total) * 100;
-                    updateProgress(percent);
-
-                    // 计算加载速度
-                    const now = Date.now();
-                    const timeDiff = (now - lastTime) / 1000; // 秒
-                    if (timeDiff > 0.2) {
-                        const bytesDiff = event.loaded - lastLoaded;
-                        const speedBps = bytesDiff / timeDiff;
-                        let speedText = '';
-                        if (speedBps > 1024 * 1024) {
-                            speedText = (speedBps / (1024 * 1024)).toFixed(1) + ' MB/s';
-                        } else if (speedBps > 1024) {
-                            speedText = (speedBps / 1024).toFixed(1) + ' KB/s';
-                        } else {
-                            speedText = Math.round(speedBps) + ' B/s';
-                        }
-                        if (speedDisplay) speedDisplay.textContent = '⚡ ' + speedText;
-                        lastLoaded = event.loaded;
-                        lastTime = now;
-                    }
-                }
-            };
-
-            xhr.onload = function() {
-                // 如果请求已被中止或不是当前请求，忽略结果
-                if (xhr !== currentXhr) return;
-                currentXhr = null;
-
-                if (xhr.status === 200) {
-                    if (smoothMode) {
-                        updateProgress(100);
-                        if (speedDisplay) speedDisplay.textContent = '✓ 加载完成';
-                    }
-
-                    // 释放旧的 blob URL
-                    if (currentBlobUrl) {
-                        URL.revokeObjectURL(currentBlobUrl);
-                    }
-                    currentBlobUrl = URL.createObjectURL(xhr.response);
-                    mapImage.src = currentBlobUrl;
-                    mapImage.classList.add('loaded');
-
-                    // 保持当前视图位置与缩放比例
-                    updateTransform();
-
-                    setTimeout(() => {
-                        if (smoothMode) hideLoading();
-                        forceRepaint();
-
-                        // 高清提示已移除
-                    }, smoothMode ? 300 : 0);
-                } else {
-                    handleLoadError();
-                }
-            };
-
-            xhr.onerror = function() {
-                if (xhr !== currentXhr) return;
-                currentXhr = null;
-                handleLoadError();
-            };
-
-            xhr.onabort = function() {
-                if (xhr !== currentXhr) return;
-                currentXhr = null;
-                // 被中止时不显示错误，静默处理
-            };
-
-            function handleLoadError() {
-                if (smoothMode) hideLoading();
-                mapImage.classList.remove('loaded');
-                placeholder.style.display = 'block';
-                placeholder.innerHTML = `
-                    <div class="placeholder-icon">📂</div>
-                    <div class="welcome-text">该地图暂未上传</div>
-                    <div style="color: var(--text-muted); margin-top: 10px; font-size: 0.95rem;">
-                        看看其他地图吧~
-                    </div>
-                `;
-                resetView();
+            // 获取当前需要加载的图层路径
+            var paths = currentLayerPaths;
+            if (!paths || Object.keys(paths).length === 0) {
+                paths = generateLayerPaths(path);
+                currentLayerPaths = paths;
             }
 
-            showLoading(path);
-            if (smoothMode && speedDisplay) speedDisplay.textContent = '连接中...';
+            // 定义需要加载的图层（排除背景，背景通常较小）
+            var layersToLoad = [];
+            var layerConfigMap = {
+                'name': { name: '地名图层', priority: 1 },
+                'river': { name: '河湖图层', priority: 2 },
+                'border': { name: '国界图层', priority: 3 },
+                'terrain': { name: '地形图层', priority: 4 },
+                'bg': { name: '背景图层', priority: 5 }
+            };
 
-            xhr.send();
+            // 检查每个图层是否需要加载（根据checkbox状态和低画质设置）
+            for (var layerName in layerConfigMap) {
+                var config = layerConfigMap[layerName];
+                var layerPath = paths[layerName];
+
+                // 低画质模式下跳过地形图层
+                if (layerName === 'terrain' && currentQuality === 'low') continue;
+
+                // 检查checkbox是否启用
+                var checkbox = document.getElementById('layerCheck' + capitalize(layerName));
+                if (checkbox && !checkbox.checked && layerName !== 'bg') continue;
+
+                // 检查是否有预加载的缓存
+                var preloaded = getPreloadedLayer(layerName);
+                if (preloaded && layerName !== 'bg' && layerName !== 'name') {
+                    // 使用预加载的缓存，不需要XHR加载
+                    var layerImg = document.getElementById('layer' + capitalize(layerName));
+                    if (layerImg) {
+                        layerImg.src = preloaded.src;
+                        layerImg.classList.add('loaded');
+                        layerImg.style.display = 'block';
+                    }
+                    continue; // 跳过XHR加载
+                }
+
+                if (layerPath) {
+                    layersToLoad.push({
+                        name: layerName,
+                        displayName: config.name,
+                        path: layerPath,
+                        priority: config.priority
+                    });
+                }
+            }
+
+            if (layersToLoad.length === 0) {
+                // 所有图层都已缓存或不需要加载
+                hideLoading();
+                forceRepaint();
+                return;
+            }
+
+            // 初始化加载状态
+            layersToLoad.forEach(function(layer) {
+                layerLoadStates[layer.name] = {
+                    loaded: 0,
+                    total: 0,
+                    speed: 0,
+                    done: false,
+                    startTime: Date.now(),
+                    lastLoaded: 0,
+                    lastTime: Date.now()
+                };
+            });
+
+            // 显示加载面板
+            showLoading(path);
+            updateLayerLoadingDisplay();
+
+            // 为每个图层创建独立的XHR请求
+            var totalLayers = layersToLoad.length;
+            var completedLayers = 0;
+
+            layersToLoad.forEach(function(layer) {
+                var xhr = new XMLHttpRequest();
+                layerXhrs[layer.name] = xhr;
+
+                xhr.open('GET', layer.path, true);
+                xhr.responseType = 'blob';
+
+                xhr.onprogress = function(event) {
+                    var state = layerLoadStates[layer.name];
+                    if (!state) return;
+
+                    if (event.lengthComputable) {
+                        state.loaded = event.loaded;
+                        state.total = event.total;
+                    }
+
+                    // 计算该图层的下载速度
+                    var now = Date.now();
+                    var timeDiff = (now - state.lastTime) / 1000;
+                    if (timeDiff > 0.2) {
+                        var bytesDiff = event.loaded - state.lastLoaded;
+                        var speedBps = bytesDiff / timeDiff;
+                        state.speed = speedBps;
+                        state.lastLoaded = event.loaded;
+                        state.lastTime = now;
+                    }
+
+                    updateLayerLoadingDisplay();
+                };
+
+                xhr.onload = function() {
+                    var state = layerLoadStates[layer.name];
+                    if (state) {
+                        state.done = true;
+                        state.loaded = state.total;
+                    }
+                    completedLayers++;
+
+                    if (xhr.status === 200) {
+                        // 将加载的blob设置到对应图层图片
+                        var blobUrl = URL.createObjectURL(xhr.response);
+                        var layerImg = document.getElementById('layer' + capitalize(layer.name));
+                        if (layerImg) {
+                            layerImg.src = blobUrl;
+                            layerImg.classList.add('loaded');
+                            if (layer.name !== 'bg' || document.getElementById('layerCheckBg').checked) {
+                                layerImg.style.display = 'block';
+                            }
+                        }
+
+                        // 同时更新兼容的单张图片
+                        if (layer.name === 'bg') {
+                            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+                            currentBlobUrl = blobUrl;
+                            mapImage.src = blobUrl;
+                            mapImage.classList.add('loaded');
+                        }
+                    }
+
+                    updateLayerLoadingDisplay();
+
+                    // 所有图层加载完成
+                    if (completedLayers >= totalLayers) {
+                        setTimeout(function() {
+                            hideLoading();
+                            forceRepaint();
+                        }, 300);
+                    }
+                };
+
+                xhr.onerror = function() {
+                    var state = layerLoadStates[layer.name];
+                    if (state) state.done = true;
+                    completedLayers++;
+                    console.warn('图层加载失败: ' + layer.displayName);
+                    updateLayerLoadingDisplay();
+
+                    if (completedLayers >= totalLayers) {
+                        setTimeout(function() {
+                            hideLoading();
+                            forceRepaint();
+                        }, 300);
+                    }
+                };
+
+                xhr.onabort = function() {
+                    var state = layerLoadStates[layer.name];
+                    if (state) state.done = true;
+                    completedLayers++;
+                };
+
+                xhr.send();
+            });
+        }
+
+        function formatSpeed(speedBps) {
+            if (speedBps > 1024 * 1024) {
+                return (speedBps / (1024 * 1024)).toFixed(1) + ' MB/s';
+            } else if (speedBps > 1024) {
+                return (speedBps / 1024).toFixed(1) + ' KB/s';
+            } else {
+                return Math.round(speedBps) + ' B/s';
+            }
+        }
+
+        function updateLayerLoadingDisplay() {
+            var pathEl = document.getElementById('loadingPath');
+            var progressBar = document.getElementById('loadingProgressBar');
+            var percentEl = document.getElementById('loadingPercent');
+            var speedEl = document.getElementById('loadingSpeed');
+
+            if (!pathEl || !progressBar || !percentEl || !speedEl) return;
+
+            var totalLoaded = 0;
+            var totalSize = 0;
+            var activeLayers = [];
+            var allDone = true;
+
+            for (var name in layerLoadStates) {
+                var state = layerLoadStates[name];
+                if (!state) continue;
+
+                totalLoaded += state.loaded;
+                if (state.total > 0) totalSize += state.total;
+
+                if (!state.done) {
+                    allDone = false;
+                    var layerInfo = BASE_LAYERS[name] || { name: name };
+                    var percent = state.total > 0 ? Math.round((state.loaded / state.total) * 100) : 0;
+                    var speedText = state.speed > 0 ? formatSpeed(state.speed) : '连接中...';
+                    activeLayers.push(layerInfo.name + ' ' + percent + '% (' + speedText + ')');
+                }
+            }
+
+            // 更新总进度
+            var totalPercent = totalSize > 0 ? Math.round((totalLoaded / totalSize) * 100) : 0;
+            progressBar.style.width = totalPercent + '%';
+            percentEl.textContent = totalPercent + '%';
+
+            // 更新路径/图层信息显示
+            if (allDone) {
+                pathEl.textContent = '✓ 所有图层加载完成';
+                speedEl.textContent = '完成';
+            } else if (activeLayers.length > 0) {
+                pathEl.textContent = activeLayers.join(' | ');
+                // 显示最快的活跃图层速度
+                var maxSpeed = 0;
+                for (var n in layerLoadStates) {
+                    if (layerLoadStates[n].speed > maxSpeed) {
+                        maxSpeed = layerLoadStates[n].speed;
+                    }
+                }
+                speedEl.textContent = maxSpeed > 0 ? '⚡ 最快 ' + formatSpeed(maxSpeed) : '连接中...';
+            } else {
+                pathEl.textContent = '准备加载...';
+                speedEl.textContent = '等待中...';
+            }
         }
 
         function updateNavButtons(index) {
@@ -7039,6 +7243,69 @@ function updateQuotes(data) {
         }
 
 
+        // ========== 基础图层预加载系统 ==========
+        const BASE_LAYER_CACHE = {};
+        let baseLayersPreloaded = false;
+
+        // 基础图层配置（通用图层，所有地图共用）
+        const BASE_LAYERS = {
+            terrain: { path: 'maps/layers/terrain.webp', name: '地形图层', size: '约15MB' },
+            border: { path: 'maps/layers/border.webp', name: '国界图层', size: '约2MB' },
+            river: { path: 'maps/layers/river.webp', name: '河湖图层', size: '约3MB' }
+        };
+
+        function preloadBaseLayers() {
+            if (baseLayersPreloaded) return;
+            baseLayersPreloaded = true;
+
+            console.log('开始预加载基础图层...');
+            const layerNames = Object.keys(BASE_LAYERS);
+            let completed = 0;
+
+            // 显示预加载状态
+            var statusEl = document.getElementById('preloadStatus');
+            var textEl = document.getElementById('preloadText');
+            if (statusEl) statusEl.style.opacity = '1';
+
+            layerNames.forEach(function(layerName) {
+                var config = BASE_LAYERS[layerName];
+                var img = new Image();
+
+                img.onload = function() {
+                    BASE_LAYER_CACHE[layerName] = img;
+                    completed++;
+                    console.log('基础图层预加载完成: ' + config.name + ' (' + completed + '/' + layerNames.length + ')');
+                    if (textEl) {
+                        textEl.textContent = '已预加载 ' + completed + '/' + layerNames.length + ' 个基础图层';
+                    }
+                    // 所有图层预加载完成
+                    if (completed >= layerNames.length) {
+                        setTimeout(function() {
+                            if (statusEl) statusEl.style.opacity = '0';
+                            var enterBtn = document.getElementById('enterButton');
+                            if (enterBtn) enterBtn.textContent = '进入展馆';
+                        }, 800);
+                    }
+                };
+
+                img.onerror = function() {
+                    console.warn('基础图层预加载失败: ' + config.name);
+                    completed++;
+                    if (textEl) {
+                        textEl.textContent = '已预加载 ' + completed + '/' + layerNames.length + ' 个基础图层';
+                    }
+                };
+
+                // 添加时间戳防止缓存问题
+                img.src = config.path + '?t=' + Date.now();
+            });
+        }
+
+        // 获取预加载的基础图层
+        function getPreloadedLayer(layerName) {
+            return BASE_LAYER_CACHE[layerName] || null;
+        }
+
         // ========== 边缘滑动手势切换栏 ==========
         (function setupSwipeGestures() {
             let touchStartX = 0;
@@ -7344,6 +7611,7 @@ function initApp() {
             detectLayout();
             loadSavedSettings();
             checkAdminStatus();
+            preloadBaseLayers();
             // 恢复用户名
             const savedName = localStorage.getItem('discussionUserName');
             if (savedName) {
