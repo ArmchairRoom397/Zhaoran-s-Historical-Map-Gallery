@@ -4150,6 +4150,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -7206,7 +7207,7 @@ function updateQuotes(data) {
             if (baseLayersPreloaded) return;
             baseLayersPreloaded = true;
 
-            console.log('开始预加载基础图层...');
+            console.log('检查基础图层预加载状态...');
             const layerNames = Object.keys(BASE_LAYERS);
             let completed = 0;
             let successCount = 0;
@@ -7216,11 +7217,21 @@ function updateQuotes(data) {
             if (statusEl) statusEl.style.opacity = '1';
 
             layerNames.forEach(function(layerName) {
+                // 检查是否已经在立即预加载中完成
+                if (window.BASE_LAYER_CACHE && window.BASE_LAYER_CACHE[layerName]) {
+                    completed++;
+                    successCount++;
+                    console.log('✓ 已预加载: ' + BASE_LAYERS[layerName].name);
+                    updatePreloadStatus();
+                    return;
+                }
+
                 var config = BASE_LAYERS[layerName];
                 var img = new Image();
 
                 img.onload = function() {
-                    BASE_LAYER_CACHE[layerName] = img;
+                    if (!window.BASE_LAYER_CACHE) window.BASE_LAYER_CACHE = {};
+                    window.BASE_LAYER_CACHE[layerName] = img;
                     completed++;
                     successCount++;
                     console.log('✓ 预加载成功: ' + config.name);
@@ -7235,7 +7246,7 @@ function updateQuotes(data) {
 
                 // 设置超时（10秒）
                 setTimeout(function() {
-                    if (!BASE_LAYER_CACHE[layerName]) {
+                    if (!window.BASE_LAYER_CACHE || !window.BASE_LAYER_CACHE[layerName]) {
                         console.warn('⏱ 预加载超时: ' + config.name);
                         completed++;
                         updatePreloadStatus();
@@ -7261,7 +7272,7 @@ function updateQuotes(data) {
 
         // 获取预加载的基础图层
         function getPreloadedLayer(layerName) {
-            return BASE_LAYER_CACHE[layerName] || null;
+            return (window.BASE_LAYER_CACHE && window.BASE_LAYER_CACHE[layerName]) || null;
         }
 
         // ========== 边缘滑动手势切换栏 ==========
@@ -7569,7 +7580,6 @@ function initApp() {
             detectLayout();
             loadSavedSettings();
             checkAdminStatus();
-            preloadBaseLayers();
             // 恢复用户名
             const savedName = localStorage.getItem('discussionUserName');
             if (savedName) {
@@ -7973,6 +7983,39 @@ function initApp() {
         }
 
         // 页面加载完成后初始化
+        // 页面加载时立即开始预加载通用图层（不等待DOMContentLoaded）
+        (function immediatePreload() {
+            // 检查是否已经在预加载中
+            if (window.__baseLayersPreloading) return;
+            window.__baseLayersPreloading = true;
+
+            console.log('🚀 立即开始预加载基础图层...');
+
+            const baseLayers = {
+                terrain: { path: 'maps/layers/terrain.webp', name: '地形图层' },
+                border: { path: 'maps/layers/border.webp', name: '国界图层' },
+                river: { path: 'maps/layers/river.webp', name: '河湖图层' }
+            };
+
+            if (!window.BASE_LAYER_CACHE) window.BASE_LAYER_CACHE = {};
+
+            Object.keys(baseLayers).forEach(function(key) {
+                var config = baseLayers[key];
+                if (window.BASE_LAYER_CACHE[key]) return; // 已缓存
+
+                var img = new Image();
+                img.onload = function() {
+                    window.BASE_LAYER_CACHE[key] = img;
+                    console.log('✓ 预加载成功: ' + config.name);
+                };
+                img.onerror = function() {
+                    console.warn('✗ 预加载失败: ' + config.name);
+                };
+                // 添加时间戳防止缓存
+                img.src = config.path + '?t=' + Date.now();
+            });
+        })();
+
         document.addEventListener('DOMContentLoaded', initApp);
 </script>
 
