@@ -4476,12 +4476,172 @@
             }
         }
     
+    
+
     </style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
     <base target="_blank">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
+
+    
+        // ===== 访问统计系统 =====
+        // 访问统计：每次刷新都计数
+
+        async function initVisitorCounter() {
+            // 先显示本地缓存的数字（避免等待）
+            var cached = localStorage.getItem('visitorCount');
+            if (cached) {
+                updateVisitorDisplay(parseInt(cached));
+            }
+
+            // 每次访问都计数
+            await incrementVisitorCount();
+
+            // 更新今日访问次数显示
+            updateTodayVisitorCount();
+        }
+
+        function updateTodayVisitorStatus(hasVisited) {
+            var todayEl = document.getElementById('visitorToday');
+            if (todayEl) {
+                todayEl.textContent = hasVisited ? '已访问' : '新访问';
+                todayEl.style.color = hasVisited ? '#4a9b8e' : 'var(--gold)';
+            }
+        }
+
+        function checkVisitedToday() {
+            var lastVisit = localStorage.getItem(VISITOR_COOKIE_KEY);
+            if (!lastVisit) return false;
+            var lastDate = new Date(lastVisit);
+            var now = new Date();
+            return lastDate.toDateString() === now.toDateString();
+        }
+
+        function markVisitedToday() {
+            localStorage.setItem(VISITOR_COOKIE_KEY, new Date().toISOString());
+        }
+
+        async function incrementVisitorCount() {
+            if (!supabaseClient) {
+                // Supabase 未就绪，使用本地计数
+                incrementLocalCount();
+                return;
+            }
+
+            try {
+                // 尝试从 Supabase 获取当前计数并+1
+                var { data, error } = await supabaseClient
+                    .from('site_stats')
+                    .select('visitor_count, id')
+                    .eq('site_key', 'zhaoran_map')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    // 其他错误，使用本地计数
+                    console.error('获取访问计数失败:', error);
+                    incrementLocalCount();
+                    return;
+                }
+
+                var newCount = 1;
+                var recordId = null;
+
+                if (data) {
+                    newCount = (data.visitor_count || 0) + 1;
+                    recordId = data.id;
+                }
+
+                if (recordId) {
+                    // 更新现有记录
+                    await supabaseClient
+                        .from('site_stats')
+                        .update({ visitor_count: newCount, last_updated: new Date().toISOString() })
+                        .eq('id', recordId);
+                } else {
+                    // 插入新记录
+                    await supabaseClient
+                        .from('site_stats')
+                        .insert([{
+                            site_key: 'zhaoran_map',
+                            visitor_count: newCount,
+                            last_updated: new Date().toISOString()
+                        }]);
+                }
+
+                updateVisitorDisplay(newCount);
+                localStorage.setItem('visitorCount', newCount);
+            } catch (e) {
+                console.error('访问计数失败:', e);
+                incrementLocalCount();
+            }
+        }
+
+        async function fetchVisitorCount() {
+            if (!supabaseClient) return;
+
+            try {
+                var { data, error } = await supabaseClient
+                    .from('site_stats')
+                    .select('visitor_count')
+                    .eq('site_key', 'zhaoran_map')
+                    .single();
+
+                if (!error && data) {
+                    var count = data.visitor_count || 0;
+                    updateVisitorDisplay(count);
+                    localStorage.setItem('visitorCount', count);
+                }
+            } catch (e) {
+                console.error('获取访问计数失败:', e);
+            }
+        }
+
+        function incrementLocalCount() {
+            // 本地计数（Supabase 不可用时降级）
+            var localCount = parseInt(localStorage.getItem('localVisitorCount') || '0');
+            localCount++;
+            localStorage.setItem('localVisitorCount', localCount);
+            updateVisitorDisplay(localCount);
+        }
+
+        function updateVisitorDisplay(count) {
+            var el = document.getElementById('visitorNumber');
+            if (el) {
+                // 数字动画效果
+                animateNumber(el, parseInt(el.textContent) || 0, count, 800);
+            }
+        }
+
+        function animateNumber(element, from, to, duration) {
+            if (from === to || isNaN(from) || isNaN(to)) {
+                element.textContent = formatNumber(to);
+                return;
+            }
+            var startTime = performance.now();
+            function update(currentTime) {
+                var elapsed = currentTime - startTime;
+                var progress = Math.min(elapsed / duration, 1);
+                // easeOutQuart
+                progress = 1 - Math.pow(1 - progress, 4);
+                var current = Math.round(from + (to - from) * progress);
+                element.textContent = formatNumber(current);
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        function formatNumber(num) {
+            if (num >= 10000) {
+                return (num / 10000).toFixed(1) + 'w';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'k';
+            }
+            return num.toString();
+        }
 
     </script>
 <base target="_blank">
@@ -4992,6 +5152,21 @@
                             <span class="meta-value" id="metaIndex">— / 61</span>
                         </div>
                     </div>
+
+                <!-- 访问统计 -->
+                <div class="info-section">
+                    <div class="section-title">👁️ 访问统计</div>
+                    <div class="meta-list">
+                        <div class="meta-item">
+                            <span class="meta-label">累计访问</span>
+                            <span class="meta-value" id="visitorNumber" style="color: var(--gold); font-family: 'Courier New', monospace;">--</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">今日访问</span>
+                            <span class="meta-value" id="visitorToday" style="color: #4a9b8e;">--</span>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="info-section">
                     <div class="section-title">📤 分享</div>
@@ -5843,6 +6018,9 @@ let currentIndex = -1;
                     btn.onclick = function() { selectDiscussionTag(this); };
                 })(tagBtns[i]);
             }
+
+            // 初始化访问统计
+            initVisitorCounter();
         }
 
         function showLoading(path) {
@@ -7878,6 +8056,9 @@ function initApp() {
                     btn.onclick = function() { selectDiscussionTag(this); };
                 })(tagBtns[i]);
             }
+
+            // 初始化访问统计
+            initVisitorCounter();
         }
 
         // 加载保存的用户设置
@@ -8613,6 +8794,164 @@ function initApp() {
         document.addEventListener('DOMContentLoaded', initApp);
 
 
+    
+        // ===== 访问统计系统 =====
+        // 访问统计：每次刷新都计数
+
+        async function initVisitorCounter() {
+            // 先显示本地缓存的数字（避免等待）
+            var cached = localStorage.getItem('visitorCount');
+            if (cached) {
+                updateVisitorDisplay(parseInt(cached));
+            }
+
+            // 每次访问都计数
+            await incrementVisitorCount();
+
+            // 更新今日访问次数显示
+            updateTodayVisitorCount();
+        }
+
+        function updateTodayVisitorStatus(hasVisited) {
+            var todayEl = document.getElementById('visitorToday');
+            if (todayEl) {
+                todayEl.textContent = hasVisited ? '已访问' : '新访问';
+                todayEl.style.color = hasVisited ? '#4a9b8e' : 'var(--gold)';
+            }
+        }
+
+        function checkVisitedToday() {
+            var lastVisit = localStorage.getItem(VISITOR_COOKIE_KEY);
+            if (!lastVisit) return false;
+            var lastDate = new Date(lastVisit);
+            var now = new Date();
+            return lastDate.toDateString() === now.toDateString();
+        }
+
+        function markVisitedToday() {
+            localStorage.setItem(VISITOR_COOKIE_KEY, new Date().toISOString());
+        }
+
+        async function incrementVisitorCount() {
+            if (!supabaseClient) {
+                // Supabase 未就绪，使用本地计数
+                incrementLocalCount();
+                return;
+            }
+
+            try {
+                // 尝试从 Supabase 获取当前计数并+1
+                var { data, error } = await supabaseClient
+                    .from('site_stats')
+                    .select('visitor_count, id')
+                    .eq('site_key', 'zhaoran_map')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    // 其他错误，使用本地计数
+                    console.error('获取访问计数失败:', error);
+                    incrementLocalCount();
+                    return;
+                }
+
+                var newCount = 1;
+                var recordId = null;
+
+                if (data) {
+                    newCount = (data.visitor_count || 0) + 1;
+                    recordId = data.id;
+                }
+
+                if (recordId) {
+                    // 更新现有记录
+                    await supabaseClient
+                        .from('site_stats')
+                        .update({ visitor_count: newCount, last_updated: new Date().toISOString() })
+                        .eq('id', recordId);
+                } else {
+                    // 插入新记录
+                    await supabaseClient
+                        .from('site_stats')
+                        .insert([{
+                            site_key: 'zhaoran_map',
+                            visitor_count: newCount,
+                            last_updated: new Date().toISOString()
+                        }]);
+                }
+
+                updateVisitorDisplay(newCount);
+                localStorage.setItem('visitorCount', newCount);
+            } catch (e) {
+                console.error('访问计数失败:', e);
+                incrementLocalCount();
+            }
+        }
+
+        async function fetchVisitorCount() {
+            if (!supabaseClient) return;
+
+            try {
+                var { data, error } = await supabaseClient
+                    .from('site_stats')
+                    .select('visitor_count')
+                    .eq('site_key', 'zhaoran_map')
+                    .single();
+
+                if (!error && data) {
+                    var count = data.visitor_count || 0;
+                    updateVisitorDisplay(count);
+                    localStorage.setItem('visitorCount', count);
+                }
+            } catch (e) {
+                console.error('获取访问计数失败:', e);
+            }
+        }
+
+        function incrementLocalCount() {
+            // 本地计数（Supabase 不可用时降级）
+            var localCount = parseInt(localStorage.getItem('localVisitorCount') || '0');
+            localCount++;
+            localStorage.setItem('localVisitorCount', localCount);
+            updateVisitorDisplay(localCount);
+        }
+
+        function updateVisitorDisplay(count) {
+            var el = document.getElementById('visitorNumber');
+            if (el) {
+                // 数字动画效果
+                animateNumber(el, parseInt(el.textContent) || 0, count, 800);
+            }
+        }
+
+        function animateNumber(element, from, to, duration) {
+            if (from === to || isNaN(from) || isNaN(to)) {
+                element.textContent = formatNumber(to);
+                return;
+            }
+            var startTime = performance.now();
+            function update(currentTime) {
+                var elapsed = currentTime - startTime;
+                var progress = Math.min(elapsed / duration, 1);
+                // easeOutQuart
+                progress = 1 - Math.pow(1 - progress, 4);
+                var current = Math.round(from + (to - from) * progress);
+                element.textContent = formatNumber(current);
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        function formatNumber(num) {
+            if (num >= 10000) {
+                return (num / 10000).toFixed(1) + 'w';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'k';
+            }
+            return num.toString();
+        }
+
     </script>
 
     <!-- 图层控制面板 -->
@@ -8683,6 +9022,7 @@ function initApp() {
             </div>
         </div>
     </div>
+
 
 
 </body>
