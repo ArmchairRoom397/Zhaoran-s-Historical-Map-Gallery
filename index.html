@@ -4496,8 +4496,17 @@
                 updateVisitorDisplay(parseInt(cached));
             }
 
-            // 每次访问都计数
-            await incrementVisitorCount();
+            // 检查本次会话是否已经计数（进入网站只计一次，切换地图不计）
+            var hasCountedThisSession = sessionStorage.getItem('visitorCounted');
+
+            if (!hasCountedThisSession) {
+                // 首次进入网站，计数+1
+                await incrementVisitorCount();
+                sessionStorage.setItem('visitorCounted', 'true');
+            } else {
+                // 切换地图等操作，只读取总数不增加
+                await fetchVisitorCount();
+            }
 
             // 更新今日访问次数显示
             updateTodayVisitorCount();
@@ -8805,8 +8814,17 @@ function initApp() {
                 updateVisitorDisplay(parseInt(cached));
             }
 
-            // 每次访问都计数
-            await incrementVisitorCount();
+            // 检查本次会话是否已经计数（进入网站只计一次，切换地图不计）
+            var hasCountedThisSession = sessionStorage.getItem('visitorCounted');
+
+            if (!hasCountedThisSession) {
+                // 首次进入网站，计数+1
+                await incrementVisitorCount();
+                sessionStorage.setItem('visitorCounted', 'true');
+            } else {
+                // 切换地图等操作，只读取总数不增加
+                await fetchVisitorCount();
+            }
 
             // 更新今日访问次数显示
             updateTodayVisitorCount();
