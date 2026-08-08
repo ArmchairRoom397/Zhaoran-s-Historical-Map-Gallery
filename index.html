@@ -1,10 +1,66 @@
 <!DOCTYPE html>
+    <!-- Skip Link for keyboard navigation -->
+    <a href="#mainContainer" class="skip-link">跳转到主内容</a>
+
+
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>昭燃的历史地图馆</title>
     <style>
+        /* ===== WCAG 2.2 Focus Visibility Enhancement ===== */
+        *:focus-visible {
+            outline: 3px solid var(--gold);
+            outline-offset: 3px;
+            box-shadow: 0 0 0 6px rgba(212, 175, 55, 0.2);
+        }
+
+        body.rice-paper-theme *:focus-visible {
+            outline-color: #6b3410;
+            box-shadow: 0 0 0 6px rgba(107, 52, 16, 0.2);
+        }
+
+        body.bronze-theme *:focus-visible {
+            outline-color: #7fb069;
+            box-shadow: 0 0 0 6px rgba(127, 176, 105, 0.2);
+        }
+
+        body.cinnabar-theme *:focus-visible {
+            outline-color: #c0392b;
+            box-shadow: 0 0 0 6px rgba(192, 57, 43, 0.2);
+        }
+
+        /* 排除地图视口内的焦点样式（避免干扰拖拽） */
+        .map-viewport *:focus-visible {
+            outline-offset: 2px;
+        }
+
+
+        /* ===== Skip Link (WCAG 2.4.1) ===== */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: var(--bg-dark);
+            padding: 12px 24px;
+            border-radius: 0 0 8px 8px;
+            font-weight: 700;
+            z-index: 10000;
+            text-decoration: none;
+            transition: top 0.3s ease;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        .skip-link:focus {
+            top: 0;
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+
         @import url('https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Zhi+Mang+Xing&display=swap');
 
         * {
@@ -4518,7 +4574,32 @@
     
     
 
-    </style>
+    
+        /* ===== WCAG 2.2 Reduced Motion Preference ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+
+            .ink-drop {
+                display: none !important;
+            }
+
+            .scroll-reveal {
+                transition: none !important;
+            }
+
+            .title-screen.hidden {
+                transition: opacity 0.3s ease !important;
+            }
+        }
+
+</style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
@@ -4724,9 +4805,9 @@
 
     <!-- 管理员登录弹窗 -->
     <div class="admin-login-overlay" id="adminLoginOverlay">
-        <div class="admin-login-modal">
+        <div class="admin-login-modal" role="dialog" aria-label="管理员验证" aria-modal="true">
             <div class="admin-login-title">🔐 管理员验证</div>
-            <input type="password" class="admin-login-input" id="adminPasswordInput" placeholder="输入管理员密码" maxlength="20" onkeydown="if(event.key==='Enter')adminLogin()">
+            <input type="password" class="admin-login-input" id="adminPasswordInput" placeholder="输入管理员密码" maxlength="20" aria-label="管理员密码" onkeydown="if(event.key==='Enter')adminLogin()">
             <button class="admin-login-btn" onclick="adminLogin()">验证身份</button>
             <div class="admin-login-error" id="adminLoginError"></div>
         </div>
@@ -4735,7 +4816,7 @@
     
 
     <!-- 过渡动画 -->
-    <div class="transition-overlay" id="transitionOverlay">
+    <div class="transition-overlay" id="transitionOverlay" aria-hidden="true">
         <div class="ink-drop" style="width: 200px; height: 200px; top: 30%; left: 20%;"></div>
         <div class="ink-drop" style="width: 300px; height: 300px; top: 50%; left: 60%; animation-delay: 0.3s;"></div>
         <div class="ink-drop" style="width: 150px; height: 150px; top: 70%; left: 40%; animation-delay: 0.6s;"></div>
@@ -4750,7 +4831,7 @@
 
     <!-- 设置面板 -->
     <div class="settings-overlay" id="settingsOverlay" onclick="toggleSettings()"></div>
-    <div class="settings-panel" id="settingsPanel">
+    <div class="settings-panel" id="settingsPanel" role="dialog" aria-label="展馆设置" aria-modal="true">
         <div class="settings-header">
             <span class="settings-title">展馆设置</span>
             <button class="close-settings" onclick="toggleSettings()">✕</button>
@@ -4845,7 +4926,7 @@
 
     <!-- 帮助面板 -->
     <div class="help-overlay" id="helpOverlay" onclick="toggleHelp()"></div>
-    <div class="help-panel" id="helpPanel">
+    <div class="help-panel" id="helpPanel" role="dialog" aria-label="帮助中心" aria-modal="true">
         <div class="help-header">
             <span class="help-title">📖 帮助中心</span>
             <button class="close-help" onclick="toggleHelp()">✕</button>
@@ -4978,14 +5059,14 @@
     </div>
 
     <!-- 防盗图提示 -->
-    <div class="protect-toast" id="protectToast">
+    <div class="protect-toast" id="protectToast" role="alert" aria-live="assertive" aria-atomic="true">
         <span class="toast-icon">🛡️</span>
         <div>版权保护</div>
         <div class="toast-sub">未经作者允许，禁止保存、复制、传播图片</div>
     </div>
 
     <!-- 标题界面 -->
-    <div class="title-screen" id="titleScreen">
+    <div class="title-screen" id="titleScreen" role="banner" aria-label="昭燃历史地图馆入口">
         <div class="corner-ornament top-left"></div>
         <div class="corner-ornament top-right"></div>
         <div class="corner-ornament bottom-left"></div>
@@ -5020,16 +5101,16 @@
         </div>
     </div>
 
-    <div class="container" id="mainContainer">
+    <div class="container" id="mainContainer" role="main" aria-label="历史地图浏览区">
         <!-- 左侧时间轴 -->
-        <div class="timeline-panel" id="timelinePanel">
+        <div class="timeline-panel" id="timelinePanel" role="navigation" aria-label="历史时间轴">
             <div class="museum-header">
                 <div class="museum-title">昭燃的历史地图馆</div>
                 <div class="museum-subtitle">以史为鉴 · 可以知兴替</div>
             </div>
 
             <div class="search-box">
-                <input type="text" class="search-input" id="searchInput" placeholder="搜索朝代、年份或地图名称..." oninput="handleSearch(this.value)">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索朝代、年份或地图名称..." aria-label="搜索地图" oninput="handleSearch(this.value)">
             </div>
 
             <div class="quote-banner" id="sidebarQuote">
@@ -5055,10 +5136,10 @@
 
 
 
-            <div class="map-viewport" id="mapViewport">
+            <div class="map-viewport" id="mapViewport" role="img" aria-label="可交互历史地图，支持拖拽平移和缩放">
                 <div class="map-wrapper" id="mapWrapper">
                     <!-- 加载进度指示 -->
-                    <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite" aria-atomic="true">
                         <div class="loading-container">
                             <div class="loading-spinner"></div>
                             <div class="loading-text">图层加载中</div>
@@ -5106,7 +5187,7 @@
         </div>
 
         <!-- 右侧信息面板 -->
-        <div class="info-panel" id="infoPanel">
+        <div class="info-panel" id="infoPanel" role="complementary" aria-label="地图详情信息">
             <div class="info-header">
                 <div class="current-year" id="currentYear">—</div>
                 <div class="current-reign" id="currentReign"></div>
@@ -5140,7 +5221,7 @@
                 <!-- ===== Supabase 讨论区 2.0 ===== -->
                 <div class="info-section discussion-section" id="discussionSection">
                     <div class="section-title">💬 学术讨论区</div>
-                    <div class="discussion-card" id="discussionCard">
+                    <div class="discussion-card" id="discussionCard" role="region" aria-label="学术讨论区">
                         <div class="discussion-header">
                             <div class="discussion-title-row">
                                 <span style="font-size: 0.85rem; color: var(--gold); font-weight: 700;">关于这幅地图的讨论</span>
@@ -5150,7 +5231,7 @@
 
                         <div class="discussion-input-area">
                             <div class="discussion-input-row">
-                                <input type="text" class="discussion-input" id="discussionName" placeholder="您的昵称（可选）" maxlength="20">
+                                <input type="text" class="discussion-input" id="discussionName" placeholder="您的昵称（可选）" maxlength="20" aria-label="您的昵称">
                             </div>
                             <div class="discussion-tag-selector">
                                 <button class="discussion-tag-option active" data-tag="general" onclick="selectDiscussionTag(this)">一般讨论</button>
@@ -5163,15 +5244,15 @@
                                 <button class="discussion-image-upload-btn" onclick="document.getElementById('discussionImageInput').click()">
                                     📎 添加图片
                                 </button>
-                                <input type="file" id="discussionImageInput" accept="image/*" style="display:none" onchange="handleDiscussionImageUpload(this)">
+                                <input type="file" id="discussionImageInput" accept="image/*" style="display:none" aria-label="上传评论图片" onchange="handleDiscussionImageUpload(this)">
                                 <img class="discussion-image-preview" id="discussionImagePreview" alt="预览">
                                 <button class="discussion-image-remove" id="discussionImageRemove" style="display:none" onclick="removeDiscussionImage()">✕</button>
                             </div>
-                            <textarea class="discussion-textarea" id="discussionContent" placeholder="分享您对这幅地图的见解、疑问或学术观点... 输入 @ 可提及用户" maxlength="500"></textarea>
+                            <textarea class="discussion-textarea" id="discussionContent" placeholder="分享您对这幅地图的见解、疑问或学术观点... 输入 @ 可提及用户" maxlength="500" aria-label="评论内容"></textarea>
                             <button class="discussion-submit-btn" id="discussionSubmit" onclick="submitDiscussion();">发表评论</button>
                         </div>
 
-                        <div class="discussion-list" id="discussionList">
+                        <div class="discussion-list" id="discussionList" role="log" aria-live="polite" aria-atomic="false">
                             <div class="discussion-empty">
                                 <div class="discussion-empty-icon">💭</div>
                                 <div>加载中...</div>
@@ -5249,16 +5330,16 @@
     </div>
 
     <!-- 移动端底部标签栏 -->
-    <div class="mobile-tabs" id="mobileTabs">
-        <div class="mobile-tab active" onclick="switchMobileTab('timeline')" id="tab-timeline">
+    <div class="mobile-tabs" id="mobileTabs" role="tablist" aria-label="移动端导航">
+        <div class="mobile-tab active" onclick="switchMobileTab('timeline')" id="tab-timeline" role="tab" aria-selected="true" aria-controls="timelinePanel">
             <span class="mobile-tab-icon">📜</span>
             <span>时间轴</span>
         </div>
-        <div class="mobile-tab" onclick="switchMobileTab('map')" id="tab-map">
+        <div class="mobile-tab" onclick="switchMobileTab('map')" id="tab-map" role="tab" aria-selected="false" aria-controls="mapViewport">
             <span class="mobile-tab-icon">🗺️</span>
             <span>地图</span>
         </div>
-        <div class="mobile-tab" onclick="switchMobileTab('info')" id="tab-info">
+        <div class="mobile-tab" onclick="switchMobileTab('info')" id="tab-info" role="tab" aria-selected="false" aria-controls="infoPanel">
             <span class="mobile-tab-icon">📖</span>
             <span>详情</span>
         </div>
@@ -5751,6 +5832,7 @@
         function showProtectToast() {
             const toast = document.getElementById('protectToast');
             if (!toast) return;
+            announceAlert('版权保护提示：未经作者允许，禁止保存、复制、传播图片');
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
@@ -5995,6 +6077,11 @@ let currentIndex = -1;
 
         // 选择地图 - 带加载进度
         function selectMap(index) {
+            // WCAG: Announce map change to screen readers
+            if (historyData[index]) {
+                announceStatus('已切换到：' + historyData[index].year + ' ' + historyData[index].name);
+            }
+
             if (index < 0 || index >= historyData.length) return;
 
             currentIndex = index;
@@ -8772,6 +8859,7 @@ function initApp() {
                 removeDiscussionImage();
                 submitBtn.disabled = false;
                 submitBtn.textContent = '发表评论';
+                announceStatus('评论发表成功');
                 loadDiscussions(currentIndex);
             } catch (e) {
                 console.error('submitDiscussion error:', e);
@@ -8841,7 +8929,40 @@ function initApp() {
             });
         })();
 
-        document.addEventListener('DOMContentLoaded', initApp);
+        
+
+        // ===== WCAG 2.2 Status Messages (4.1.3) =====
+        function announceStatus(message, priority) {
+            var liveRegion = document.getElementById('ariaLiveRegion');
+            if (!liveRegion) {
+                liveRegion = document.createElement('div');
+                liveRegion.id = 'ariaLiveRegion';
+                liveRegion.setAttribute('role', 'status');
+                liveRegion.setAttribute('aria-live', priority || 'polite');
+                liveRegion.setAttribute('aria-atomic', 'true');
+                liveRegion.style.cssText = 'position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;';
+                document.body.appendChild(liveRegion);
+            }
+            liveRegion.textContent = message;
+            setTimeout(function() { liveRegion.textContent = ''; }, 1000);
+        }
+
+        function announceAlert(message) {
+            var alertRegion = document.getElementById('ariaAlertRegion');
+            if (!alertRegion) {
+                alertRegion = document.createElement('div');
+                alertRegion.id = 'ariaAlertRegion';
+                alertRegion.setAttribute('role', 'alert');
+                alertRegion.setAttribute('aria-live', 'assertive');
+                alertRegion.setAttribute('aria-atomic', 'true');
+                alertRegion.style.cssText = 'position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;';
+                document.body.appendChild(alertRegion);
+            }
+            alertRegion.textContent = message;
+            setTimeout(function() { alertRegion.textContent = ''; }, 1000);
+        }
+
+document.addEventListener('DOMContentLoaded', initApp);
 
 
     
@@ -9014,7 +9135,7 @@ function initApp() {
     </script>
 
     <!-- 图层控制面板 -->
-    <div class="layer-panel" id="layerPanel">
+    <div class="layer-panel" id="layerPanel" role="dialog" aria-label="图层控制面板" aria-modal="true">
         <div class="layer-panel-header">
             <span class="layer-panel-title">🗗 图层控制</span>
             <button class="layer-panel-close" onclick="toggleLayerPanel()">✕</button>
@@ -9058,7 +9179,7 @@ function initApp() {
 
     <!-- 分享弹窗 -->
     <div class="share-modal-overlay" id="shareModalOverlay" onclick="closeShareModal(event)">
-        <div class="share-modal" onclick="event.stopPropagation()">
+        <div class="share-modal" role="dialog" aria-label="生成分享卡片" aria-modal="true" onclick="event.stopPropagation()">
             <div class="share-modal-header">
                 <span class="share-modal-title">📤 生成分享卡片</span>
                 <button class="share-modal-close" onclick="closeShareModalDirect()">✕</button>
