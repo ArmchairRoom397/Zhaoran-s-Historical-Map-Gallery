@@ -3018,7 +3018,7 @@
             }
         }
 
-        /* ===== 讨论区 ===== */
+        /* ===== 讨论区 2.0（升级版） ===== */
         .discussion-section {
             margin-top: 15px;
         }
@@ -3209,7 +3209,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
         }
 
@@ -3222,6 +3222,7 @@
             border-radius: 2px;
         }
 
+        /* ===== 讨论项 2.0 ===== */
         .discussion-item {
             padding: 12px;
             background: rgba(0, 0, 0, 0.15);
@@ -3258,6 +3259,21 @@
             background: rgba(192, 57, 43, 0.08);
         }
 
+        /* 精华帖样式 */
+        .discussion-item.is-essential {
+            border-left-color: #f4d03f;
+            border-left-width: 3px;
+            background: rgba(244, 208, 63, 0.06);
+        }
+
+        body.rice-paper-theme .discussion-item.is-essential {
+            background: rgba(244, 208, 63, 0.04);
+        }
+
+        .discussion-item.is-essential:hover {
+            background: rgba(244, 208, 63, 0.1);
+        }
+
         .discussion-item-header {
             display: flex;
             align-items: center;
@@ -3269,6 +3285,9 @@
             font-size: 0.8rem;
             color: var(--gold);
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .discussion-item-time {
@@ -3283,6 +3302,301 @@
             line-height: 1.6;
             word-wrap: break-word;
             overflow-wrap: break-word;
+        }
+
+        /* @用户高亮 */
+        .mention-highlight {
+            color: var(--accent-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mention-highlight:hover {
+            text-decoration: underline;
+        }
+
+        /* 图片评论 */
+        .discussion-item-image {
+            margin-top: 8px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            max-width: 100%;
+        }
+
+        .discussion-item-image img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .discussion-item-image img:hover {
+            transform: scale(1.02);
+        }
+
+        /* 操作栏 */
+        .discussion-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+        }
+
+        .discussion-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: inherit;
+        }
+
+        .discussion-action-btn:hover {
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        .discussion-action-btn.liked {
+            color: var(--accent);
+        }
+
+        .discussion-action-btn.liked:hover {
+            background: rgba(233, 69, 96, 0.08);
+        }
+
+        .discussion-action-count {
+            font-family: "Courier New", monospace;
+            font-weight: 700;
+        }
+
+        /* 回复嵌套 */
+        .discussion-replies {
+            margin-top: 10px;
+            margin-left: 16px;
+            padding-left: 12px;
+            border-left: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .discussion-reply-item {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            border-left: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        body.rice-paper-theme .discussion-reply-item {
+            background: rgba(139, 69, 19, 0.03);
+        }
+
+        .discussion-reply-item .discussion-item-author {
+            font-size: 0.75rem;
+        }
+
+        .discussion-reply-item .discussion-item-content {
+            font-size: 0.8rem;
+        }
+
+        .discussion-reply-item .discussion-item-time {
+            font-size: 0.6rem;
+        }
+
+        /* 回复输入框 */
+        .reply-input-area {
+            margin-top: 10px;
+            margin-left: 16px;
+            padding-left: 12px;
+            border-left: 2px solid var(--border);
+            display: none;
+        }
+
+        .reply-input-area.show {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .reply-textarea {
+            width: 100%;
+            min-height: 50px;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+            resize: vertical;
+            margin-bottom: 6px;
+        }
+
+        body.rice-paper-theme .reply-textarea {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .reply-textarea:focus {
+            border-color: var(--gold);
+        }
+
+        .reply-submit-btn {
+            padding: 6px 16px;
+            background: var(--gold);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reply-submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .reply-cancel-btn {
+            padding: 6px 16px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 6px;
+        }
+
+        .reply-cancel-btn:hover {
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        /* 精华标签 */
+        .essential-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(244, 208, 63, 0.15);
+            color: #f4d03f;
+            border: 1px solid rgba(244, 208, 63, 0.3);
+            font-weight: 700;
+        }
+
+        /* 图片上传 */
+        .discussion-image-upload {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .discussion-image-upload-btn {
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        body.rice-paper-theme .discussion-image-upload-btn {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .discussion-image-upload-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .discussion-image-preview {
+            max-width: 120px;
+            max-height: 80px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            object-fit: cover;
+            display: none;
+        }
+
+        .discussion-image-preview.show {
+            display: block;
+        }
+
+        .discussion-image-remove {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+
+        /* @用户下拉 */
+        .mention-dropdown {
+            position: absolute;
+            background: var(--bg-panel);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            display: none;
+            min-width: 180px;
+        }
+
+        .mention-dropdown.show {
+            display: block;
+        }
+
+        .mention-dropdown-item {
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text);
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mention-dropdown-item:hover,
+        .mention-dropdown-item.active {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold);
+        }
+
+        .mention-dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .mention-dropdown-item:last-child {
+            border-radius: 0 0 8px 8px;
         }
 
         .discussion-empty {
@@ -3330,6 +3644,7 @@
             display: flex;
             gap: 8px;
             margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
         .discussion-tag-option {
@@ -3379,6 +3694,33 @@
         .discussion-delete-btn:hover {
             color: var(--accent);
             background: rgba(233, 69, 96, 0.1);
+        }
+
+        /* 管理员精华操作 */
+        .admin-essential-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .discussion-item:hover .admin-essential-btn {
+            opacity: 1;
+        }
+
+        .admin-essential-btn:hover {
+            color: #f4d03f;
+            background: rgba(244, 208, 63, 0.1);
+        }
+
+        .admin-essential-btn.is-essential {
+            opacity: 1;
+            color: #f4d03f;
         }
 
         /* 分享弹窗 */
@@ -4133,12 +4475,15 @@
                 font-size: 0.75rem;
             }
         }
+    
     </style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
     <meta name="author" content="昭燃">
     <base target="_blank">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
+
+    </script>
 <base target="_blank">
     <base target="_blank">
 <base target="_blank">
@@ -4485,10 +4830,7 @@
             
 
             <div class="timeline-list" id="timelineList">
-                <div id="virtualScrollContainer" style="position: relative; width: 100%; min-height: 100%;">
-                    <div id="virtualScrollSpacer" style="height: 0px;"></div>
-                    <div id="virtualScrollContent" style="position: absolute; top: 0; left: 0; right: 0;"></div>
-                </div>
+                <!-- 动态生成 -->
             </div>
         </div>
 
@@ -4585,7 +4927,7 @@
                     </div>
                 </div>
 
-                <!-- ===== Supabase 讨论区 ===== -->
+                <!-- ===== Supabase 讨论区 2.0 ===== -->
                 <div class="info-section discussion-section" id="discussionSection">
                     <div class="section-title">💬 学术讨论区</div>
                     <div class="discussion-card" id="discussionCard">
@@ -4606,7 +4948,16 @@
                                 <button class="discussion-tag-option" data-tag="question" onclick="selectDiscussionTag(this)">疑问求助</button>
                                 <button class="discussion-tag-option" data-tag="opinion" onclick="selectDiscussionTag(this)">观点分享</button>
                             </div>
-                            <textarea class="discussion-textarea" id="discussionContent" placeholder="分享您对这幅地图的见解、疑问或学术观点..." maxlength="500"></textarea>
+                            <!-- 图片上传 -->
+                            <div class="discussion-image-upload">
+                                <button class="discussion-image-upload-btn" onclick="document.getElementById('discussionImageInput').click()">
+                                    📎 添加图片
+                                </button>
+                                <input type="file" id="discussionImageInput" accept="image/*" style="display:none" onchange="handleDiscussionImageUpload(this)">
+                                <img class="discussion-image-preview" id="discussionImagePreview" alt="预览">
+                                <button class="discussion-image-remove" id="discussionImageRemove" style="display:none" onclick="removeDiscussionImage()">✕</button>
+                            </div>
+                            <textarea class="discussion-textarea" id="discussionContent" placeholder="分享您对这幅地图的见解、疑问或学术观点... 输入 @ 可提及用户" maxlength="500"></textarea>
                             <button class="discussion-submit-btn" id="discussionSubmit" onclick="submitDiscussion();">发表评论</button>
                         </div>
 
@@ -4618,6 +4969,8 @@
                         </div>
                     </div>
                 </div>
+                <!-- @用户下拉框 -->
+                <div class="mention-dropdown" id="mentionDropdown"></div>
 
                 <div class="info-section">
                     <div class="section-title">基本信息</div>
@@ -5370,204 +5723,36 @@ let currentIndex = -1;
         const loadingProgressBar = document.getElementById('loadingProgressBar');
         const loadingPercent = document.getElementById('loadingPercent');
 
-        // ===== 虚拟滚动时间轴 =====
-        const VIRTUAL_CONFIG = {
-            itemHeight: 44,
-            eraHeight: 36,
-            bufferSize: 5
-        };
-
-        let virtualState = {
-            allItems: [],
-            filteredItems: [],
-            totalHeight: 0,
-            scrollTop: 0,
-            containerHeight: 0,
-            startIndex: 0,
-            endIndex: 0
-        };
-
-        // 扁平化历史数据为虚拟滚动项
-        function flattenTimelineData() {
-            const items = [];
+        // 初始化时间轴
+        function initTimeline() {
+            const list = document.getElementById('timelineList');
             let currentEra = '';
 
-            historyData.forEach((data, index) => {
-                if (data.era !== currentEra) {
-                    currentEra = data.era;
-                    items.push({
-                        type: 'era',
-                        era: currentEra,
-                        height: VIRTUAL_CONFIG.eraHeight,
-                        index: -1
-                    });
+            historyData.forEach((item, index) => {
+                if (item.era !== currentEra) {
+                    currentEra = item.era;
+                    const eraDiv = document.createElement('div');
+                    eraDiv.className = 'era-label';
+                    eraDiv.innerHTML = `
+                        <span>${currentEra}</span>
+                        <span class="era-quote">${getEraQuote(currentEra)}</span>
+                    `;
+                    list.appendChild(eraDiv);
                 }
-                items.push({
-                    type: 'map',
-                    data: data,
-                    mapIndex: index,
-                    height: VIRTUAL_CONFIG.itemHeight,
-                    index: index
-                });
+
+                const div = document.createElement('div');
+                div.className = 'timeline-item';
+                const reignText = item.reign ? `<span class="reign-badge">${item.reign}</span>` : '';
+                div.innerHTML = `
+                    <span class="year-badge">${item.year}</span>
+                    <div class="item-info">
+                        <span class="item-name">${item.name}</span>
+                        ${reignText}
+                    </div>
+                `;
+                div.onclick = () => selectMap(index);
+                list.appendChild(div);
             });
-
-            return items;
-        }
-
-        // 计算累计高度数组（用于快速定位）
-        function buildCumulativeHeights(items) {
-            const heights = [];
-            let sum = 0;
-            for (let i = 0; i < items.length; i++) {
-                heights.push(sum);
-                sum += items[i].height;
-            }
-            heights.push(sum);
-            return { heights, total: sum };
-        }
-
-        // 二分查找：找到 scrollTop 对应的起始索引
-        function findStartIndex(scrollTop, heights) {
-            let left = 0, right = heights.length - 2;
-            while (left < right) {
-                const mid = Math.floor((left + right) / 2);
-                if (heights[mid] < scrollTop) {
-                    left = mid + 1;
-                } else {
-                    right = mid;
-                }
-            }
-            return Math.max(0, left - VIRTUAL_CONFIG.bufferSize);
-        }
-
-        // 初始化时间轴（虚拟滚动版）
-        function initTimeline() {
-            virtualState.allItems = flattenTimelineData();
-            virtualState.filteredItems = [...virtualState.allItems];
-
-            const list = document.getElementById('timelineList');
-            if (!list) return;
-
-            virtualState.containerHeight = list.clientHeight;
-
-            // 监听滚动（使用 requestAnimationFrame 节流）
-            let ticking = false;
-            list.addEventListener('scroll', function() {
-                virtualState.scrollTop = list.scrollTop;
-                if (!ticking) {
-                    requestAnimationFrame(function() {
-                        renderVirtualItems();
-                        ticking = false;
-                    });
-                    ticking = true;
-                }
-            });
-
-            // 监听容器大小变化
-            const resizeObserver = new ResizeObserver(function(entries) {
-                for (let entry of entries) {
-                    virtualState.containerHeight = entry.contentRect.height;
-                    renderVirtualItems();
-                }
-            });
-            resizeObserver.observe(list);
-
-            // 首次渲染
-            renderVirtualItems();
-        }
-
-        // 渲染虚拟滚动项
-        function renderVirtualItems() {
-            const container = document.getElementById('virtualScrollContainer');
-            const spacer = document.getElementById('virtualScrollSpacer');
-            const content = document.getElementById('virtualScrollContent');
-
-            if (!container || !spacer || !content) return;
-
-            const items = virtualState.filteredItems;
-            if (items.length === 0) {
-                spacer.style.height = '0px';
-                content.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">无匹配结果</div>';
-                return;
-            }
-
-            // 计算累计高度
-            const { heights, total } = buildCumulativeHeights(items);
-            virtualState.totalHeight = total;
-
-            // 设置总高度
-            spacer.style.height = total + 'px';
-
-            // 计算可视范围
-            const scrollTop = virtualState.scrollTop;
-            const containerHeight = virtualState.containerHeight || container.clientHeight;
-            const visibleCount = Math.ceil(containerHeight / VIRTUAL_CONFIG.itemHeight);
-
-            const startIndex = findStartIndex(scrollTop, heights);
-            const endIndex = Math.min(items.length, startIndex + visibleCount + VIRTUAL_CONFIG.bufferSize * 2);
-
-            virtualState.startIndex = startIndex;
-            virtualState.endIndex = endIndex;
-
-            // 计算偏移量
-            const offsetY = heights[startIndex];
-            content.style.transform = 'translateY(' + offsetY + 'px)';
-
-            // 渲染可见项
-            let html = '';
-            for (let i = startIndex; i < endIndex; i++) {
-                const item = items[i];
-                if (!item) continue;
-
-                if (item.type === 'era') {
-                    html += '<div class="era-label" style="height: ' + VIRTUAL_CONFIG.eraHeight + 'px;">' +
-                        '<span>' + item.era + '</span>' +
-                        '<span class="era-quote">' + getEraQuote(item.era) + '</span>' +
-                        '</div>';
-                } else {
-                    const data = item.data;
-                    const isActive = item.mapIndex === currentIndex;
-                    const reignText = data.reign ? '<span class="reign-badge">' + data.reign + '</span>' : '';
-                    html += '<div class="timeline-item ' + (isActive ? 'active' : '') + '" ' +
-                        'style="height: ' + VIRTUAL_CONFIG.itemHeight + 'px;" ' +
-                        'onclick="selectMap(' + item.mapIndex + ')" ' +
-                        'data-map-index="' + item.mapIndex + '">' +
-                        '<span class="year-badge">' + data.year + '</span>' +
-                        '<div class="item-info">' +
-                        '<span class="item-name">' + data.name + '</span>' +
-                        reignText +
-                        '</div>' +
-                        '</div>';
-                }
-            }
-
-            content.innerHTML = html;
-        }
-
-        // 滚动到指定地图项
-        function scrollToMapIndex(mapIndex) {
-            const items = virtualState.filteredItems;
-            let targetOffset = 0;
-            let found = false;
-
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type === 'map' && items[i].mapIndex === mapIndex) {
-                    found = true;
-                    break;
-                }
-                targetOffset += items[i].height;
-            }
-
-            if (!found) return;
-
-            const list = document.getElementById('timelineList');
-            if (list) {
-                const scrollPos = targetOffset - virtualState.containerHeight / 2 + VIRTUAL_CONFIG.itemHeight / 2;
-                list.scrollTo({
-                    top: Math.max(0, scrollPos),
-                    behavior: 'smooth'
-                });
-            }
         }
 
         function getEraQuote(era) {
@@ -5610,9 +5795,11 @@ let currentIndex = -1;
                 }
             });
 
-            // 更新列表激活状态（虚拟滚动版）
-            renderVirtualItems(); // 重新渲染以更新active状态
-            scrollToMapIndex(index); // 平滑滚动到目标项
+            // 更新列表激活状态
+            document.querySelectorAll('.timeline-item').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+                if (i === index) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
 
             // 更新信息面板
             updateInfoPanel(data, index);
@@ -7789,84 +7976,313 @@ function initApp() {
             if (currentIndex >= 0) loadDiscussions(currentIndex);
         }
 
-        // ===== Supabase 讨论区功能 =====
+        // ===== Supabase 讨论区功能 2.0（升级版）=====
         let currentDiscussionTag = 'general';
         let currentUserName = localStorage.getItem('discussionUserName') || '';
         let supabaseClient = null;
+        let currentDiscussionImage = null; // 当前待上传的图片 base64
+        let discussionUsers = []; // 当前地图讨论区的用户列表（用于@功能）
+        let mentionTargetInput = null; // 当前正在@的输入框
+        let replyToId = null; // 当前回复的评论ID
 
         // Supabase 配置
-        // 注意：请使用 Legacy anon key（以 eyJ 开头的 JWT 格式）
-        // 在 Supabase 控制台 → Settings → API Keys → Legacy anon, service_role API keys 中获取
         const SUPABASE_URL = 'https://cmxoelhjcoxhxkbjpidw.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNteG9lbGhqY294aHhrYmpwaWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMjQ0ODIsImV4cCI6MjA5OTYwMDQ4Mn0.D6PUZuTWrhAJeb2C391PloBVGuEpIFBf2GYAacQbhjE';
 
         function initSupabase() {
-            // 等待 SDK 加载完成
             var checkSupabase = function() {
-                // UMD 模块挂载在 window.supabase 上，包含 createClient
                 var sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
-
                 if (sb && sb.createClient) {
                     try {
-                        // 检查是否使用了正确的 key 格式
                         if (!SUPABASE_KEY || SUPABASE_KEY.indexOf('YOUR_LEGACY') !== -1) {
                             console.error('请配置 Supabase Legacy anon key');
                             supabaseClient = null;
                             return;
                         }
-
-                        // UMD 方式：直接使用 supabase.createClient
                         supabaseClient = sb.createClient(SUPABASE_URL, SUPABASE_KEY, {
-                            auth: {
-                                autoRefreshToken: false,
-                                persistSession: false
-                            }
+                            auth: { autoRefreshToken: false, persistSession: false }
                         });
                         console.log('Supabase 已初始化');
-
-                        // 测试连接
                         supabaseClient.from('map_discussions').select('count', { count: 'exact', head: true })
-                            .then(function() {
-                                console.log('Supabase 连接测试成功');
-                            })
-                            .catch(function(err) {
-                                console.error('Supabase 连接测试失败:', err);
-                            });
+                            .then(function() { console.log('Supabase 连接测试成功'); })
+                            .catch(function(err) { console.error('Supabase 连接测试失败:', err); });
                     } catch (e) {
                         console.error('Supabase 初始化失败:', e);
                         supabaseClient = null;
                     }
                 } else {
-                    console.log('等待 Supabase SDK 加载...');
                     setTimeout(checkSupabase, 100);
                 }
             };
             checkSupabase();
         }
 
-        // 管理员登录弹窗事件
         document.addEventListener('DOMContentLoaded', function() {
             var overlay = document.getElementById('adminLoginOverlay');
             if (overlay) {
                 overlay.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.classList.remove('show');
-                    }
+                    if (e.target === this) this.classList.remove('show');
                 });
             }
-            // 初始化 Supabase
             initSupabase();
+            setupMentionListener();
         });
 
         function selectDiscussionTag(btn) {
             var options = document.querySelectorAll('.discussion-tag-option');
-            for (var i = 0; i < options.length; i++) {
-                options[i].classList.remove('active');
-            }
+            for (var i = 0; i < options.length; i++) options[i].classList.remove('active');
             btn.classList.add('active');
             currentDiscussionTag = btn.getAttribute('data-tag') || 'general';
         }
 
+        // ===== 图片上传 =====
+        function handleDiscussionImageUpload(input) {
+            var file = input.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                alert('图片大小不能超过 2MB');
+                input.value = '';
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                currentDiscussionImage = e.target.result;
+                var preview = document.getElementById('discussionImagePreview');
+                var removeBtn = document.getElementById('discussionImageRemove');
+                if (preview) { preview.src = currentDiscussionImage; preview.classList.add('show'); }
+                if (removeBtn) removeBtn.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+            input.value = '';
+        }
+
+        function removeDiscussionImage() {
+            currentDiscussionImage = null;
+            var preview = document.getElementById('discussionImagePreview');
+            var removeBtn = document.getElementById('discussionImageRemove');
+            if (preview) { preview.src = ''; preview.classList.remove('show'); }
+            if (removeBtn) removeBtn.style.display = 'none';
+        }
+
+        // ===== @用户功能 =====
+        function setupMentionListener() {
+            var contentInput = document.getElementById('discussionContent');
+            if (!contentInput) return;
+
+            contentInput.addEventListener('input', function(e) {
+                var val = this.value;
+                var cursorPos = this.selectionStart;
+                var textBeforeCursor = val.substring(0, cursorPos);
+                var atIndex = textBeforeCursor.lastIndexOf('@');
+
+                if (atIndex >= 0) {
+                    var query = textBeforeCursor.substring(atIndex + 1);
+                    // 如果@后面有空格或换行，不触发
+                    if (query.indexOf(' ') === -1 && query.indexOf('\n') === -1 && query.length <= 20) {
+                        showMentionDropdown(query, this, atIndex);
+                        mentionTargetInput = this;
+                        return;
+                    }
+                }
+                hideMentionDropdown();
+            });
+
+            contentInput.addEventListener('keydown', function(e) {
+                var dropdown = document.getElementById('mentionDropdown');
+                if (!dropdown || !dropdown.classList.contains('show')) return;
+                var items = dropdown.querySelectorAll('.mention-dropdown-item');
+                var activeIdx = -1;
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].classList.contains('active')) { activeIdx = i; break; }
+                }
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (activeIdx >= 0) items[activeIdx].classList.remove('active');
+                    var nextIdx = activeIdx + 1;
+                    if (nextIdx >= items.length) nextIdx = 0;
+                    items[nextIdx].classList.add('active');
+                    items[nextIdx].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (activeIdx >= 0) items[activeIdx].classList.remove('active');
+                    var prevIdx = activeIdx - 1;
+                    if (prevIdx < 0) prevIdx = items.length - 1;
+                    items[prevIdx].classList.add('active');
+                    items[prevIdx].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'Enter' || e.key === 'Tab') {
+                    e.preventDefault();
+                    if (activeIdx >= 0) {
+                        selectMention(items[activeIdx].dataset.name);
+                    }
+                } else if (e.key === 'Escape') {
+                    hideMentionDropdown();
+                }
+            });
+        }
+
+        function showMentionDropdown(query, input, atIndex) {
+            var dropdown = document.getElementById('mentionDropdown');
+            if (!dropdown) return;
+
+            // 过滤用户列表
+            var filtered = discussionUsers.filter(function(u) {
+                return u.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            });
+            if (filtered.length === 0) { hideMentionDropdown(); return; }
+
+            var html = '';
+            for (var i = 0; i < filtered.length; i++) {
+                html += '<div class="mention-dropdown-item' + (i === 0 ? ' active' : '') + '" data-name="' + escapeHtml(filtered[i]) + '" onclick="selectMention(&quot;' + escapeHtml(filtered[i]) + '&quot;)">' +
+                    '👤 ' + escapeHtml(filtered[i]) + '</div>';
+            }
+            dropdown.innerHTML = html;
+
+            // 定位下拉框
+            var rect = input.getBoundingClientRect();
+            dropdown.style.left = rect.left + 'px';
+            dropdown.style.top = (rect.bottom + 4) + 'px';
+            dropdown.style.width = rect.width + 'px';
+            dropdown.classList.add('show');
+        }
+
+        function hideMentionDropdown() {
+            var dropdown = document.getElementById('mentionDropdown');
+            if (dropdown) dropdown.classList.remove('show');
+            mentionTargetInput = null;
+        }
+
+        function selectMention(name) {
+            if (!mentionTargetInput) return;
+            var val = mentionTargetInput.value;
+            var cursorPos = mentionTargetInput.selectionStart;
+            var textBeforeCursor = val.substring(0, cursorPos);
+            var atIndex = textBeforeCursor.lastIndexOf('@');
+            if (atIndex < 0) return;
+
+            var before = val.substring(0, atIndex);
+            var after = val.substring(cursorPos);
+            mentionTargetInput.value = before + '@' + name + ' ' + after;
+            var newPos = before.length + name.length + 2;
+            mentionTargetInput.setSelectionRange(newPos, newPos);
+            mentionTargetInput.focus();
+            hideMentionDropdown();
+        }
+
+        // 解析内容中的@并渲染为高亮
+        function renderMentions(text) {
+            return text.replace(/@([^\s\n]+)/g, '<span class="mention-highlight">@$1</span>');
+        }
+
+        // ===== 点赞功能 =====
+        async function toggleLike(discussionId) {
+            if (!supabaseClient) return;
+            var btn = document.getElementById('like-btn-' + discussionId);
+            var countEl = document.getElementById('like-count-' + discussionId);
+            var isLiked = btn && btn.classList.contains('liked');
+
+            try {
+                if (isLiked) {
+                    // 取消点赞
+                    await supabaseClient.from('discussion_likes').delete()
+                        .eq('discussion_id', discussionId)
+                        .eq('user_fingerprint', getUserFingerprint());
+                    if (btn) btn.classList.remove('liked');
+                } else {
+                    // 点赞
+                    await supabaseClient.from('discussion_likes').insert([{
+                        discussion_id: discussionId,
+                        user_fingerprint: getUserFingerprint()
+                    }]);
+                    if (btn) btn.classList.add('liked');
+                }
+                // 更新计数
+                var { count } = await supabaseClient.from('discussion_likes')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('discussion_id', discussionId);
+                if (countEl) countEl.textContent = count || 0;
+            } catch (e) {
+                console.error('点赞操作失败:', e);
+            }
+        }
+
+        function getUserFingerprint() {
+            var fp = localStorage.getItem('userFingerprint');
+            if (!fp) {
+                fp = 'fp_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('userFingerprint', fp);
+            }
+            return fp;
+        }
+
+        // ===== 回复功能 =====
+        function showReplyInput(discussionId) {
+            // 隐藏其他回复框
+            document.querySelectorAll('.reply-input-area').forEach(function(el) { el.classList.remove('show'); });
+            var replyArea = document.getElementById('reply-area-' + discussionId);
+            if (replyArea) {
+                replyArea.classList.add('show');
+                var textarea = replyArea.querySelector('.reply-textarea');
+                if (textarea) textarea.focus();
+                replyToId = discussionId;
+            }
+        }
+
+        function hideReplyInput(discussionId) {
+            var replyArea = document.getElementById('reply-area-' + discussionId);
+            if (replyArea) replyArea.classList.remove('show');
+            replyToId = null;
+        }
+
+        async function submitReply(discussionId) {
+            var replyArea = document.getElementById('reply-area-' + discussionId);
+            if (!replyArea) return;
+            var textarea = replyArea.querySelector('.reply-textarea');
+            var content = textarea ? textarea.value.trim() : '';
+            if (!content) return;
+
+            var nameInput = document.getElementById('discussionName');
+            var name = (nameInput ? nameInput.value.trim() : '') || '匿名访客';
+            if (name !== '匿名访客') {
+                localStorage.setItem('discussionUserName', name);
+                currentUserName = name;
+            }
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('discussion_replies').insert([{
+                        discussion_id: discussionId,
+                        map_index: currentIndex,
+                        name: name,
+                        content: content
+                    }]);
+                } catch (e) {
+                    console.error('回复提交失败:', e);
+                }
+            }
+
+            textarea.value = '';
+            hideReplyInput(discussionId);
+            loadDiscussions(currentIndex);
+        }
+
+        // ===== 精华帖 =====
+        async function toggleEssential(discussionId) {
+            if (!isAdminMode) return;
+            if (!supabaseClient) return;
+
+            try {
+                var { data } = await supabaseClient.from('map_discussions')
+                    .select('is_essential').eq('id', discussionId).single();
+                var newVal = !(data && data.is_essential);
+                await supabaseClient.from('map_discussions')
+                    .update({ is_essential: newVal }).eq('id', discussionId);
+                loadDiscussions(currentIndex);
+            } catch (e) {
+                console.error('精华操作失败:', e);
+            }
+        }
+
+        // ===== 加载讨论 =====
         async function loadDiscussions(mapIndex) {
             var listEl = document.getElementById('discussionList');
             var countEl = document.getElementById('discussionCount');
@@ -7881,24 +8297,66 @@ function initApp() {
             countEl.textContent = '加载中...';
 
             try {
-                var { data, error } = await supabaseClient
+                // 加载主评论
+                var { data: discussions, error } = await supabaseClient
                     .from('map_discussions')
                     .select('*')
                     .eq('map_index', mapIndex)
+                    .order('is_essential', { ascending: false })
                     .order('created_at', { ascending: false })
                     .limit(50);
 
                 if (error) {
                     console.error('Supabase 查询错误:', error);
-                    listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⚠️</div><div>加载失败：' + escapeHtml(error.message) + '</div></div>';
+                    listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⚠️</div><div>加载失败</div></div>';
                     countEl.textContent = '加载失败';
                     return;
                 }
 
-                var discussions = data || [];
-                countEl.textContent = discussions.length + ' 条讨论';
+                var allDiscussions = discussions || [];
 
-                if (discussions.length === 0) {
+                // 收集用户列表用于@功能
+                discussionUsers = [];
+                var userSet = new Set();
+                allDiscussions.forEach(function(d) {
+                    if (d.name && d.name !== '匿名访客') userSet.add(d.name);
+                });
+                discussionUsers = Array.from(userSet);
+
+                // 加载点赞数据
+                var discussionIds = allDiscussions.map(function(d) { return d.id; });
+                var likesMap = {};
+                var myLikes = new Set();
+                if (discussionIds.length > 0) {
+                    var { data: likes } = await supabaseClient.from('discussion_likes')
+                        .select('discussion_id, user_fingerprint')
+                        .in('discussion_id', discussionIds);
+                    if (likes) {
+                        likes.forEach(function(l) {
+                            likesMap[l.discussion_id] = (likesMap[l.discussion_id] || 0) + 1;
+                            if (l.user_fingerprint === getUserFingerprint()) myLikes.add(l.discussion_id);
+                        });
+                    }
+                }
+
+                // 加载回复
+                var repliesMap = {};
+                if (discussionIds.length > 0) {
+                    var { data: replies } = await supabaseClient.from('discussion_replies')
+                        .select('*')
+                        .in('discussion_id', discussionIds)
+                        .order('created_at', { ascending: true });
+                    if (replies) {
+                        replies.forEach(function(r) {
+                            if (!repliesMap[r.discussion_id]) repliesMap[r.discussion_id] = [];
+                            repliesMap[r.discussion_id].push(r);
+                        });
+                    }
+                }
+
+                countEl.textContent = allDiscussions.length + ' 条讨论';
+
+                if (allDiscussions.length === 0) {
                     listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">💭</div><div>暂无讨论，来做第一个发言的人吧！</div></div>';
                     return;
                 }
@@ -7914,34 +8372,94 @@ function initApp() {
                 var myName = (nameInput && nameInput.value ? nameInput.value : currentUserName || '匿名访客').trim();
 
                 var html = '';
-                for (var i = 0; i < discussions.length; i++) {
-                    var item = discussions[i];
-                    var isOwn = item.name === myName;
-                    var canDelete = isOwn || isAdminMode;
-                    var deleteBtn = '';
-                    if (canDelete) {
-                        var title = isAdminMode && !isOwn ? '管理员删除' : '删除';
-                        deleteBtn = '<button class="discussion-delete-btn" onclick="deleteDiscussion(' + item.id + ')" title="' + title + '">✕</button>';
-                    }
-                    var ownClass = isOwn ? 'is-own' : '';
-                    var tagHtml = tagLabels[item.tag] || '';
-                    var timeStr = formatTime(item.created_at);
-
-                    html += '<div class="discussion-item ' + ownClass + '">' +
-                        '<div class="discussion-item-header">' +
-                        '<span class="discussion-item-author">' + escapeHtml(item.name || '匿名访客') + tagHtml + '</span>' +
-                        '<div style="display: flex; align-items: center; gap: 6px;">' +
-                        '<span class="discussion-item-time">' + timeStr + '</span>' +
-                        deleteBtn +
-                        '</div></div>' +
-                        '<div class="discussion-item-content">' + escapeHtml(item.content) + '</div></div>';
+                for (var i = 0; i < allDiscussions.length; i++) {
+                    var item = allDiscussions[i];
+                    html += renderDiscussionItem(item, tagLabels, myName, likesMap, myLikes, repliesMap);
                 }
                 listEl.innerHTML = html;
             } catch (e) {
                 console.error('加载评论错误:', e);
-                listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⚠️</div><div>加载失败：' + escapeHtml(e.message) + '</div></div>';
+                listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⚠️</div><div>加载失败</div></div>';
                 countEl.textContent = '加载失败';
             }
+        }
+
+        function renderDiscussionItem(item, tagLabels, myName, likesMap, myLikes, repliesMap) {
+            var isOwn = item.name === myName;
+            var canDelete = isOwn || isAdminMode;
+            var isLiked = myLikes.has(item.id);
+            var likeCount = likesMap[item.id] || 0;
+            var replies = repliesMap[item.id] || [];
+            var isEssential = item.is_essential;
+
+            var deleteBtn = '';
+            if (canDelete) {
+                var title = isAdminMode && !isOwn ? '管理员删除' : '删除';
+                deleteBtn = '<button class="discussion-delete-btn" onclick="deleteDiscussion(' + item.id + ')" title="' + title + '">✕</button>';
+            }
+
+            var essentialBtn = '';
+            if (isAdminMode) {
+                var essClass = isEssential ? 'is-essential' : '';
+                var essText = isEssential ? '取消精华' : '设为精华';
+                essentialBtn = '<button class="admin-essential-btn ' + essClass + '" onclick="toggleEssential(' + item.id + ')" title="' + essText + '">⭐</button>';
+            }
+
+            var essentialBadge = isEssential ? '<span class="essential-badge">⭐ 精华</span>' : '';
+            var ownClass = isOwn ? 'is-own' : '';
+            var essentialClass = isEssential ? 'is-essential' : '';
+            var tagHtml = tagLabels[item.tag] || '';
+            var timeStr = formatTime(item.created_at);
+
+            var imageHtml = '';
+            if (item.image_url) {
+                imageHtml = '<div class="discussion-item-image"><img src="' + escapeHtml(item.image_url) + '" alt="评论图片" onclick="window.open(this.src)"></div>';
+            }
+
+            var repliesHtml = '';
+            if (replies.length > 0) {
+                repliesHtml = '<div class="discussion-replies">';
+                for (var r = 0; r < replies.length; r++) {
+                    var reply = replies[r];
+                    repliesHtml += '<div class="discussion-reply-item">' +
+                        '<div class="discussion-item-header">' +
+                        '<span class="discussion-item-author">' + escapeHtml(reply.name || '匿名') + '</span>' +
+                        '<span class="discussion-item-time">' + formatTime(reply.created_at) + '</span>' +
+                        '</div>' +
+                        '<div class="discussion-item-content">' + renderMentions(escapeHtml(reply.content)) + '</div>' +
+                        '</div>';
+                }
+                repliesHtml += '</div>';
+            }
+
+            var html = '<div class="discussion-item ' + ownClass + ' ' + essentialClass + '" id="discussion-' + item.id + '">' +
+                '<div class="discussion-item-header">' +
+                '<span class="discussion-item-author">' + escapeHtml(item.name || '匿名访客') + tagHtml + essentialBadge + '</span>' +
+                '<div style="display: flex; align-items: center; gap: 6px;">' +
+                '<span class="discussion-item-time">' + timeStr + '</span>' +
+                essentialBtn +
+                deleteBtn +
+                '</div></div>' +
+                '<div class="discussion-item-content">' + renderMentions(escapeHtml(item.content)) + '</div>' +
+                imageHtml +
+                '<div class="discussion-item-actions">' +
+                '<button class="discussion-action-btn ' + (isLiked ? 'liked' : '') + '" id="like-btn-' + item.id + '" onclick="toggleLike(' + item.id + ')">' +
+                '<span>' + (isLiked ? '❤️' : '🤍') + '</span>' +
+                '<span class="discussion-action-count" id="like-count-' + item.id + '">' + likeCount + '</span>' +
+                '</button>' +
+                '<button class="discussion-action-btn" onclick="showReplyInput(' + item.id + ')">' +
+                '<span>💬</span> 回复' +
+                '</button>' +
+                '</div>' +
+                repliesHtml +
+                '<div class="reply-input-area" id="reply-area-' + item.id + '">' +
+                '<textarea class="reply-textarea" placeholder="回复 @' + escapeHtml(item.name || '匿名') + ' ... 输入 @ 可提及用户"></textarea>' +
+                '<div style="display: flex; gap: 6px;">' +
+                '<button class="reply-submit-btn" onclick="submitReply(' + item.id + ')">发送回复</button>' +
+                '<button class="reply-cancel-btn" onclick="hideReplyInput(' + item.id + ')">取消</button>' +
+                '</div></div>' +
+                '</div>';
+            return html;
         }
 
         function formatTime(isoString) {
@@ -7958,19 +8476,9 @@ function initApp() {
                 var contentInput = document.getElementById('discussionContent');
                 var submitBtn = document.getElementById('discussionSubmit');
 
-                if (!nameInput) { console.error('discussionName not found'); return; }
-                if (!contentInput) { console.error('discussionContent not found'); return; }
-                if (!submitBtn) { console.error('discussionSubmit not found'); return; }
-
-                if (currentIndex < 0) {
-                    alert('请先选择一幅地图');
-                    return;
-                }
-
-                if (!supabaseClient) {
-                    alert('评论服务未初始化，请刷新页面重试');
-                    return;
-                }
+                if (!nameInput || !contentInput || !submitBtn) return;
+                if (currentIndex < 0) { alert('请先选择一幅地图'); return; }
+                if (!supabaseClient) { alert('评论服务未初始化'); return; }
 
                 var name = nameInput.value.trim();
                 var content = contentInput.value.trim();
@@ -7980,15 +8488,9 @@ function initApp() {
                     setTimeout(function() { contentInput.style.borderColor = ''; }, 2000);
                     return;
                 }
-
                 if (content.length < 3) {
                     contentInput.style.borderColor = 'var(--accent)';
-                    var oldPlaceholder = contentInput.placeholder;
-                    contentInput.placeholder = '评论内容至少需要3个字';
-                    setTimeout(function() {
-                        contentInput.style.borderColor = '';
-                        contentInput.placeholder = oldPlaceholder;
-                    }, 2000);
+                    setTimeout(function() { contentInput.style.borderColor = ''; }, 2000);
                     return;
                 }
 
@@ -8001,14 +8503,30 @@ function initApp() {
                     currentUserName = name;
                 }
 
+                var insertData = {
+                    map_index: currentIndex,
+                    name: userName,
+                    content: content,
+                    tag: currentDiscussionTag || 'general',
+                    is_essential: false
+                };
+
+                // 如果有图片，先上传
+                if (currentDiscussionImage) {
+                    var fileName = 'comment_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8) + '.png';
+                    var blob = dataURLtoBlob(currentDiscussionImage);
+                    var { data: uploadData, error: uploadError } = await supabaseClient.storage
+                        .from('discussion-images')
+                        .upload(fileName, blob, { contentType: 'image/png' });
+                    if (!uploadError && uploadData) {
+                        var { data: urlData } = supabaseClient.storage.from('discussion-images').getPublicUrl(fileName);
+                        insertData.image_url = urlData.publicUrl;
+                    }
+                }
+
                 var { data, error } = await supabaseClient
                     .from('map_discussions')
-                    .insert([{
-                        map_index: currentIndex,
-                        name: userName,
-                        content: content,
-                        tag: currentDiscussionTag || 'general'
-                    }])
+                    .insert([insertData])
                     .select();
 
                 if (error) {
@@ -8020,47 +8538,36 @@ function initApp() {
                 }
 
                 contentInput.value = '';
+                removeDiscussionImage();
                 submitBtn.disabled = false;
                 submitBtn.textContent = '发表评论';
-
-                // 重新加载评论
                 loadDiscussions(currentIndex);
             } catch (e) {
                 console.error('submitDiscussion error:', e);
                 var submitBtn = document.getElementById('discussionSubmit');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '发表评论';
-                }
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '发表评论'; }
                 alert('发表评论失败: ' + e.message);
             }
         }
 
+        function dataURLtoBlob(dataURL) {
+            var arr = dataURL.split(',');
+            var mime = arr[0].match(/:(.*?);/)[1];
+            var bstr = atob(arr[1]);
+            var n = bstr.length;
+            var u8arr = new Uint8Array(n);
+            for (var i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+            return new Blob([u8arr], { type: mime });
+        }
+
         async function deleteDiscussion(id) {
-            if (!supabaseClient) {
-                alert('评论服务未初始化');
-                return;
-            }
-
+            if (!supabaseClient) { alert('评论服务未初始化'); return; }
             if (!confirm('确定要删除这条评论吗？')) return;
-
             try {
-                var { error } = await supabaseClient
-                    .from('map_discussions')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) {
-                    console.error('删除错误:', error);
-                    alert('删除失败: ' + error.message);
-                    return;
-                }
-
+                var { error } = await supabaseClient.from('map_discussions').delete().eq('id', id);
+                if (error) { alert('删除失败: ' + error.message); return; }
                 loadDiscussions(currentIndex);
-            } catch (e) {
-                console.error('删除评论错误:', e);
-                alert('删除失败: ' + e.message);
-            }
+            } catch (e) { alert('删除失败: ' + e.message); }
         }
 
         function escapeHtml(text) {
@@ -8104,7 +8611,9 @@ function initApp() {
         })();
 
         document.addEventListener('DOMContentLoaded', initApp);
-</script>
+
+
+    </script>
 
     <!-- 图层控制面板 -->
     <div class="layer-panel" id="layerPanel">
@@ -8174,6 +8683,7 @@ function initApp() {
             </div>
         </div>
     </div>
+
 
 </body>
 </html>
