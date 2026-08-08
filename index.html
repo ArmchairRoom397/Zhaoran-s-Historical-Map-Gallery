@@ -36,6 +36,38 @@
             --sidebar-right-width: 380px;
         }
 
+        /* ===== 按钮尺寸规范系统 ===== */
+        :root {
+            /* 按钮尺寸层级 */
+            --btn-lg-h: 56px;
+            --btn-lg-pad: 16px 48px;
+            --btn-lg-radius: 6px;
+            --btn-lg-fs: 1.1rem;
+
+            --btn-md-h: 44px;
+            --btn-md-pad: 12px 24px;
+            --btn-md-radius: 6px;
+            --btn-md-fs: 0.9rem;
+
+            --btn-icon-size: 44px;
+            --btn-icon-fs: 1.2rem;
+            --btn-icon-radius: 50%;
+
+            --btn-sm-h: 40px;
+            --btn-sm-pad: 10px 20px;
+            --btn-sm-radius: 6px;
+            --btn-sm-fs: 0.85rem;
+
+            --btn-xs-h: 32px;
+            --btn-xs-pad: 6px 12px;
+            --btn-xs-radius: 4px;
+            --btn-xs-fs: 0.75rem;
+
+            --btn-close-size: 36px;
+            --btn-close-fs: 1.3rem;
+        }
+
+
         /* 宣纸主题 */
         body.rice-paper-theme {
             --bg-dark: #f5f0e8;
@@ -424,12 +456,12 @@
         }
 
         .enter-button {
-            padding: 16px 48px;
+            padding: var(--btn-lg-pad);
             background: transparent;
             border: 2px solid var(--gold);
             color: var(--gold);
             font-family: "Noto Serif SC", serif;
-            font-size: 1.1rem;
+            font-size: var(--btn-lg-fs);
             letter-spacing: 4px;
             cursor: pointer;
             position: relative;
@@ -437,8 +469,8 @@
             transition: all 0.3s ease;
             opacity: 0;
             animation: fadeInUp 1s ease 1.5s forwards;
-            border-radius: 4px;
-            min-height: 56px;
+            border-radius: var(--btn-lg-radius);
+            min-height: var(--btn-lg-h);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -676,7 +708,7 @@
             align-items: center;
             justify-content: center;
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: var(--btn-xs-fs);
             cursor: pointer;
             transition: all 0.3s;
             gap: 4px;
@@ -704,8 +736,8 @@
             display: none;
             position: fixed;
             top: 50%;
-            width: 28px;
-            height: 60px;
+            width: 32px;
+            height: var(--btn-md-h);
             background: var(--bg-panel);
             border: 1px solid var(--gold);
             color: var(--gold);
@@ -713,8 +745,8 @@
             z-index: 101;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
-            border-radius: 0 6px 6px 0;
+            font-size: var(--btn-icon-fs);
+            border-radius: 0 var(--btn-md-radius) var(--btn-md-radius) 0;
             transition: all 0.3s;
         }
 
@@ -1108,17 +1140,17 @@
 
 
         .tool-btn {
-            width: 40px;
-            height: 40px;
+            width: var(--btn-icon-size);
+            height: var(--btn-icon-size);
             border: 1px solid var(--gold);
             background: transparent;
             color: var(--gold);
-            border-radius: 50%;
+            border-radius: var(--btn-icon-radius);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: var(--btn-icon-fs);
             transition: all 0.2s;
             touch-action: manipulation;
         }
@@ -1444,17 +1476,17 @@
         }
 
         .control-btn {
-            width: 44px;
-            height: 44px;
+            width: var(--btn-icon-size);
+            height: var(--btn-icon-size);
             border: 1px solid var(--gold);
             background: rgba(0,0,0,0.7);
             color: var(--gold);
-            border-radius: 50%;
+            border-radius: var(--btn-icon-radius);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: var(--btn-icon-fs);
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             touch-action: manipulation;
             position: relative;
@@ -1508,15 +1540,19 @@
 
         .zoom-level {
             background: rgba(0,0,0,0.8);
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: var(--btn-xs-pad);
+            border-radius: var(--btn-xs-radius);
+            font-size: var(--btn-xs-fs);
             color: var(--gold);
             font-family: "Courier New", monospace;
             border: 1px solid var(--gold);
             text-align: center;
             min-width: 70px;
             font-weight: 700;
+            min-height: var(--btn-xs-h);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         body.rice-paper-theme .zoom-level {
@@ -1864,17 +1900,17 @@
 
         .nav-btn {
             flex: 1;
-            padding: 12px;
+            padding: var(--btn-md-pad);
             background: transparent;
             border: 1px solid var(--gold);
             color: var(--gold);
-            border-radius: 6px;
+            border-radius: var(--btn-md-radius);
             cursor: pointer;
             font-family: inherit;
-            font-size: 0.85rem;
+            font-size: var(--btn-md-fs);
             transition: all 0.2s;
             letter-spacing: 1px;
-            min-height: 44px;
+            min-height: var(--btn-md-h);
             touch-action: manipulation;
             white-space: nowrap;
         }
@@ -1976,18 +2012,18 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 40px;
-            height: 40px;
+            width: var(--btn-icon-size);
+            height: var(--btn-icon-size);
             background: var(--bg-panel);
             border: 1px solid var(--gold);
-            border-radius: 50%;
+            border-radius: var(--btn-icon-radius);
             color: var(--gold);
             cursor: pointer;
             z-index: 1001;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: var(--btn-icon-fs);
             transition: all 0.3s;
         }
 
@@ -2053,8 +2089,15 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1.5rem;
+            font-size: var(--btn-close-fs);
             cursor: pointer;
+            width: var(--btn-close-size);
+            height: var(--btn-close-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--btn-icon-radius);
+            transition: all 0.2s;
         }
 
         .settings-section {
@@ -2077,7 +2120,7 @@
         .theme-option {
             padding: 15px;
             border: 2px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--btn-md-radius);
             cursor: pointer;
             text-align: center;
             transition: all 0.3s;
@@ -2230,16 +2273,9 @@
                 right: 12px;
             }
 
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
+            
 
-            .zoom-level {
-                padding: 8px 14px;
-                font-size: 0.85rem;
-            }
+            
 
             .timeline-panel {
                 background: var(--bg-panel);
@@ -2299,10 +2335,7 @@
                 margin-bottom: 30px;
             }
 
-            .enter-button {
-                padding: 14px 40px;
-                font-size: 1rem;
-            }
+            
 
             .contact-section {
                 padding: 10px 15px;
@@ -2324,9 +2357,7 @@
                 padding-bottom: 50px;
             }
 
-            .mobile-tabs {
-                height: 50px;
-            }
+            
 
             .portrait-nav {
                 display: none;
@@ -2368,16 +2399,9 @@
                 right: 12px;
             }
 
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
+            
 
-            .zoom-level {
-                padding: 8px 14px;
-                font-size: 0.85rem;
-            }
+            
 
             .map-wrapper {
                 height: 85vh;
@@ -2427,10 +2451,7 @@
                 gap: 10px;
             }
 
-            .portrait-nav .nav-btn {
-                padding: 8px 16px;
-                font-size: 0.85rem;
-            }
+            
         }
 
         /* 触摸设备优化 */
@@ -2584,18 +2605,18 @@
             position: fixed;
             top: 20px;
             right: 70px;
-            width: 40px;
-            height: 40px;
+            width: var(--btn-icon-size);
+            height: var(--btn-icon-size);
             background: var(--bg-panel);
             border: 1px solid var(--gold);
-            border-radius: 50%;
+            border-radius: var(--btn-icon-radius);
             color: var(--gold);
             cursor: pointer;
             z-index: 1001;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: var(--btn-icon-fs);
             transition: all 0.3s;
         }
 
@@ -2675,9 +2696,15 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1.5rem;
+            font-size: var(--btn-close-fs);
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all 0.2s;
+            width: var(--btn-close-size);
+            height: var(--btn-close-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--btn-icon-radius);
         }
 
         .close-help:hover {
@@ -2903,9 +2930,6 @@
 
             .help-btn {
                 right: 65px;
-                width: 36px;
-                height: 36px;
-                font-size: 1rem;
             }
 
             .settings-btn {
@@ -3156,18 +3180,19 @@
             align-self: flex-end;
             position: relative;
             z-index: 10;
-            padding: 8px 20px;
+            padding: var(--btn-sm-pad);
             background: var(--gold);
             color: var(--bg-dark);
             border: none;
-            border-radius: 6px;
+            border-radius: var(--btn-sm-radius);
             font-family: inherit;
-            font-size: 0.85rem;
+            font-size: var(--btn-sm-fs);
             font-weight: 700;
             cursor: pointer;
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             letter-spacing: 1px;
             overflow: hidden;
+            min-height: var(--btn-sm-h);
         }
 
         .discussion-submit-btn::before {
@@ -3352,15 +3377,16 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: var(--btn-xs-fs);
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: var(--btn-xs-pad);
+            border-radius: var(--btn-xs-radius);
             transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 4px;
             font-family: inherit;
+            min-height: var(--btn-xs-h);
         }
 
         .discussion-action-btn:hover {
@@ -3453,16 +3479,17 @@
         }
 
         .reply-submit-btn {
-            padding: 6px 16px;
+            padding: var(--btn-xs-pad);
             background: var(--gold);
             color: var(--bg-dark);
             border: none;
-            border-radius: 4px;
+            border-radius: var(--btn-xs-radius);
             font-family: inherit;
-            font-size: 0.75rem;
+            font-size: var(--btn-xs-fs);
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
+            min-height: var(--btn-xs-h);
         }
 
         .reply-submit-btn:hover {
@@ -3471,16 +3498,17 @@
         }
 
         .reply-cancel-btn {
-            padding: 6px 16px;
+            padding: var(--btn-xs-pad);
             background: transparent;
             color: var(--text-muted);
             border: 1px solid var(--border);
-            border-radius: 4px;
+            border-radius: var(--btn-xs-radius);
             font-family: inherit;
-            font-size: 0.75rem;
+            font-size: var(--btn-xs-fs);
             cursor: pointer;
             transition: all 0.2s;
             margin-left: 6px;
+            min-height: var(--btn-xs-h);
         }
 
         .reply-cancel-btn:hover {
@@ -3511,18 +3539,19 @@
         }
 
         .discussion-image-upload-btn {
-            padding: 6px 12px;
+            padding: var(--btn-xs-pad);
             background: rgba(0, 0, 0, 0.2);
             border: 1px dashed var(--border);
-            border-radius: 6px;
+            border-radius: var(--btn-xs-radius);
             color: var(--text-muted);
             font-family: inherit;
-            font-size: 0.8rem;
+            font-size: var(--btn-xs-fs);
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 4px;
+            min-height: var(--btn-xs-h);
         }
 
         body.rice-paper-theme .discussion-image-upload-btn {
@@ -3648,16 +3677,17 @@
         }
 
         .discussion-tag-option {
-            padding: 4px 12px;
+            padding: var(--btn-xs-pad);
             border: 1px solid var(--border);
             border-radius: 14px;
-            font-size: 0.75rem;
+            font-size: var(--btn-xs-fs);
             color: var(--text-muted);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             background: transparent;
             font-family: inherit;
             transform: scale(1);
+            min-height: var(--btn-xs-h);
         }
 
         .discussion-tag-option:hover {
@@ -3679,12 +3709,13 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: var(--btn-xs-fs);
             cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: var(--btn-xs-pad);
+            border-radius: var(--btn-xs-radius);
             transition: all 0.2s;
             opacity: 0;
+            min-height: var(--btn-xs-h);
         }
 
         .discussion-item:hover .discussion-delete-btn {
@@ -3701,12 +3732,13 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 0.7rem;
+            font-size: var(--btn-xs-fs);
             cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: var(--btn-xs-pad);
+            border-radius: var(--btn-xs-radius);
             transition: all 0.2s;
             opacity: 0;
+            min-height: var(--btn-xs-h);
         }
 
         .discussion-item:hover .admin-essential-btn {
@@ -3785,14 +3817,14 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1.3rem;
+            font-size: var(--btn-close-fs);
             cursor: pointer;
-            width: 32px;
-            height: 32px;
+            width: var(--btn-close-size);
+            height: var(--btn-close-size);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: var(--btn-icon-radius);
             transition: all 0.2s;
         }
 
@@ -3841,10 +3873,10 @@
 
         .share-card-btn {
             flex: 1;
-            padding: 12px 16px;
-            border-radius: 8px;
+            padding: var(--btn-md-pad);
+            border-radius: var(--btn-md-radius);
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: var(--btn-md-fs);
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
@@ -3853,6 +3885,7 @@
             justify-content: center;
             gap: 6px;
             letter-spacing: 1px;
+            min-height: var(--btn-md-h);
         }
 
         .share-card-btn.primary {
@@ -4002,17 +4035,18 @@
 
         .admin-login-btn {
             width: 100%;
-            padding: 12px;
+            padding: var(--btn-md-pad);
             background: var(--gold);
             color: var(--bg-dark);
             border: none;
-            border-radius: 8px;
+            border-radius: var(--btn-md-radius);
             font-family: inherit;
-            font-size: 0.95rem;
+            font-size: var(--btn-md-fs);
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
             letter-spacing: 2px;
+            min-height: var(--btn-md-h);
         }
 
         .admin-login-btn:hover {
@@ -4031,12 +4065,13 @@
             background: none;
             border: 1px solid var(--accent);
             color: var(--accent);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.75rem;
+            padding: var(--btn-xs-pad);
+            border-radius: var(--btn-xs-radius);
+            font-size: var(--btn-xs-fs);
             cursor: pointer;
             margin-left: 10px;
             transition: all 0.2s;
+            min-height: var(--btn-xs-h);
         }
 
         .admin-logout-btn:hover {
@@ -4247,11 +4282,16 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: var(--btn-close-fs);
             cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 0;
+            border-radius: var(--btn-icon-radius);
             transition: color 0.2s;
+            width: var(--btn-close-size);
+            height: var(--btn-close-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .layer-panel-close:hover {
@@ -4377,7 +4417,7 @@
             gap: 6px;
             padding: 14px 8px;
             border: 2px solid var(--border);
-            border-radius: 10px;
+            border-radius: var(--btn-md-radius);
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             background: transparent;
@@ -4655,6 +4695,7 @@
     </script>
 <base target="_blank">
     <base target="_blank">
+<base target="_blank">
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
