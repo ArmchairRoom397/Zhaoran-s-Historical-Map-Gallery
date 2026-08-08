@@ -4152,6 +4152,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -4484,7 +4485,10 @@
             
 
             <div class="timeline-list" id="timelineList">
-                <!-- 动态生成 -->
+                <div id="virtualScrollContainer" style="position: relative; width: 100%; min-height: 100%;">
+                    <div id="virtualScrollSpacer" style="height: 0px;"></div>
+                    <div id="virtualScrollContent" style="position: absolute; top: 0; left: 0; right: 0;"></div>
+                </div>
             </div>
         </div>
 
@@ -5366,36 +5370,204 @@ let currentIndex = -1;
         const loadingProgressBar = document.getElementById('loadingProgressBar');
         const loadingPercent = document.getElementById('loadingPercent');
 
-        // 初始化时间轴
-        function initTimeline() {
-            const list = document.getElementById('timelineList');
+        // ===== 虚拟滚动时间轴 =====
+        const VIRTUAL_CONFIG = {
+            itemHeight: 44,
+            eraHeight: 36,
+            bufferSize: 5
+        };
+
+        let virtualState = {
+            allItems: [],
+            filteredItems: [],
+            totalHeight: 0,
+            scrollTop: 0,
+            containerHeight: 0,
+            startIndex: 0,
+            endIndex: 0
+        };
+
+        // 扁平化历史数据为虚拟滚动项
+        function flattenTimelineData() {
+            const items = [];
             let currentEra = '';
 
-            historyData.forEach((item, index) => {
-                if (item.era !== currentEra) {
-                    currentEra = item.era;
-                    const eraDiv = document.createElement('div');
-                    eraDiv.className = 'era-label';
-                    eraDiv.innerHTML = `
-                        <span>${currentEra}</span>
-                        <span class="era-quote">${getEraQuote(currentEra)}</span>
-                    `;
-                    list.appendChild(eraDiv);
+            historyData.forEach((data, index) => {
+                if (data.era !== currentEra) {
+                    currentEra = data.era;
+                    items.push({
+                        type: 'era',
+                        era: currentEra,
+                        height: VIRTUAL_CONFIG.eraHeight,
+                        index: -1
+                    });
                 }
-
-                const div = document.createElement('div');
-                div.className = 'timeline-item';
-                const reignText = item.reign ? `<span class="reign-badge">${item.reign}</span>` : '';
-                div.innerHTML = `
-                    <span class="year-badge">${item.year}</span>
-                    <div class="item-info">
-                        <span class="item-name">${item.name}</span>
-                        ${reignText}
-                    </div>
-                `;
-                div.onclick = () => selectMap(index);
-                list.appendChild(div);
+                items.push({
+                    type: 'map',
+                    data: data,
+                    mapIndex: index,
+                    height: VIRTUAL_CONFIG.itemHeight,
+                    index: index
+                });
             });
+
+            return items;
+        }
+
+        // 计算累计高度数组（用于快速定位）
+        function buildCumulativeHeights(items) {
+            const heights = [];
+            let sum = 0;
+            for (let i = 0; i < items.length; i++) {
+                heights.push(sum);
+                sum += items[i].height;
+            }
+            heights.push(sum);
+            return { heights, total: sum };
+        }
+
+        // 二分查找：找到 scrollTop 对应的起始索引
+        function findStartIndex(scrollTop, heights) {
+            let left = 0, right = heights.length - 2;
+            while (left < right) {
+                const mid = Math.floor((left + right) / 2);
+                if (heights[mid] < scrollTop) {
+                    left = mid + 1;
+                } else {
+                    right = mid;
+                }
+            }
+            return Math.max(0, left - VIRTUAL_CONFIG.bufferSize);
+        }
+
+        // 初始化时间轴（虚拟滚动版）
+        function initTimeline() {
+            virtualState.allItems = flattenTimelineData();
+            virtualState.filteredItems = [...virtualState.allItems];
+
+            const list = document.getElementById('timelineList');
+            if (!list) return;
+
+            virtualState.containerHeight = list.clientHeight;
+
+            // 监听滚动（使用 requestAnimationFrame 节流）
+            let ticking = false;
+            list.addEventListener('scroll', function() {
+                virtualState.scrollTop = list.scrollTop;
+                if (!ticking) {
+                    requestAnimationFrame(function() {
+                        renderVirtualItems();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // 监听容器大小变化
+            const resizeObserver = new ResizeObserver(function(entries) {
+                for (let entry of entries) {
+                    virtualState.containerHeight = entry.contentRect.height;
+                    renderVirtualItems();
+                }
+            });
+            resizeObserver.observe(list);
+
+            // 首次渲染
+            renderVirtualItems();
+        }
+
+        // 渲染虚拟滚动项
+        function renderVirtualItems() {
+            const container = document.getElementById('virtualScrollContainer');
+            const spacer = document.getElementById('virtualScrollSpacer');
+            const content = document.getElementById('virtualScrollContent');
+
+            if (!container || !spacer || !content) return;
+
+            const items = virtualState.filteredItems;
+            if (items.length === 0) {
+                spacer.style.height = '0px';
+                content.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">无匹配结果</div>';
+                return;
+            }
+
+            // 计算累计高度
+            const { heights, total } = buildCumulativeHeights(items);
+            virtualState.totalHeight = total;
+
+            // 设置总高度
+            spacer.style.height = total + 'px';
+
+            // 计算可视范围
+            const scrollTop = virtualState.scrollTop;
+            const containerHeight = virtualState.containerHeight || container.clientHeight;
+            const visibleCount = Math.ceil(containerHeight / VIRTUAL_CONFIG.itemHeight);
+
+            const startIndex = findStartIndex(scrollTop, heights);
+            const endIndex = Math.min(items.length, startIndex + visibleCount + VIRTUAL_CONFIG.bufferSize * 2);
+
+            virtualState.startIndex = startIndex;
+            virtualState.endIndex = endIndex;
+
+            // 计算偏移量
+            const offsetY = heights[startIndex];
+            content.style.transform = 'translateY(' + offsetY + 'px)';
+
+            // 渲染可见项
+            let html = '';
+            for (let i = startIndex; i < endIndex; i++) {
+                const item = items[i];
+                if (!item) continue;
+
+                if (item.type === 'era') {
+                    html += '<div class="era-label" style="height: ' + VIRTUAL_CONFIG.eraHeight + 'px;">' +
+                        '<span>' + item.era + '</span>' +
+                        '<span class="era-quote">' + getEraQuote(item.era) + '</span>' +
+                        '</div>';
+                } else {
+                    const data = item.data;
+                    const isActive = item.mapIndex === currentIndex;
+                    const reignText = data.reign ? '<span class="reign-badge">' + data.reign + '</span>' : '';
+                    html += '<div class="timeline-item ' + (isActive ? 'active' : '') + '" ' +
+                        'style="height: ' + VIRTUAL_CONFIG.itemHeight + 'px;" ' +
+                        'onclick="selectMap(' + item.mapIndex + ')" ' +
+                        'data-map-index="' + item.mapIndex + '">' +
+                        '<span class="year-badge">' + data.year + '</span>' +
+                        '<div class="item-info">' +
+                        '<span class="item-name">' + data.name + '</span>' +
+                        reignText +
+                        '</div>' +
+                        '</div>';
+                }
+            }
+
+            content.innerHTML = html;
+        }
+
+        // 滚动到指定地图项
+        function scrollToMapIndex(mapIndex) {
+            const items = virtualState.filteredItems;
+            let targetOffset = 0;
+            let found = false;
+
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type === 'map' && items[i].mapIndex === mapIndex) {
+                    found = true;
+                    break;
+                }
+                targetOffset += items[i].height;
+            }
+
+            if (!found) return;
+
+            const list = document.getElementById('timelineList');
+            if (list) {
+                const scrollPos = targetOffset - virtualState.containerHeight / 2 + VIRTUAL_CONFIG.itemHeight / 2;
+                list.scrollTo({
+                    top: Math.max(0, scrollPos),
+                    behavior: 'smooth'
+                });
+            }
         }
 
         function getEraQuote(era) {
@@ -5438,11 +5610,9 @@ let currentIndex = -1;
                 }
             });
 
-            // 更新列表激活状态
-            document.querySelectorAll('.timeline-item').forEach((el, i) => {
-                el.classList.toggle('active', i === index);
-                if (i === index) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
+            // 更新列表激活状态（虚拟滚动版）
+            renderVirtualItems(); // 重新渲染以更新active状态
+            scrollToMapIndex(index); // 平滑滚动到目标项
 
             // 更新信息面板
             updateInfoPanel(data, index);
