@@ -4151,6 +4151,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -4557,9 +4558,17 @@
             </div>
 
             <div class="info-content">
-                <!-- 时期详细介绍卡片 -->
+                <!-- 专属时期背景卡片 -->
+                <div class="era-intro-card" id="periodBgCard" style="display: none;">
+                    <div class="era-intro-title" id="periodBgTitle">📜 专属时期背景</div>
+                    <div class="era-intro-content" id="periodBgContent" style="font-size: 0.88rem; line-height: 1.9; color: var(--text);">
+                        选择一幅地图查看其专属时期背景...
+                    </div>
+                </div>
+
+                <!-- 时期详细介绍卡片（通用） -->
                 <div class="era-intro-card" id="eraIntroCard" style="display: none;">
-                    <div class="era-intro-title" id="eraIntroTitle">时期背景</div>
+                    <div class="era-intro-title" id="eraIntroTitle">🏛️ 时期概览</div>
                     <div class="era-intro-content" id="eraIntroContent">
                         选择一个历史时期查看详细介绍...
                     </div>
@@ -6162,18 +6171,32 @@ let currentIndex = -1;
             document.getElementById('metaCount').textContent = data.count;
             document.getElementById('metaIndex').textContent = `${index + 1} / ${historyData.length}`;
 
-            updateEraIntroCard(data.era);
+            updateEraIntroCard(data.era, data.periodBg);
         }
 
-        function updateEraIntroCard(era) {
+        function updateEraIntroCard(era, periodBg) {
+            // 专属时期背景卡片
+            const periodBgCard = document.getElementById('periodBgCard');
+            const periodBgContent = document.getElementById('periodBgContent');
+            const periodBgTitle = document.getElementById('periodBgTitle');
+
+            if (periodBg) {
+                periodBgCard.style.display = 'block';
+                periodBgTitle.textContent = `📜 ${era} · 专属时期背景`;
+                periodBgContent.textContent = periodBg;
+            } else {
+                periodBgCard.style.display = 'none';
+            }
+
+            // 通用时期概览卡片
             const card = document.getElementById('eraIntroCard');
             const details = eraDetailsData[era];
-            
+
             if (details) {
                 card.style.display = 'block';
-                document.getElementById('eraIntroTitle').textContent = `${era} · 时期背景`;
+                document.getElementById('eraIntroTitle').textContent = `🏛️ ${era} · 时期概览`;
                 document.getElementById('eraIntroContent').textContent = details.background;
-                
+
                 const grid = document.getElementById('eraDetailsGrid');
                 grid.innerHTML = `
                     <div class="era-detail-item">
