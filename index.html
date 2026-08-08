@@ -4558,22 +4558,11 @@
             </div>
 
             <div class="info-content">
-                <!-- 专属时期背景卡片 -->
+                <!-- 时期背景卡片 -->
                 <div class="era-intro-card" id="periodBgCard" style="display: none;">
-                    <div class="era-intro-title" id="periodBgTitle">📜 专属时期背景</div>
+                    <div class="era-intro-title" id="periodBgTitle">📜 时期背景</div>
                     <div class="era-intro-content" id="periodBgContent" style="font-size: 0.88rem; line-height: 1.9; color: var(--text);">
-                        选择一幅地图查看其专属时期背景...
-                    </div>
-                </div>
-
-                <!-- 时期详细介绍卡片（通用） -->
-                <div class="era-intro-card" id="eraIntroCard" style="display: none;">
-                    <div class="era-intro-title" id="eraIntroTitle">🏛️ 时期概览</div>
-                    <div class="era-intro-content" id="eraIntroContent">
-                        选择一个历史时期查看详细介绍...
-                    </div>
-                    <div class="era-details-grid" id="eraDetailsGrid">
-                        <!-- 动态生成详细数据 -->
+                        选择一幅地图查看其时期背景...
                     </div>
                 </div>
 
@@ -5240,65 +5229,7 @@
             }
         }
 
-        // 历史时期详细数据
-        const eraDetailsData = {
-            "史前时期": {
-                background: "中华文明的起源阶段，从旧石器时代早期人类活动开始，历经新石器时代的农耕革命，至夏朝建立前。这一时期见证了人类从采集狩猎向定居农业的转变，黄河流域与长江流域相继出现仰韶文化、龙山文化、河姆渡文化等灿烂的新石器时代文明。",
-                politics: "原始氏族社会，母系氏族向父系氏族过渡，部落联盟形成",
-                economy: "采集渔猎 → 原始农业（粟作、稻作）→ 家畜饲养 → 手工业萌芽",
-                culture: "彩陶文化、黑陶文化、玉器文化、原始宗教与图腾崇拜",
-                military: "部落冲突，石器武器，城墙雏形（如良渚古城）",
-                legacy: "奠定了中华文明的地理基础，形成了早期华夏族群的分布格局"
-            },
-            "早期国家": {
-                background: "从夏朝建立到秦朝统一前的早期国家形成与发展时期。夏商周三代确立了世袭王权、宗法分封、礼乐制度等国家形态的基本框架。春秋战国时期是社会大变革时代，铁器牛耕推广，百家争鸣，郡县制取代分封制，为大一统帝国奠定基础。",
-                politics: "世袭王权 → 宗法分封 → 礼乐文明 → 郡县制萌芽 → 变法图强",
-                economy: "青铜时代 → 铁器时代，井田制瓦解，土地私有确立，商业城市发展",
-                culture: "甲骨文、金文、诸子百家、诗经楚辞、礼乐文化、阴阳五行",
-                military: "车战 → 步骑协同，兵法理论（孙子兵法），兼并战争规模扩大",
-                legacy: "确立了华夏文明的核心价值观与政治制度原型，形成'中国'概念"
-            },
-            "帝国形成": {
-                background: "秦汉时期是中国历史上第一个大一统帝国形成与巩固的关键阶段。秦朝确立中央集权制度，汉朝继承并发展，形成'汉承秦制'的政治传统。这一时期确立了儒家思想的正统地位，开通丝绸之路，汉族作为主体民族形成，奠定了此后两千年中国政治制度的基本格局。",
-                politics: "皇帝制度、三公九卿、郡县制、察举制、内外朝制度",
-                economy: "重农抑商、盐铁官营、均输平准、丝绸之路开通、大地主经济发展",
-                culture: "独尊儒术、经学兴盛、史记汉书、汉赋、造纸术发明",
-                military: "征兵制 → 募兵制，骑兵军团，对匈奴战争，西域都护府设立",
-                legacy: "确立大一统帝国模式，形成汉族认同，奠定中华帝国基本疆域"
-            },
-            "成熟帝国": {
-                background: "从三国鼎立到元朝灭亡的帝国成熟与演变时期。这一时期经历了分裂与统一的多次循环，中央集权制度不断完善，科举制取代门阀政治，经济重心南移，儒释道三教融合，文学艺术达到高峰。唐宋变革标志着中国传统社会从贵族政治向士大夫政治的转型。",
-                politics: "九品中正 → 科举制、三省六部、二府三司、行省制度、宣政院",
-                economy: "均田制 → 两税法，经济重心南移，纸币出现，海外贸易繁荣",
-                culture: "魏晋玄学、唐诗宋词、理学兴起、印刷术、指南针、火药应用",
-                military: "府兵制 → 募兵制，火药武器，边防体系（长城、九边），水军发展",
-                legacy: "形成成熟的文官政治体系，确立东亚文化圈核心地位，技术革新领先世界"
-            },
-            "传统社会": {
-                background: "明清时期是中国传统社会的最后阶段，也是集权制度发展到顶峰的时期。明朝废除丞相制，清朝设立军机处，君主专制达到极致。同时，这一时期中国疆域最终奠定，多民族国家完全形成，人口突破四亿。但后期闭关锁国政策导致与西方发展差距拉大。",
-                politics: "内阁制度、军机处、密折制度、督抚制度、理藩院、改土归流",
-                economy: "一条鞭法、摊丁入亩，商品经济繁荣，资本主义萌芽，白银货币化",
-                culture: "心学、考据学、小说戏曲繁荣（四大名著）、西学东渐",
-                military: "卫所制 → 绿营兵，火器装备（红衣大炮），八旗制度，海军衰落",
-                legacy: "奠定现代中国疆域基础，形成统一的多民族国家格局，传统社会达到顶峰"
-            },
-            "中国近代": {
-                background: "从鸦片战争到新中国成立的百年动荡与转型时期。中国逐步沦为半殖民地半封建社会，经历太平天国、洋务运动、戊戌变法、辛亥革命、国民革命、抗日战争等重大事件。这一时期是传统中国向现代国家转型的痛苦过程，也是中华民族觉醒和抗争的历史。",
-                politics: "半殖民地半封建、维新变法、共和革命、军阀割据、党国体制",
-                economy: "自然经济解体，近代工业起步，民族资本主义曲折发展，官僚资本",
-                culture: "中体西用、新文化运动、马克思主义传播、抗日救亡文化",
-                military: "近代海军创建，新军编练，北伐战争，抗日战争，国共内战",
-                legacy: "结束封建帝制，建立共和国，民族意识全面觉醒，为现代中国奠定基础"
-            },
-            "中国现代": {
-                background: "新中国成立后的社会主义革命与建设时期，特别是改革开放以来的快速发展阶段。中国从农业国转变为世界第二大经济体，完成工业化、城镇化进程，综合国力显著提升。这一时期见证了中华民族的伟大复兴，'一带一路'倡议标志着中国重新走向世界舞台中心。",
-                politics: "社会主义制度、人民代表大会制、改革开放、一国两制、依法治国",
-                economy: "计划经济 → 市场经济，世界工厂，全球第二大经济体，科技创新",
-                culture: "双百方针、文化体制改革、文化自信、中华文化走出去",
-                military: "现代化国防，两弹一星，航母编队，信息化战争能力，维和力量",
-                legacy: "实现民族独立与富强，探索中国式现代化道路，推动构建人类命运共同体"
-            }
-        };
+
 
         // 历史数据与名言库
         let historyData = [];
@@ -6175,53 +6106,16 @@ let currentIndex = -1;
         }
 
         function updateEraIntroCard(era, periodBg) {
-            // 专属时期背景卡片
             const periodBgCard = document.getElementById('periodBgCard');
             const periodBgContent = document.getElementById('periodBgContent');
             const periodBgTitle = document.getElementById('periodBgTitle');
 
             if (periodBg) {
                 periodBgCard.style.display = 'block';
-                periodBgTitle.textContent = `📜 ${era} · 专属时期背景`;
+                periodBgTitle.textContent = `📜 ${era} · 时期背景`;
                 periodBgContent.textContent = periodBg;
             } else {
                 periodBgCard.style.display = 'none';
-            }
-
-            // 通用时期概览卡片
-            const card = document.getElementById('eraIntroCard');
-            const details = eraDetailsData[era];
-
-            if (details) {
-                card.style.display = 'block';
-                document.getElementById('eraIntroTitle').textContent = `🏛️ ${era} · 时期概览`;
-                document.getElementById('eraIntroContent').textContent = details.background;
-
-                const grid = document.getElementById('eraDetailsGrid');
-                grid.innerHTML = `
-                    <div class="era-detail-item">
-                        <div class="era-detail-label">政治制度</div>
-                        <div class="era-detail-value">${details.politics}</div>
-                    </div>
-                    <div class="era-detail-item">
-                        <div class="era-detail-label">经济发展</div>
-                        <div class="era-detail-value">${details.economy}</div>
-                    </div>
-                    <div class="era-detail-item">
-                        <div class="era-detail-label">文化特征</div>
-                        <div class="era-detail-value">${details.culture}</div>
-                    </div>
-                    <div class="era-detail-item">
-                        <div class="era-detail-label">军事边防</div>
-                        <div class="era-detail-value">${details.military}</div>
-                    </div>
-                    <div class="era-detail-item" style="grid-column: 1 / -1;">
-                        <div class="era-detail-label">历史遗产</div>
-                        <div class="era-detail-value">${details.legacy}</div>
-                    </div>
-                `;
-            } else {
-                card.style.display = 'none';
             }
         }
 
