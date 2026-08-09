@@ -6311,7 +6311,7 @@ let currentIndex = -1;
             var guestConfig = isGuest ? getGuestLayerConfig(item) : null;
 
             if (isGuest && guestConfig) {
-                // 其他作者作品：使用专属图层配置，不使用通用图层
+                // 其他作者作品：使用专属图层配置，不生成通用图层后备路径
                 for (const [key, config] of Object.entries(guestConfig)) {
                     layers[key] = config.path;
                 }
@@ -6330,8 +6330,7 @@ let currentIndex = -1;
 
             for (const [key, config] of Object.entries(layerConfig)) {
                 if (config.type === 'universal') {
-                    // universal图层：同时提供专属路径和通用路径
-                    // 专属路径：基于当前地图路径 + 后缀
+                    // universal图层：同时提供专属路径和通用路径（仅非其他作者作品）
                     if (baseDir && baseFilename && baseExt) {
                         layers[key] = baseDir + baseFilename + config.suffix + baseExt;
                         // 同时存储通用路径作为后备
@@ -6483,8 +6482,8 @@ let currentIndex = -1;
 
                 // ===== 立即显示图层（零等待）=====
                 if (layerImg) {
-                    if (isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
-                        // 通用图层有预加载：先显示通用图层作为占位
+                    if (!isGuest && isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
+                        // 非其他作者作品的通用图层有预加载：先显示通用图层作为占位
                         layerImg.src = preloaded.src;
                         layerImg.classList.add('loaded');
                         layerImg.style.display = 'block';
@@ -6500,8 +6499,9 @@ let currentIndex = -1;
                 var xhrFallback = fallbackPath;
 
                 if (isGuest) {
-                    // 其他作者作品：所有图层都通过 XHR 无损加载
+                    // 其他作者作品：只加载专属图层，不加载通用图层后备
                     needsXHR = true;
+                    xhrFallback = null; // 禁用通用图层后备
                 } else if (layerName === 'bg' || layerName === 'name') {
                     // 背景、地名：必须 XHR 加载专属
                     needsXHR = true;
