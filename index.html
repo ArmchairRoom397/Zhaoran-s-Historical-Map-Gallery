@@ -4794,6 +4794,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -6147,6 +6148,7 @@ let currentIndex = -1;
         // 初始化时间轴
         function initTimeline() {
             const list = document.getElementById('timelineList');
+            list.innerHTML = '';  // 清空已有内容，防止重复
             let currentEra = '';
 
             historyData.forEach((item, index) => {
@@ -8936,7 +8938,6 @@ function initApp() {
             }
             initSupabase();
             setupMentionListener();
-            initApp(); // 初始化应用
         });
 
         function selectDiscussionTag(btn) {
