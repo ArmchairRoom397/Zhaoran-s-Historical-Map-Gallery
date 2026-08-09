@@ -4790,6 +4790,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -6317,38 +6318,34 @@ let currentIndex = -1;
                 return layers;
             }
 
-            // 判断是否是抗战地图（唯一使用专属河湖图层的地图）
-            var isAntiJapanese = basePath.indexOf('anti_japanese') >= 0;
+            // 计算基础路径组件（用于生成专属图层路径）
+            const lastDot = basePath.lastIndexOf('.');
+            const lastSlash = basePath.lastIndexOf('/');
+            let baseDir = '', baseFilename = '', baseExt = '';
+            if (lastDot > 0 && lastSlash > 0) {
+                baseDir = basePath.substring(0, lastSlash + 1);
+                baseFilename = basePath.substring(lastSlash + 1, lastDot);
+                baseExt = basePath.substring(lastDot);
+            }
 
             for (const [key, config] of Object.entries(layerConfig)) {
                 if (config.type === 'universal') {
-                    // 通用图层：所有地图共用固定路径
-                    layers[key] = config.path;
+                    // universal图层：同时提供专属路径和通用路径
+                    // 专属路径：基于当前地图路径 + 后缀
+                    if (baseDir && baseFilename && baseExt) {
+                        layers[key] = baseDir + baseFilename + config.suffix + baseExt;
+                        // 同时存储通用路径作为后备
+                        layers[key + '_fallback'] = config.path;
+                    } else {
+                        layers[key] = config.path;
+                    }
                 } else {
-                    // 专属图层：基于当前地图路径生成
-                    const lastDot = basePath.lastIndexOf('.');
-                    const lastSlash = basePath.lastIndexOf('/');
-
-                    if (lastDot > 0 && lastSlash > 0) {
-                        const dir = basePath.substring(0, lastSlash + 1);
-                        const filename = basePath.substring(lastSlash + 1, lastDot);
-                        const ext = basePath.substring(lastDot);
-                        layers[key] = dir + filename + config.suffix + ext;
+                    // exclusive图层：基于当前地图路径生成
+                    if (baseDir && baseFilename && baseExt) {
+                        layers[key] = baseDir + baseFilename + config.suffix + baseExt;
                     } else {
                         layers[key] = basePath;
                     }
-                }
-            }
-
-            // 抗战地图额外添加专属河湖图层路径
-            if (isAntiJapanese) {
-                const lastDot = basePath.lastIndexOf('.');
-                const lastSlash = basePath.lastIndexOf('/');
-                if (lastDot > 0 && lastSlash > 0) {
-                    const dir = basePath.substring(0, lastSlash + 1);
-                    const filename = basePath.substring(lastSlash + 1, lastDot);
-                    const ext = basePath.substring(lastDot);
-                    layers['river_exclusive'] = dir + filename + '_2' + ext;
                 }
             }
 
@@ -6448,11 +6445,7 @@ let currentIndex = -1;
                 currentLayerPaths = paths;
             }
 
-            // 判断是否是抗战地图
-            var isAntiJapanese = path.indexOf('anti_japanese') >= 0;
-
             var layersToLoad = [];
-            // 其他作者作品使用自定义图层配置
             var isGuest = currentItem && currentItem.era === '其他作者优秀作品';
             var guestLayerConfig = isGuest ? getGuestLayerConfig(currentItem) : null;
             var activeLayerConfig = guestLayerConfig || layerConfig;
@@ -6469,6 +6462,7 @@ let currentIndex = -1;
                 var config = layerConfigMap[layerName];
                 var layerDef = activeLayerConfig[layerName];
                 var layerPath = paths[layerName];
+                var fallbackPath = paths[layerName + '_fallback'];
 
                 var layerImg = document.getElementById('layer' + capitalize(layerName));
 
@@ -6485,17 +6479,12 @@ let currentIndex = -1;
                 if (checkbox && !checkbox.checked && layerName !== 'bg') continue;
 
                 var preloaded = getPreloadedLayer(layerName);
+                var isUniversal = !isGuest && layerConfig[layerName] && layerConfig[layerName].type === 'universal';
 
                 // ===== 立即显示图层（零等待）=====
                 if (layerImg) {
-                    if (layerName === 'river' && !isGuest) {
-                        // 河湖图层：普通地图先用通用路径显示
-                        var riverSrc = preloaded ? preloaded.src : layerPath;
-                        layerImg.src = riverSrc;
-                        layerImg.classList.add('loaded');
-                        layerImg.style.display = 'block';
-                    } else if (preloaded && layerName !== 'bg' && layerName !== 'name' && !isGuest) {
-                        // 其他通用图层：有预加载则直接显示（仅限非其他作者作品）
+                    if (isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
+                        // 通用图层有预加载：先显示通用图层作为占位
                         layerImg.src = preloaded.src;
                         layerImg.classList.add('loaded');
                         layerImg.style.display = 'block';
@@ -6508,6 +6497,7 @@ let currentIndex = -1;
                 // ===== 决定是否需要 XHR =====
                 var needsXHR = false;
                 var xhrPath = layerPath;
+                var xhrFallback = fallbackPath;
 
                 if (isGuest) {
                     // 其他作者作品：所有图层都通过 XHR 无损加载
@@ -6515,16 +6505,10 @@ let currentIndex = -1;
                 } else if (layerName === 'bg' || layerName === 'name') {
                     // 背景、地名：必须 XHR 加载专属
                     needsXHR = true;
-                } else if (layerName === 'river') {
-                    // 河湖：非抗战地图不需要 XHR（通用已显示）
-                    // 抗战地图：XHR 加载专属河湖图层替换通用版
-                    if (isAntiJapanese && paths['river_exclusive']) {
-                        needsXHR = true;
-                        xhrPath = paths['river_exclusive'];
-                    }
-                } else {
-                    // 地形、国界：universal 类型，无预加载则 XHR
-                    needsXHR = !preloaded;
+                } else if (isUniversal) {
+                    // 通用图层(terrain/border/river)：XHR加载专属路径
+                    // 如果专属路径404，会回退到通用路径
+                    needsXHR = true;
                 }
 
                 if (needsXHR && xhrPath) {
@@ -6532,8 +6516,9 @@ let currentIndex = -1;
                         name: layerName,
                         displayName: config.name,
                         path: xhrPath,
+                        fallbackPath: xhrFallback,
                         priority: config.priority,
-                        isExclusive: isAntiJapanese && layerName === 'river'
+                        isUniversal: isUniversal
                     });
                 }
             }
@@ -6551,7 +6536,7 @@ let currentIndex = -1;
                 };
             }
 
-            // 无需 XHR 的情况（大部分地图）
+            // 无需 XHR 的情况
             if (layersToLoad.length === 0) {
                 for (var ln2 in layerLoadStates) {
                     layerLoadStates[ln2].done = true;
@@ -6573,92 +6558,7 @@ let currentIndex = -1;
             var completedXHR = 0;
 
             layersToLoad.forEach(function(layer) {
-                var xhr = new XMLHttpRequest();
-                layerXhrs[layer.name] = xhr;
-
-                xhr.open('GET', layer.path, true);
-                xhr.responseType = 'blob';
-
-                xhr.onprogress = function(event) {
-                    var state = layerLoadStates[layer.name];
-                    if (!state) return;
-                    if (event.lengthComputable) {
-                        state.loaded = event.loaded;
-                        state.total = event.total;
-                    }
-                    var now = Date.now();
-                    var timeDiff = (now - state.lastTime) / 1000;
-                    if (timeDiff > 0.2) {
-                        var bytesDiff = event.loaded - state.lastLoaded;
-                        state.speed = bytesDiff / timeDiff;
-                        state.lastLoaded = event.loaded;
-                        state.lastTime = now;
-                    }
-                    updateLayerLoadingDisplay();
-                };
-
-                xhr.onload = function() {
-                    var state = layerLoadStates[layer.name];
-                    if (state) {
-                        state.done = true;
-                        state.loaded = state.total || 1;
-                    }
-                    completedXHR++;
-
-                    var layerImg = document.getElementById('layer' + capitalize(layer.name));
-
-                    if (xhr.status === 200 && layerImg) {
-                        var blobUrl = URL.createObjectURL(xhr.response);
-                        layerImg.src = blobUrl;
-                        layerImg.classList.add('loaded');
-                        layerImg.style.display = 'block';
-
-                        if (layer.name === 'bg') {
-                            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
-                            currentBlobUrl = blobUrl;
-                            mapImage.src = blobUrl;
-                            mapImage.classList.add('loaded');
-                        }
-                        if (layer.isExclusive) {
-                            console.log('抗战专属河湖图层加载成功');
-                        }
-                    } else if (xhr.status === 404) {
-                        console.log(layer.displayName + ' 不存在(404)');
-                        if (state) state.loaded = 1;
-                    }
-
-                    updateLayerLoadingDisplay();
-
-                    if (completedXHR >= totalXHR) {
-                        setTimeout(function() {
-                            hideLoading();
-                            forceRepaint();
-                        }, 300);
-                    }
-                };
-
-                xhr.onerror = function() {
-                    var state = layerLoadStates[layer.name];
-                    if (state) {
-                        state.done = true;
-                        state.loaded = 1;
-                    }
-                    completedXHR++;
-                    updateLayerLoadingDisplay();
-                    if (completedXHR >= totalXHR) {
-                        setTimeout(function() {
-                            hideLoading();
-                            forceRepaint();
-                        }, 300);
-                    }
-                };
-
-                xhr.onabort = function() {
-                    var state = layerLoadStates[layer.name];
-                    if (state) {
-                        state.done = true;
-                        state.loaded = 1;
-                    }
+                loadLayerWithFallback(layer, function() {
                     completedXHR++;
                     if (completedXHR >= totalXHR) {
                         setTimeout(function() {
@@ -6666,10 +6566,154 @@ let currentIndex = -1;
                             forceRepaint();
                         }, 300);
                     }
-                };
-
-                xhr.send();
+                });
             });
+        }
+
+        // 加载图层：先尝试专属路径，失败则回退到通用路径
+        function loadLayerWithFallback(layer, onComplete) {
+            var xhr = new XMLHttpRequest();
+            layerXhrs[layer.name] = xhr;
+
+            xhr.open('GET', layer.path, true);
+            xhr.responseType = 'blob';
+
+            xhr.onprogress = function(event) {
+                var state = layerLoadStates[layer.name];
+                if (!state) return;
+                if (event.lengthComputable) {
+                    state.loaded = event.loaded;
+                    state.total = event.total;
+                }
+                var now = Date.now();
+                var timeDiff = (now - state.lastTime) / 1000;
+                if (timeDiff > 0.2) {
+                    var bytesDiff = event.loaded - state.lastLoaded;
+                    state.speed = bytesDiff / timeDiff;
+                    state.lastLoaded = event.loaded;
+                    state.lastTime = now;
+                }
+                updateLayerLoadingDisplay();
+            };
+
+            xhr.onload = function() {
+                var state = layerLoadStates[layer.name];
+                if (state) {
+                    state.done = true;
+                    state.loaded = state.total || 1;
+                }
+
+                var layerImg = document.getElementById('layer' + capitalize(layer.name));
+
+                if (xhr.status === 200 && layerImg) {
+                    var blobUrl = URL.createObjectURL(xhr.response);
+                    layerImg.src = blobUrl;
+                    layerImg.classList.add('loaded');
+                    layerImg.style.display = 'block';
+
+                    if (layer.name === 'bg') {
+                        if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+                        currentBlobUrl = blobUrl;
+                        mapImage.src = blobUrl;
+                        mapImage.classList.add('loaded');
+                    }
+                    console.log('✓ ' + layer.displayName + ' 专属图层加载成功');
+                } else if (xhr.status === 404 && layer.fallbackPath && layer.isUniversal) {
+                    // 专属图层不存在(404)，回退到通用图层
+                    console.log(layer.displayName + ' 专属图层不存在(404)，回退到通用图层');
+                    if (state) state.loaded = 1;
+                    loadFallbackLayer(layer, onComplete);
+                    return;
+                } else if (xhr.status === 404) {
+                    console.log(layer.displayName + ' 不存在(404)');
+                    if (state) state.loaded = 1;
+                }
+
+                updateLayerLoadingDisplay();
+                if (onComplete) onComplete();
+            };
+
+            xhr.onerror = function() {
+                var state = layerLoadStates[layer.name];
+                if (state) {
+                    state.done = true;
+                    state.loaded = 1;
+                }
+                // 网络错误，尝试回退
+                if (layer.fallbackPath && layer.isUniversal) {
+                    console.log(layer.displayName + ' 专属图层加载失败，回退到通用图层');
+                    loadFallbackLayer(layer, onComplete);
+                    return;
+                }
+                completedXHR++;
+                updateLayerLoadingDisplay();
+                if (onComplete) onComplete();
+            };
+
+            xhr.onabort = function() {
+                var state = layerLoadStates[layer.name];
+                if (state) {
+                    state.done = true;
+                    state.loaded = 1;
+                }
+                if (onComplete) onComplete();
+            };
+
+            xhr.send();
+        }
+
+        // 加载通用图层作为后备
+        function loadFallbackLayer(layer, onComplete) {
+            var fallbackXhr = new XMLHttpRequest();
+            layerXhrs[layer.name + '_fallback'] = fallbackXhr;
+
+            fallbackXhr.open('GET', layer.fallbackPath, true);
+            fallbackXhr.responseType = 'blob';
+
+            fallbackXhr.onload = function() {
+                var state = layerLoadStates[layer.name];
+                if (state) {
+                    state.done = true;
+                    state.loaded = state.total || 1;
+                }
+
+                var layerImg = document.getElementById('layer' + capitalize(layer.name));
+
+                if (fallbackXhr.status === 200 && layerImg) {
+                    var blobUrl = URL.createObjectURL(fallbackXhr.response);
+                    layerImg.src = blobUrl;
+                    layerImg.classList.add('loaded');
+                    layerImg.style.display = 'block';
+                    console.log('✓ ' + layer.displayName + ' 通用图层加载成功(后备)');
+                } else {
+                    console.log('✗ ' + layer.displayName + ' 通用图层也不可用');
+                }
+
+                updateLayerLoadingDisplay();
+                if (onComplete) onComplete();
+            };
+
+            fallbackXhr.onerror = function() {
+                var state = layerLoadStates[layer.name];
+                if (state) {
+                    state.done = true;
+                    state.loaded = 1;
+                }
+                console.log('✗ ' + layer.displayName + ' 通用图层加载失败');
+                updateLayerLoadingDisplay();
+                if (onComplete) onComplete();
+            };
+
+            fallbackXhr.onabort = function() {
+                var state = layerLoadStates[layer.name];
+                if (state) {
+                    state.done = true;
+                    state.loaded = 1;
+                }
+                if (onComplete) onComplete();
+            };
+
+            fallbackXhr.send();
         }
 
         function loadLayerImage(layerName, path, item) {
@@ -6685,18 +6729,6 @@ let currentIndex = -1;
             }
 
             var isGuest = item && item.era === '其他作者优秀作品';
-            var guestConfig = isGuest ? getGuestLayerConfig(item) : null;
-            var activeConfig = isGuest ? (guestConfig ? guestConfig[layerName] : null) : layerConfig[layerName];
-
-            if (!activeConfig) return;
-
-            layerImg.style.opacity = activeConfig.defaultOpacity;
-            layerImg.style.zIndex = activeConfig.zIndex;
-            layerImg.style.mixBlendMode = activeConfig.blendMode;
-
-            var preloaded = getPreloadedLayer(layerName);
-            var isRiver = layerName === 'river';
-            var isUniversal = !isGuest && layerConfig[layerName] && layerConfig[layerName].type === 'universal';
 
             // ===== 其他作者作品：直接加载专属文件 =====
             if (isGuest) {
@@ -6712,29 +6744,57 @@ let currentIndex = -1;
                 return;
             }
 
-            // ===== 河湖图层：所有地图默认用通用路径 =====
-            if (isRiver) {
-                var riverSrc = preloaded ? preloaded.src : layerConfig.river.path;
-                layerImg.src = riverSrc;
-                layerImg.classList.add('loaded');
-                layerImg.style.display = 'block';
+            var activeConfig = layerConfig[layerName];
+            if (!activeConfig) return;
 
-                // 如果传入了专属路径（抗战地图），后台尝试加载替换
-                if (path && path !== layerConfig.river.path && path !== riverSrc) {
-                    var exclusiveImg = new Image();
-                    exclusiveImg.onload = function() {
-                        layerImg.src = exclusiveImg.src;
-                        console.log('河湖专属图层加载成功，已替换通用图层');
-                    };
-                    exclusiveImg.onerror = function() {
-                        console.log('河湖专属图层不存在，保持通用图层');
-                    };
-                    exclusiveImg.src = path;
-                }
+            layerImg.style.opacity = activeConfig.defaultOpacity;
+            layerImg.style.zIndex = activeConfig.zIndex;
+            layerImg.style.mixBlendMode = activeConfig.blendMode;
+
+            var isUniversal = activeConfig.type === 'universal';
+            var preloaded = getPreloadedLayer(layerName);
+            var fallbackPath = currentLayerPaths ? currentLayerPaths[layerName + '_fallback'] : null;
+
+            // ===== 通用图层(terrain/border/river)：先尝试专属路径，失败则回退通用 =====
+            if (isUniversal && layerName !== 'bg' && layerName !== 'name') {
+                // 先用专属路径尝试加载
+                layerImg.src = path;
+
+                layerImg.onload = function() {
+                    layerImg.classList.add('loaded');
+                    if (checkbox && checkbox.checked) {
+                        layerImg.style.display = 'block';
+                    }
+                    console.log('✓ 专属' + layerName + '图层加载成功: ' + path);
+                };
+
+                layerImg.onerror = function() {
+                    // 专属图层不存在，回退到通用图层
+                    var fallbackSrc = preloaded ? preloaded.src : fallbackPath;
+                    if (fallbackSrc) {
+                        layerImg.src = fallbackSrc;
+                        layerImg.onload = function() {
+                            layerImg.classList.add('loaded');
+                            if (checkbox && checkbox.checked) {
+                                layerImg.style.display = 'block';
+                            }
+                            console.log('↺ 专属' + layerName + '图层不存在，已回退到通用图层');
+                        };
+                        layerImg.onerror = function() {
+                            layerImg.classList.remove('loaded');
+                            layerImg.style.display = 'none';
+                            console.log('✗ ' + layerName + '图层加载失败(专属和通用均不可用)');
+                        };
+                    } else {
+                        layerImg.classList.remove('loaded');
+                        layerImg.style.display = 'none';
+                        console.log('✗ ' + layerName + '图层无可用路径');
+                    }
+                };
                 return;
             }
 
-            // ===== 其他 universal 图层（地形、国界）=====
+            // ===== 有预加载的通用图层（直接显示预加载） =====
             if (isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
                 layerImg.src = preloaded.src;
                 layerImg.classList.add('loaded');
@@ -6744,7 +6804,7 @@ let currentIndex = -1;
                 return;
             }
 
-            // ===== exclusive 图层（背景、地名）=====
+            // ===== exclusive图层（背景、地名）或没有预加载的通用图层 =====
             layerImg.src = path;
 
             layerImg.onload = function() {
@@ -7560,15 +7620,17 @@ function updateQuotes(data) {
             // 缩放前该点在屏幕上的位置
             const screenX = pointX * scale + translateX;
             const screenY = pointY * scale + translateY;
-            
+
             // 更新缩放
             scale = newScale;
-            
+
             // 计算新的位移，使该点保持在屏幕上的相同位置
             translateX = screenX - pointX * scale;
             translateY = screenY - pointY * scale;
-            
+
             updateTransform();
+            // 缩放后重绘，解决图层渲染残留问题
+            forceRepaint();
         }
 
         // 缩放功能 - 以鼠标/触摸点为中心
@@ -7604,8 +7666,7 @@ function updateQuotes(data) {
                     if (currentQuality === 'high') {
                         updateHighQualityRendering();
                     }
-                    // 拖动缩放后立即重绘
-                    forceRepaint();
+                    // 注：拖动时不重绘，仅在缩放后重绘以优化性能
                 });
             }
         }
