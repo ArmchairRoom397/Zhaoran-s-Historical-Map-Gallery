@@ -6137,6 +6137,10 @@ let currentIndex = -1;
             
             loadDiscussions(index);
 
+            // 重置所有图层：先隐藏所有图层，再根据新地图重新加载
+            // 防止从普通地图切换时残留通用图层
+            resetAllLayers();
+
             // 加载图层系统（带进度显示）
             loadAllLayersWithProgress(data.path);
 
@@ -6715,6 +6719,31 @@ let currentIndex = -1;
 
             fallbackXhr.send();
         }
+
+        // 重置所有图层：隐藏所有图层图片并清除 loaded 状态
+        function resetAllLayers() {
+            var layerIds = ['layerBg', 'layerTerrain', 'layerBorder', 'layerRiver', 'layerName'];
+            layerIds.forEach(function(id) {
+                var img = document.getElementById(id);
+                if (img) {
+                    img.style.display = 'none';
+                    img.classList.remove('loaded');
+                    img.src = '';
+                }
+            });
+            // 同时重置单张地图图片
+            var mapImg = document.getElementById('mapImage');
+            if (mapImg) {
+                mapImg.classList.remove('loaded');
+                mapImg.src = '';
+            }
+            // 清除当前图层路径缓存
+            currentLayerPaths = {};
+            // 中止所有正在进行的加载
+            abortAllLayerLoads();
+            abortCurrentLoad();
+        }
+
 
         function loadLayerImage(layerName, path, item) {
             const layerImg = document.getElementById('layer' + capitalize(layerName));
