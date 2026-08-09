@@ -3784,7 +3784,7 @@
         }
 
         /* 管理员精华操作 */
-        .admin-essential-btn {
+        .dev-essential-btn {
             background: none;
             border: none;
             color: var(--text-muted);
@@ -3797,16 +3797,16 @@
             min-height: var(--btn-xs-h);
         }
 
-        .discussion-item:hover .admin-essential-btn {
+        .discussion-item:hover .dev-essential-btn {
             opacity: 1;
         }
 
-        .admin-essential-btn:hover {
+        .dev-essential-btn:hover {
             color: #f4d03f;
             background: rgba(244, 208, 63, 0.1);
         }
 
-        .admin-essential-btn.is-essential {
+        .dev-essential-btn.is-essential {
             opacity: 1;
             color: #f4d03f;
         }
@@ -3992,8 +3992,8 @@
             }
         }
 
-        /* ===== 管理员模式 ===== */
-        .admin-mode-indicator {
+        /* ===== 开发者模式 ===== */
+        .dev-mode-indicator {
             position: fixed;
             top: 20px;
             left: 50%;
@@ -4007,20 +4007,20 @@
             z-index: 2000;
             letter-spacing: 2px;
             box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
-            animation: adminPulse 2s ease-in-out infinite;
+            animation: devPulse 2s ease-in-out infinite;
             display: none;
         }
 
-        .admin-mode-indicator.show {
+        .dev-mode-indicator.show {
             display: block;
         }
 
-        @keyframes adminPulse {
+        @keyframes devPulse {
             0%, 100% { box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4); }
             50% { box-shadow: 0 4px 30px rgba(233, 69, 96, 0.6); }
         }
 
-        .admin-login-overlay {
+        .dev-login-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -4037,12 +4037,12 @@
             transition: all 0.3s ease;
         }
 
-        .admin-login-overlay.show {
+        .dev-login-overlay.show {
             opacity: 1;
             visibility: visible;
         }
 
-        .admin-login-modal {
+        .dev-login-modal {
             background: var(--bg-panel);
             border: 2px solid var(--gold);
             border-radius: 16px;
@@ -4054,11 +4054,11 @@
             transition: transform 0.3s ease;
         }
 
-        .admin-login-overlay.show .admin-login-modal {
+        .dev-login-overlay.show .dev-login-modal {
             transform: scale(1);
         }
 
-        .admin-login-title {
+        .dev-login-title {
             font-size: 1.2rem;
             color: var(--gold);
             font-weight: 700;
@@ -4066,7 +4066,7 @@
             letter-spacing: 2px;
         }
 
-        .admin-login-input {
+        .dev-login-input {
             width: 100%;
             padding: 12px 16px;
             background: rgba(0, 0, 0, 0.3);
@@ -4081,15 +4081,15 @@
             margin-bottom: 15px;
         }
 
-        body.rice-paper-theme .admin-login-input {
+        body.rice-paper-theme .dev-login-input {
             background: rgba(255, 255, 255, 0.5);
         }
 
-        .admin-login-input:focus {
+        .dev-login-input:focus {
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
 
-        .admin-login-btn {
+        .dev-login-btn {
             width: 100%;
             padding: var(--btn-md-pad);
             background: var(--gold);
@@ -4105,19 +4105,19 @@
             min-height: var(--btn-md-h);
         }
 
-        .admin-login-btn:hover {
+        .dev-login-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
         }
 
-        .admin-login-error {
+        .dev-login-error {
             color: var(--accent);
             font-size: 0.8rem;
             margin-top: 10px;
             min-height: 20px;
         }
 
-        .admin-logout-btn {
+        .dev-logout-btn {
             background: none;
             border: 1px solid var(--accent);
             color: var(--accent);
@@ -4130,7 +4130,7 @@
             min-height: var(--btn-xs-h);
         }
 
-        .admin-logout-btn:hover {
+        .dev-logout-btn:hover {
             background: var(--accent);
             color: #fff;
         }
@@ -4791,6 +4791,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -4799,19 +4800,19 @@
     <div class="swipe-hint left-hint" id="swipeHintLeft">← 右滑打开时间轴</div>
     <div class="swipe-hint right-hint" id="swipeHintRight">左滑打开详情 →</div>
 
-    <!-- 管理员模式指示器 -->
-    <div class="admin-mode-indicator" id="adminModeIndicator">
-        🔐 管理员模式已开启
-        <button class="admin-logout-btn" onclick="adminLogout()">退出</button>
+    <!-- 开发者模式指示器 -->
+    <div class="dev-mode-indicator" id="devModeIndicator">
+        🔐 开发者模式已开启
+        <button class="dev-logout-btn" onclick="devLogout()">退出</button>
     </div>
 
     <!-- 管理员登录弹窗 -->
-    <div class="admin-login-overlay" id="adminLoginOverlay">
-        <div class="admin-login-modal" role="dialog" aria-label="管理员验证" aria-modal="true">
-            <div class="admin-login-title">🔐 管理员验证</div>
-            <input type="password" class="admin-login-input" id="adminPasswordInput" placeholder="输入管理员密码" maxlength="20" aria-label="管理员密码" onkeydown="if(event.key==='Enter')adminLogin()">
-            <button class="admin-login-btn" onclick="adminLogin()">验证身份</button>
-            <div class="admin-login-error" id="adminLoginError"></div>
+    <div class="dev-login-overlay" id="devLoginOverlay">
+        <div class="dev-login-modal" role="dialog" aria-label="开发者验证" aria-modal="true">
+            <div class="dev-login-title">🔐 开发者验证</div>
+            <input type="password" class="dev-login-input" id="devPasswordInput" placeholder="输入开发者密码" maxlength="20" aria-label="开发者密码" onkeydown="if(event.key==='Enter')devLogin()">
+            <button class="dev-login-btn" onclick="devLogin()">验证身份</button>
+            <div class="dev-login-error" id="devLoginError"></div>
         </div>
     </div>
 
@@ -4904,19 +4905,99 @@
         </div>
 
         <div class="settings-section">
-            <label class="settings-label">管理员模式</label>
-            <div class="toggle-switch" onclick="toggleAdminLogin()" id="adminToggle">
-                <div class="toggle-track" id="adminToggleTrack">
+            <label class="settings-label">开发者模式</label>
+            <div class="toggle-switch" onclick="toggleDevLogin()" id="devToggle">
+                <div class="toggle-track" id="devToggleTrack">
                     <div class="toggle-thumb"></div>
                 </div>
-                <span class="toggle-label" id="adminToggleLabel">未登录</span>
+                <span class="toggle-label" id="devToggleLabel">未登录</span>
             </div>
             <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 8px; line-height: 1.5;">
-                管理员可以删除所有评论，普通用户只能删除自己的评论。
+                开发者可以置顶和删除所有评论，普通用户只能删除自己的评论。
             </div>
         </div>
 
-        <div class="settings-section">
+                <div class="settings-section" id="devToolsSection" style="display: none;">
+            <label class="settings-label">🔧 开发者工具</label>
+
+            <div style="margin-bottom: 15px;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">当前地图文件路径</div>
+                <div id="devMapPath" style="font-family: 'Courier New', monospace; font-size: 0.75rem; color: var(--gold); background: rgba(0,0,0,0.2); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); word-break: break-all; line-height: 1.5; max-height: 80px; overflow-y: auto;">未选择地图</div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">图层路径</div>
+                <div id="devLayerPaths" style="font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); word-break: break-all; line-height: 1.6; max-height: 120px; overflow-y: auto;">未加载图层</div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">调试信息</div>
+                <div id="devDebugInfo" style="font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); line-height: 1.6;">
+                    缩放: <span id="devZoomLevel">100%</span> | 
+                    位移: <span id="devTranslate">0, 0</span> | 
+                    画质: <span id="devQuality">原画</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <div class="toggle-switch" onclick="toggleLayerPanel()" style="margin-bottom: 8px;">
+                    <div class="toggle-track active" id="devLayerPanelToggle">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                    <span class="toggle-label">显示图层控制面板按钮</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <div class="toggle-switch" onclick="toggleLoadingBar()" style="margin-bottom: 8px;">
+                    <div class="toggle-track active" id="devLoadingToggle">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                    <span class="toggle-label">显示加载进度条</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <div class="toggle-switch" onclick="toggleSwipeHints()" style="margin-bottom: 8px;">
+                    <div class="toggle-track active" id="devSwipeToggle">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                    <span class="toggle-label">显示滑动手势提示</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <div class="toggle-switch" onclick="togglePreload()" style="margin-bottom: 8px;">
+                    <div class="toggle-track active" id="devPreloadToggle">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                    <span class="toggle-label">预加载相邻地图</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; display: block;">地图对比度</label>
+                <input type="range" class="width-slider" id="devContrastSlider" min="50" max="150" value="100" oninput="updateMapContrast(this.value)">
+                <div class="width-value" id="devContrastValue">100%</div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; display: block;">地图亮度</label>
+                <input type="range" class="width-slider" id="devBrightnessSlider" min="50" max="150" value="100" oninput="updateMapBrightness(this.value)">
+                <div class="width-value" id="devBrightnessValue">100%</div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; display: block;">地图饱和度</label>
+                <input type="range" class="width-slider" id="devSaturationSlider" min="0" max="200" value="100" oninput="updateMapSaturation(this.value)">
+                <div class="width-value" id="devSaturationValue">100%</div>
+            </div>
+
+            <button class="nav-btn" onclick="forceRepaint()" style="width: 100%; margin-top: 8px; font-size: 0.8rem;">🔄 强制重绘地图</button>
+            <button class="nav-btn" onclick="clearImageCache()" style="width: 100%; margin-top: 8px; font-size: 0.8rem;">🗑️ 清除图片缓存</button>
+            <button class="nav-btn" onclick="exportCurrentData()" style="width: 100%; margin-top: 8px; font-size: 0.8rem;">📋 导出当前地图数据</button>
+        </div>
+<div class="settings-section">
             <label class="settings-label">关于</label>
             <div style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">
                 <p>昭燃的历史地图馆</p>
@@ -5287,7 +5368,36 @@
                     </div>
 
                 <!-- 访问统计 -->
-                <div class="info-section">
+                                <div class="info-section" id="devInfoPanel" style="display: none;">
+                    <div class="section-title">🔧 开发者信息</div>
+                    <div class="meta-list">
+                        <div class="meta-item">
+                            <span class="meta-label">地图路径</span>
+                            <span class="meta-value" id="devMapPathDisplay" style="font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--gold); word-break: break-all;">—</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">当前索引</span>
+                            <span class="meta-value" id="devMapIndex">—</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">图层状态</span>
+                            <span class="meta-value" id="devLayerStatus">—</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">渲染模式</span>
+                            <span class="meta-value" id="devRenderMode">—</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">视口尺寸</span>
+                            <span class="meta-value" id="devViewportSize">—</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">图片缓存</span>
+                            <span class="meta-value" id="devCacheSize">—</span>
+                        </div>
+                    </div>
+                </div>
+<div class="info-section">
                     <div class="section-title">👁️ 访问统计</div>
                     <div class="meta-list">
                         <div class="meta-item">
@@ -6181,6 +6291,11 @@ let currentIndex = -1;
 
             // 初始化访问统计
             initVisitorCounter();
+
+            // 更新开发者信息面板
+            if (isDevMode) {
+                updateDevInfoPanel();
+            }
         }
 
         // 根据作品类型更新图层控制面板
@@ -7691,6 +7806,13 @@ function updateQuotes(data) {
                     pendingTransform = null;
                     mapWrapper.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale3d(${s}, ${s}, 1)`;
                     if (zoomLevelDisplay) zoomLevelDisplay.textContent = Math.round(s * 100) + '%';
+                    // 更新开发者调试信息
+                    if (isDevMode) {
+                        var devZoom = document.getElementById('devZoomLevel');
+                        var devTranslate = document.getElementById('devTranslate');
+                        if (devZoom) devZoom.textContent = Math.round(s * 100) + '%';
+                        if (devTranslate) devTranslate.textContent = Math.round(tx) + ', ' + Math.round(ty);
+                    }
                     // 高画质模式下根据缩放比例动态调整渲染质量
                     if (currentQuality === 'high') {
                         updateHighQualityRendering();
@@ -8420,7 +8542,8 @@ function initApp() {
             setupImageProtection();
             detectLayout();
             loadSavedSettings();
-            checkAdminStatus();
+            checkDevStatus();
+            loadDevSettings();
             // 恢复用户名
             const savedName = localStorage.getItem('discussionUserName');
             if (savedName) {
@@ -8451,6 +8574,11 @@ function initApp() {
 
             // 初始化访问统计
             initVisitorCounter();
+
+            // 更新开发者信息面板
+            if (isDevMode) {
+                updateDevInfoPanel();
+            }
         }
 
         // 根据作品类型更新图层控制面板
@@ -8492,31 +8620,32 @@ function initApp() {
 
         // 等待DOM完全加载后再初始化
         
-        // ===== 管理员模式 =====
-        const ADMIN_PASSWORD = "zzbqq138";
-        let isAdminMode = false;
+        // ===== 开发者模式 =====
+        const DEV_PASSWORD = "zzbqq138";
+        let isDevMode = false;
 
-        function checkAdminStatus() {
-            const saved = localStorage.getItem('adminMode') === 'true';
+        function checkDevStatus() {
+            const saved = localStorage.getItem('devMode') === 'true';
             if (saved) {
-                isAdminMode = true;
-                var indicator = document.getElementById('adminModeIndicator');
-                var track = document.getElementById('adminToggleTrack');
-                var label = document.getElementById('adminToggleLabel');
+                isDevMode = true;
+                var indicator = document.getElementById('devModeIndicator');
+                var track = document.getElementById('devToggleTrack');
+                var label = document.getElementById('devToggleLabel');
                 if (indicator) indicator.classList.add('show');
                 if (track) track.classList.add('active');
                 if (label) label.textContent = '已登录';
+                updateDevModeUI();
             }
         }
 
-        function toggleAdminLogin() {
-            if (isAdminMode) {
-                adminLogout();
+        function toggleDevLogin() {
+            if (isDevMode) {
+                devLogout();
                 return;
             }
-            var overlay = document.getElementById('adminLoginOverlay');
-            var input = document.getElementById('adminPasswordInput');
-            var errorEl = document.getElementById('adminLoginError');
+            var overlay = document.getElementById('devLoginOverlay');
+            var input = document.getElementById('devPasswordInput');
+            var errorEl = document.getElementById('devLoginError');
             if (overlay) {
                 overlay.classList.add('show');
                 if (input) {
@@ -8527,19 +8656,19 @@ function initApp() {
             }
         }
 
-        function adminLogin() {
-            var input = document.getElementById('adminPasswordInput');
-            var errorEl = document.getElementById('adminLoginError');
+        function devLogin() {
+            var input = document.getElementById('devPasswordInput');
+            var errorEl = document.getElementById('devLoginError');
             if (!input) return;
 
             var password = input.value;
-            if (password === ADMIN_PASSWORD) {
-                isAdminMode = true;
-                localStorage.setItem('adminMode', 'true');
-                var indicator = document.getElementById('adminModeIndicator');
-                var track = document.getElementById('adminToggleTrack');
-                var label = document.getElementById('adminToggleLabel');
-                var overlay = document.getElementById('adminLoginOverlay');
+            if (password === DEV_PASSWORD) {
+                isDevMode = true;
+                localStorage.setItem('devMode', 'true');
+                var indicator = document.getElementById('devModeIndicator');
+                var track = document.getElementById('devToggleTrack');
+                var label = document.getElementById('devToggleLabel');
+                var overlay = document.getElementById('devLoginOverlay');
                 if (indicator) indicator.classList.add('show');
                 if (track) track.classList.add('active');
                 if (label) label.textContent = '已登录';
@@ -8553,16 +8682,17 @@ function initApp() {
             }
         }
 
-        function adminLogout() {
-            isAdminMode = false;
-            localStorage.removeItem('adminMode');
-            var indicator = document.getElementById('adminModeIndicator');
-            var track = document.getElementById('adminToggleTrack');
-            var label = document.getElementById('adminToggleLabel');
+        function devLogout() {
+            isDevMode = false;
+            localStorage.removeItem('devMode');
+            var indicator = document.getElementById('devModeIndicator');
+            var track = document.getElementById('devToggleTrack');
+            var label = document.getElementById('devToggleLabel');
             if (indicator) indicator.classList.remove('show');
             if (track) track.classList.remove('active');
             if (label) label.textContent = '未登录';
             if (currentIndex >= 0) loadDiscussions(currentIndex);
+            updateDevModeUI();
         }
 
         // ===== Supabase 讨论区功能 2.0（升级版）=====
@@ -8607,7 +8737,7 @@ function initApp() {
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            var overlay = document.getElementById('adminLoginOverlay');
+            var overlay = document.getElementById('devLoginOverlay');
             if (overlay) {
                 overlay.addEventListener('click', function(e) {
                     if (e.target === this) this.classList.remove('show');
@@ -8654,7 +8784,241 @@ function initApp() {
         }
 
         // ===== @用户功能 =====
-        function setupMentionListener() {
+        // ===== 开发者工具功能 =====
+let devSettings = {
+    showLayerPanel: true,
+    showLoadingBar: true,
+    showSwipeHints: true,
+    preloadAdjacent: true,
+    contrast: 100,
+    brightness: 100,
+    saturation: 100
+};
+
+// 加载保存的开发者设置
+function loadDevSettings() {
+    var saved = localStorage.getItem('devSettings');
+    if (saved) {
+        try {
+            devSettings = JSON.parse(saved);
+        } catch(e) {}
+    }
+    applyDevSettings();
+}
+
+function saveDevSettings() {
+    localStorage.setItem('devSettings', JSON.stringify(devSettings));
+}
+
+function applyDevSettings() {
+    // 应用对比度、亮度、饱和度
+    updateMapFilter();
+
+    // 应用开关状态
+    var layerPanelBtn = document.querySelector('.control-btn[title="图层控制"]');
+    if (layerPanelBtn) {
+        layerPanelBtn.style.display = devSettings.showLayerPanel ? 'flex' : 'none';
+    }
+
+    // 滑动手势提示
+    var swipeHints = document.querySelectorAll('.swipe-hint');
+    swipeHints.forEach(function(el) {
+        el.style.display = devSettings.showSwipeHints ? '' : 'none';
+    });
+}
+
+function updateDevInfoPanel() {
+    if (!isDevMode) return;
+
+    var pathDisplay = document.getElementById('devMapPathDisplay');
+    var indexDisplay = document.getElementById('devMapIndex');
+    var layerStatus = document.getElementById('devLayerStatus');
+    var renderMode = document.getElementById('devRenderMode');
+    var viewportSize = document.getElementById('devViewportSize');
+    var cacheSize = document.getElementById('devCacheSize');
+
+    if (currentIndex >= 0 && currentIndex < historyData.length) {
+        var data = historyData[currentIndex];
+        if (pathDisplay) pathDisplay.textContent = data.path || '—';
+        if (indexDisplay) indexDisplay.textContent = currentIndex + ' / ' + (historyData.length - 1);
+    }
+
+    if (layerStatus) {
+        var layers = [];
+        ['layerBg', 'layerTerrain', 'layerBorder', 'layerRiver', 'layerName'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && el.classList.contains('loaded')) {
+                layers.push(id.replace('layer', '').toLowerCase());
+            }
+        });
+        layerStatus.textContent = layers.length > 0 ? layers.join(', ') : '无';
+    }
+
+    if (renderMode) {
+        var mode = currentQuality === 'original' ? '原画' : (currentQuality === 'high' ? '高画质' : '低画质');
+        var zoom = Math.round(scale * 100);
+        renderMode.textContent = mode + ' @ ' + zoom + '%';
+    }
+
+    if (viewportSize) {
+        var vp = document.getElementById('mapViewport');
+        if (vp) {
+            viewportSize.textContent = vp.clientWidth + '×' + vp.clientHeight;
+        }
+    }
+
+    if (cacheSize) {
+        var cache = window.imageCache || {};
+        cacheSize.textContent = Object.keys(cache).length + ' 张';
+    }
+
+    // 更新设置面板中的路径显示
+    var devMapPath = document.getElementById('devMapPath');
+    var devLayerPaths = document.getElementById('devLayerPaths');
+    if (devMapPath && currentIndex >= 0) {
+        devMapPath.textContent = historyData[currentIndex].path || '—';
+    }
+    if (devLayerPaths && currentLayerPaths) {
+        var pathsHtml = '';
+        for (var key in currentLayerPaths) {
+            if (!key.endsWith('_fallback')) {
+                pathsHtml += '<div style="margin-bottom: 2px;"><span style="color: var(--gold);">' + key + '</span>: ' + currentLayerPaths[key] + '</div>';
+            }
+        }
+        devLayerPaths.innerHTML = pathsHtml || '无';
+    }
+
+    // 更新调试信息
+    var devZoom = document.getElementById('devZoomLevel');
+    var devTranslate = document.getElementById('devTranslate');
+    var devQuality = document.getElementById('devQuality');
+    if (devZoom) devZoom.textContent = Math.round(scale * 100) + '%';
+    if (devTranslate) devTranslate.textContent = Math.round(translateX) + ', ' + Math.round(translateY);
+    if (devQuality) devQuality.textContent = currentQuality === 'original' ? '原画' : (currentQuality === 'high' ? '高画质' : '低画质');
+}
+
+function updateMapContrast(value) {
+    devSettings.contrast = parseInt(value);
+    document.getElementById('devContrastValue').textContent = value + '%';
+    updateMapFilter();
+    saveDevSettings();
+}
+
+function updateMapBrightness(value) {
+    devSettings.brightness = parseInt(value);
+    document.getElementById('devBrightnessValue').textContent = value + '%';
+    updateMapFilter();
+    saveDevSettings();
+}
+
+function updateMapSaturation(value) {
+    devSettings.saturation = parseInt(value);
+    document.getElementById('devSaturationValue').textContent = value + '%';
+    updateMapFilter();
+    saveDevSettings();
+}
+
+function updateMapFilter() {
+    var filter = 'contrast(' + devSettings.contrast + '%) brightness(' + devSettings.brightness + '%) saturate(' + devSettings.saturation + '%)';
+    var layerStack = document.getElementById('layerStack');
+    var mapImage = document.getElementById('mapImage');
+    if (layerStack) layerStack.style.filter = filter;
+    if (mapImage) mapImage.style.filter = filter;
+}
+
+function toggleLayerPanel() {
+    devSettings.showLayerPanel = !devSettings.showLayerPanel;
+    var track = document.getElementById('devLayerPanelToggle');
+    if (track) track.classList.toggle('active', devSettings.showLayerPanel);
+    applyDevSettings();
+    saveDevSettings();
+}
+
+function toggleLoadingBar() {
+    devSettings.showLoadingBar = !devSettings.showLoadingBar;
+    var track = document.getElementById('devLoadingToggle');
+    if (track) track.classList.toggle('active', devSettings.showLoadingBar);
+    saveDevSettings();
+}
+
+function toggleSwipeHints() {
+    devSettings.showSwipeHints = !devSettings.showSwipeHints;
+    var track = document.getElementById('devSwipeToggle');
+    if (track) track.classList.toggle('active', devSettings.showSwipeHints);
+    applyDevSettings();
+    saveDevSettings();
+}
+
+function togglePreload() {
+    devSettings.preloadAdjacent = !devSettings.preloadAdjacent;
+    var track = document.getElementById('devPreloadToggle');
+    if (track) track.classList.toggle('active', devSettings.preloadAdjacent);
+    saveDevSettings();
+}
+
+function clearImageCache() {
+    window.imageCache = {};
+    window.BASE_LAYER_CACHE = {};
+    alert('图片缓存已清除');
+    updateDevInfoPanel();
+}
+
+function exportCurrentData() {
+    if (currentIndex < 0 || currentIndex >= historyData.length) {
+        alert('请先选择一幅地图');
+        return;
+    }
+    var data = historyData[currentIndex];
+    var exportObj = {
+        index: currentIndex,
+        name: data.name,
+        year: data.year,
+        path: data.path,
+        era: data.era,
+        desc: data.desc,
+        quote: data.quote,
+        quoteAuthor: data.quoteAuthor,
+        span: data.span,
+        count: data.count,
+        reign: data.reign,
+        layers: currentLayerPaths,
+        scale: scale,
+        translateX: translateX,
+        translateY: translateY,
+        quality: currentQuality,
+        timestamp: new Date().toISOString()
+    };
+    var blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'map_data_' + data.year + '_' + data.name.replace(/[^\w一-龥]/g, '_') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// 更新开发者模式UI显示
+function updateDevModeUI() {
+    var devToolsSection = document.getElementById('devToolsSection');
+    var devInfoPanel = document.getElementById('devInfoPanel');
+
+    if (devToolsSection) {
+        devToolsSection.style.display = isDevMode ? 'block' : 'none';
+    }
+    if (devInfoPanel) {
+        devInfoPanel.style.display = isDevMode ? 'block' : 'none';
+    }
+
+    if (isDevMode) {
+        updateDevInfoPanel();
+        loadDevSettings();
+    }
+}
+
+// 在 selectMap 函数末尾添加开发者信息更新
+// 包装原有的 selectMap 调用
+
+function setupMentionListener() {
             var contentInput = document.getElementById('discussionContent');
             if (!contentInput) return;
 
@@ -8856,7 +9220,7 @@ function initApp() {
 
         // ===== 精华帖 =====
         async function toggleEssential(discussionId) {
-            if (!isAdminMode) return;
+            if (!isDevMode) return;
             if (!supabaseClient) return;
 
             try {
@@ -8975,7 +9339,7 @@ function initApp() {
 
         function renderDiscussionItem(item, tagLabels, myName, likesMap, myLikes, repliesMap) {
             var isOwn = item.name === myName;
-            var canDelete = isOwn || isAdminMode;
+            var canDelete = isOwn || isDevMode;
             var isLiked = myLikes.has(item.id);
             var likeCount = likesMap[item.id] || 0;
             var replies = repliesMap[item.id] || [];
@@ -8983,15 +9347,15 @@ function initApp() {
 
             var deleteBtn = '';
             if (canDelete) {
-                var title = isAdminMode && !isOwn ? '管理员删除' : '删除';
+                var title = isDevMode && !isOwn ? '开发者删除' : '删除';
                 deleteBtn = '<button class="discussion-delete-btn" onclick="deleteDiscussion(' + item.id + ')" title="' + title + '">✕</button>';
             }
 
             var essentialBtn = '';
-            if (isAdminMode) {
+            if (isDevMode) {
                 var essClass = isEssential ? 'is-essential' : '';
                 var essText = isEssential ? '取消精华' : '设为精华';
-                essentialBtn = '<button class="admin-essential-btn ' + essClass + '" onclick="toggleEssential(' + item.id + ')" title="' + essText + '">⭐</button>';
+                essentialBtn = '<button class="dev-essential-btn ' + essClass + '" onclick="toggleEssential(' + item.id + ')" title="' + essText + '">⭐</button>';
             }
 
             var essentialBadge = isEssential ? '<span class="essential-badge">⭐ 精华</span>' : '';
