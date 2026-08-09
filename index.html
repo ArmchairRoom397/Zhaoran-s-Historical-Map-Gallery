@@ -4789,6 +4789,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -6040,6 +6041,12 @@ let currentIndex = -1;
                     currentEra = item.era;
                     const eraDiv = document.createElement('div');
                     eraDiv.className = 'era-label';
+                    // 其他作者优秀作品专栏添加特殊样式
+                    if (currentEra === '其他作者优秀作品') {
+                        eraDiv.style.background = 'rgba(233, 69, 96, 0.15)';
+                        eraDiv.style.borderLeftColor = 'var(--accent)';
+                        eraDiv.style.color = 'var(--accent-light)';
+                    }
                     eraDiv.innerHTML = `
                         <span>${currentEra}</span>
                         <span class="era-quote">${getEraQuote(currentEra)}</span>
@@ -6049,12 +6056,19 @@ let currentIndex = -1;
 
                 const div = document.createElement('div');
                 div.className = 'timeline-item';
+                // 其他作者作品添加特殊标记
+                if (item.era === '其他作者优秀作品') {
+                    div.style.borderLeft = '2px solid var(--accent)';
+                }
                 const reignText = item.reign ? `<span class="reign-badge">${item.reign}</span>` : '';
+                // 其他作者作品显示作者名
+                const authorBadge = item.author ? `<span class="reign-badge" style="background: rgba(233, 69, 96, 0.1); border-color: rgba(233, 69, 96, 0.3); color: var(--accent-light);">@${item.author}</span>` : '';
                 div.innerHTML = `
                     <span class="year-badge">${item.year}</span>
                     <div class="item-info">
                         <span class="item-name">${item.name}</span>
                         ${reignText}
+                        ${authorBadge}
                     </div>
                 `;
                 div.onclick = () => selectMap(index);
@@ -6070,7 +6084,8 @@ let currentIndex = -1;
                 "成熟帝国": "盛世华章",
                 "传统社会": "治乱兴衰",
                 "中国近代": "救亡图存",
-                "中国现代": "复兴之路"
+                "中国现代": "复兴之路",
+                "其他作者优秀作品": "博采众长"
             };
             return quotes[era] || "";
         }
@@ -6142,6 +6157,9 @@ let currentIndex = -1;
                 switchMobileTab('map');
             }
 
+            // 更新图层控制面板（其他作者作品隐藏不相关图层）
+            updateLayerPanelForGuest(data.era === '其他作者优秀作品');
+
             // 直接绑定讨论区按钮事件（确保可靠）
             var submitBtn = document.getElementById('discussionSubmit');
             if (submitBtn) {
@@ -6158,6 +6176,22 @@ let currentIndex = -1;
 
             // 初始化访问统计
             initVisitorCounter();
+        }
+
+        // 根据作品类型更新图层控制面板
+        function updateLayerPanelForGuest(isGuest) {
+            var terrainCheck = document.getElementById('layerCheckTerrain');
+            var borderCheck = document.getElementById('layerCheckBorder');
+            var terrainItem = terrainCheck ? terrainCheck.closest('.layer-item') : null;
+            var borderItem = borderCheck ? borderCheck.closest('.layer-item') : null;
+
+            if (isGuest) {
+                if (terrainItem) terrainItem.style.display = 'none';
+                if (borderItem) borderItem.style.display = 'none';
+            } else {
+                if (terrainItem) terrainItem.style.display = '';
+                if (borderItem) borderItem.style.display = '';
+            }
         }
 
         function showLoading(path) {
@@ -6191,6 +6225,23 @@ let currentIndex = -1;
             terrain:{ type: 'universal', path: 'maps/layers/terrain.webp', defaultOpacity: 1.0,   blendMode: 'multiply', zIndex: 2 },
             bg:     { type: 'exclusive', suffix: '',   defaultOpacity: 1.0,   blendMode: 'normal',   zIndex: 1 }
         };
+
+        // 其他作者作品图层配置（不使用通用图层）
+        function getGuestLayerConfig(item) {
+            if (!item.layers) return null;
+            const baseDir = item.path.substring(0, item.path.lastIndexOf('/') + 1);
+            const config = {};
+            for (const [key, val] of Object.entries(item.layers)) {
+                config[key] = {
+                    type: 'guest',
+                    path: baseDir + val.file,
+                    defaultOpacity: val.opacity,
+                    blendMode: 'normal',
+                    zIndex: val.zIndex
+                };
+            }
+            return config;
+        }
 
         let currentLayerPaths = {};
         let layerPanelOpen = false;
@@ -6251,8 +6302,20 @@ let currentIndex = -1;
         // 生成图层路径
         // 专属图层：基于当前地图路径 + 后缀
         // 通用图层：使用固定路径，所有地图共用
-        function generateLayerPaths(basePath) {
+        function generateLayerPaths(basePath, item) {
             const layers = {};
+
+            // 判断是否是其他作者作品
+            var isGuest = item && item.era === '其他作者优秀作品';
+            var guestConfig = isGuest ? getGuestLayerConfig(item) : null;
+
+            if (isGuest && guestConfig) {
+                // 其他作者作品：使用专属图层配置，不使用通用图层
+                for (const [key, config] of Object.entries(guestConfig)) {
+                    layers[key] = config.path;
+                }
+                return layers;
+            }
 
             // 判断是否是抗战地图（唯一使用专属河湖图层的地图）
             var isAntiJapanese = basePath.indexOf('anti_japanese') >= 0;
@@ -6294,7 +6357,8 @@ let currentIndex = -1;
 
         // 加载所有图层（无进度版本，用于初始化和简单切换）
         function loadAllLayers(basePath) {
-            const paths = generateLayerPaths(basePath);
+            var currentItem = historyData[currentIndex];
+            const paths = generateLayerPaths(basePath, currentItem);
             currentLayerPaths = paths;
 
             // 显示图层堆叠，隐藏单张图片
@@ -6305,7 +6369,7 @@ let currentIndex = -1;
 
             // 加载每个图层
             for (const [layerName, path] of Object.entries(paths)) {
-                loadLayerImage(layerName, path);
+                loadLayerImage(layerName, path, currentItem);
             }
 
             // 同时加载单张图片以保持兼容（用于分享等功能）
@@ -6330,75 +6394,7 @@ let currentIndex = -1;
         }
 
         // 加载单个图层图片（简化版，用于初始化和简单切换）
-        function loadLayerImage(layerName, path) {
-            const layerImg = document.getElementById('layer' + capitalize(layerName));
-            const checkbox = document.getElementById('layerCheck' + capitalize(layerName));
-            if (!layerImg) return;
-
-            const config = layerConfig[layerName];
-            layerImg.style.opacity = config.defaultOpacity;
-            layerImg.style.zIndex = config.zIndex;
-            layerImg.style.mixBlendMode = config.blendMode;
-
-            var preloaded = getPreloadedLayer(layerName);
-            var isRiver = layerName === 'river';
-            var isUniversal = config.type === 'universal';
-
-            // ===== 河湖图层：所有地图默认用通用路径 =====
-            if (isRiver) {
-                var riverSrc = preloaded ? preloaded.src : config.path;
-                layerImg.src = riverSrc;
-                layerImg.classList.add('loaded');
-                layerImg.style.display = 'block';
-
-                // 如果传入了专属路径（抗战地图），后台尝试加载替换
-                if (path && path !== config.path && path !== riverSrc) {
-                    var exclusiveImg = new Image();
-                    exclusiveImg.onload = function() {
-                        layerImg.src = exclusiveImg.src;
-                        console.log('河湖专属图层加载成功，已替换通用图层');
-                    };
-                    exclusiveImg.onerror = function() {
-                        console.log('河湖专属图层不存在，保持通用图层');
-                    };
-                    exclusiveImg.src = path;
-                }
-                return;
-            }
-
-            // ===== 其他 universal 图层（地形、国界）=====
-            if (isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
-                layerImg.src = preloaded.src;
-                layerImg.classList.add('loaded');
-                if (checkbox && checkbox.checked) {
-                    layerImg.style.display = 'block';
-                }
-                return;
-            }
-
-            // ===== exclusive 图层（背景、地名）=====
-            layerImg.src = path;
-
-            layerImg.onload = function() {
-                layerImg.classList.add('loaded');
-                if (layerName === 'bg') {
-                    layerImg.style.display = 'block';
-                } else if (checkbox && checkbox.checked) {
-                    layerImg.style.display = 'block';
-                }
-            };
-
-            layerImg.onerror = function() {
-                if (layerName === 'bg') {
-                    layerImg.style.display = 'none';
-                    console.error('背景图层加载失败: ' + path);
-                } else {
-                    layerImg.classList.remove('loaded');
-                    layerImg.style.display = 'none';
-                    console.log('图层加载失败: ' + path);
-                }
-            };
-        }
+        
 
 
         function getCurrentBasePath() {
@@ -6446,8 +6442,9 @@ let currentIndex = -1;
             mapImage.classList.remove('loaded');
 
             var paths = currentLayerPaths;
+            var currentItem = historyData[currentIndex];
             if (!paths || Object.keys(paths).length === 0) {
-                paths = generateLayerPaths(path);
+                paths = generateLayerPaths(path, currentItem);
                 currentLayerPaths = paths;
             }
 
@@ -6455,6 +6452,11 @@ let currentIndex = -1;
             var isAntiJapanese = path.indexOf('anti_japanese') >= 0;
 
             var layersToLoad = [];
+            // 其他作者作品使用自定义图层配置
+            var isGuest = currentItem && currentItem.era === '其他作者优秀作品';
+            var guestLayerConfig = isGuest ? getGuestLayerConfig(currentItem) : null;
+            var activeLayerConfig = guestLayerConfig || layerConfig;
+
             var layerConfigMap = {
                 'name': { name: '地名图层', priority: 1 },
                 'river': { name: '河湖图层', priority: 2 },
@@ -6465,7 +6467,7 @@ let currentIndex = -1;
 
             for (var layerName in layerConfigMap) {
                 var config = layerConfigMap[layerName];
-                var layerDef = layerConfig[layerName];
+                var layerDef = activeLayerConfig[layerName];
                 var layerPath = paths[layerName];
 
                 if (layerName === 'terrain' && currentQuality === 'low') continue;
@@ -6478,14 +6480,14 @@ let currentIndex = -1;
 
                 // ===== 立即显示图层（零等待）=====
                 if (layerImg) {
-                    if (layerName === 'river') {
-                        // 河湖图层：所有地图先用通用路径显示
+                    if (layerName === 'river' && !isGuest) {
+                        // 河湖图层：普通地图先用通用路径显示
                         var riverSrc = preloaded ? preloaded.src : layerPath;
                         layerImg.src = riverSrc;
                         layerImg.classList.add('loaded');
                         layerImg.style.display = 'block';
-                    } else if (preloaded && layerName !== 'bg' && layerName !== 'name') {
-                        // 其他通用图层：有预加载则直接显示
+                    } else if (preloaded && layerName !== 'bg' && layerName !== 'name' && !isGuest) {
+                        // 其他通用图层：有预加载则直接显示（仅限非其他作者作品）
                         layerImg.src = preloaded.src;
                         layerImg.classList.add('loaded');
                         layerImg.style.display = 'block';
@@ -6499,7 +6501,10 @@ let currentIndex = -1;
                 var needsXHR = false;
                 var xhrPath = layerPath;
 
-                if (layerName === 'bg' || layerName === 'name') {
+                if (isGuest) {
+                    // 其他作者作品：所有图层都通过 XHR 无损加载
+                    needsXHR = true;
+                } else if (layerName === 'bg' || layerName === 'name') {
                     // 背景、地名：必须 XHR 加载专属
                     needsXHR = true;
                 } else if (layerName === 'river') {
@@ -6658,6 +6663,95 @@ let currentIndex = -1;
                 xhr.send();
             });
         }
+
+        function loadLayerImage(layerName, path, item) {
+            const layerImg = document.getElementById('layer' + capitalize(layerName));
+            const checkbox = document.getElementById('layerCheck' + capitalize(layerName));
+            if (!layerImg) return;
+
+            var isGuest = item && item.era === '其他作者优秀作品';
+            var guestConfig = isGuest ? getGuestLayerConfig(item) : null;
+            var activeConfig = isGuest ? (guestConfig ? guestConfig[layerName] : null) : layerConfig[layerName];
+
+            if (!activeConfig) return;
+
+            layerImg.style.opacity = activeConfig.defaultOpacity;
+            layerImg.style.zIndex = activeConfig.zIndex;
+            layerImg.style.mixBlendMode = activeConfig.blendMode;
+
+            var preloaded = getPreloadedLayer(layerName);
+            var isRiver = layerName === 'river';
+            var isUniversal = !isGuest && layerConfig[layerName] && layerConfig[layerName].type === 'universal';
+
+            // ===== 其他作者作品：直接加载专属文件 =====
+            if (isGuest) {
+                layerImg.src = path;
+                layerImg.onload = function() {
+                    layerImg.classList.add('loaded');
+                    layerImg.style.display = 'block';
+                };
+                layerImg.onerror = function() {
+                    console.error('图层加载失败: ' + path);
+                    layerImg.style.display = 'none';
+                };
+                return;
+            }
+
+            // ===== 河湖图层：所有地图默认用通用路径 =====
+            if (isRiver) {
+                var riverSrc = preloaded ? preloaded.src : layerConfig.river.path;
+                layerImg.src = riverSrc;
+                layerImg.classList.add('loaded');
+                layerImg.style.display = 'block';
+
+                // 如果传入了专属路径（抗战地图），后台尝试加载替换
+                if (path && path !== layerConfig.river.path && path !== riverSrc) {
+                    var exclusiveImg = new Image();
+                    exclusiveImg.onload = function() {
+                        layerImg.src = exclusiveImg.src;
+                        console.log('河湖专属图层加载成功，已替换通用图层');
+                    };
+                    exclusiveImg.onerror = function() {
+                        console.log('河湖专属图层不存在，保持通用图层');
+                    };
+                    exclusiveImg.src = path;
+                }
+                return;
+            }
+
+            // ===== 其他 universal 图层（地形、国界）=====
+            if (isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
+                layerImg.src = preloaded.src;
+                layerImg.classList.add('loaded');
+                if (checkbox && checkbox.checked) {
+                    layerImg.style.display = 'block';
+                }
+                return;
+            }
+
+            // ===== exclusive 图层（背景、地名）=====
+            layerImg.src = path;
+
+            layerImg.onload = function() {
+                layerImg.classList.add('loaded');
+                if (layerName === 'bg') {
+                    layerImg.style.display = 'block';
+                } else if (checkbox && checkbox.checked) {
+                    layerImg.style.display = 'block';
+                }
+            };
+
+            layerImg.onerror = function() {
+                if (layerName === 'bg') {
+                    layerImg.style.display = 'none';
+                    console.error('背景图层加载失败: ' + path);
+                } else {
+                    layerImg.classList.remove('loaded');
+                    layerImg.style.display = 'none';
+                    console.log('图层加载失败: ' + path);
+                }
+            };
+        }
         function formatSpeed(speedBps) {
             if (speedBps > 1024 * 1024) {
                 return (speedBps / (1024 * 1024)).toFixed(1) + ' MB/s';
@@ -6774,7 +6868,49 @@ let currentIndex = -1;
             document.getElementById('metaCount').textContent = data.count;
             document.getElementById('metaIndex').textContent = `${index + 1} / ${historyData.length}`;
 
+            // 更新作者信息（其他作者作品）
+            updateAuthorInfo(data);
+
             updateEraIntroCard(data.era, data.periodBg);
+        }
+
+        // 新增：更新作者信息
+        function updateAuthorInfo(data) {
+            var existingAuthorSection = document.getElementById('authorInfoSection');
+            if (existingAuthorSection) {
+                existingAuthorSection.remove();
+            }
+
+            if (data.author) {
+                var infoContent = document.querySelector('.info-content');
+
+                var authorSection = document.createElement('div');
+                authorSection.id = 'authorInfoSection';
+                authorSection.className = 'info-section';
+                authorSection.style.animationDelay = '0.1s';
+
+                var orgText = data.organization ? `<div class="meta-item"><span class="meta-label">社团/组织</span><span class="meta-value">${data.organization}</span></div>` : '';
+                var linkText = data.authorLink ? ` <a href="${data.authorLink}" target="_blank" style="color: var(--gold); text-decoration: underline;">(bilibili)</a>` : '';
+
+                authorSection.innerHTML = `
+                    <div class="section-title">✍️ 作者信息</div>
+                    <div class="meta-list">
+                        <div class="meta-item">
+                            <span class="meta-label">作者</span>
+                            <span class="meta-value">${data.author}${linkText}</span>
+                        </div>
+                        ${orgText}
+                    </div>
+                `;
+
+                // 插入到基本信息之前
+                var shareSection = document.querySelector('.info-section:has(button[onclick="openShareModal()"])');
+                if (shareSection && shareSection.parentNode) {
+                    shareSection.parentNode.insertBefore(authorSection, shareSection);
+                } else if (infoContent) {
+                    infoContent.appendChild(authorSection);
+                }
+            }
         }
 
         function updateEraIntroCard(era, periodBg) {
@@ -7453,6 +7589,8 @@ function updateQuotes(data) {
                     if (currentQuality === 'high') {
                         updateHighQualityRendering();
                     }
+                    // 拖动缩放后立即重绘
+                    forceRepaint();
                 });
             }
         }
@@ -8089,14 +8227,16 @@ function updateQuotes(data) {
                 });
             }
 
-            // 方法2: 对图层堆叠中的每张图片强制重绘
+            // 方法2: 对图层堆叠中的每张图片强制重绘（切换display触发完整重绘）
             if (layerStack) {
                 var layers = layerStack.querySelectorAll('.layer-image.loaded');
                 for (var i = 0; i < layers.length; i++) {
                     var layer = layers[i];
-                    layer.style.opacity = (parseFloat(layer.style.opacity || 1) - 0.001).toString();
-                    void layer.offsetWidth;
-                    layer.style.opacity = (parseFloat(layer.style.opacity) + 0.001).toString();
+                    // 强制重绘：切换 display
+                    var oldDisplay = layer.style.display;
+                    layer.style.display = 'none';
+                    void layer.offsetHeight;
+                    layer.style.display = oldDisplay || 'block';
                 }
             }
 
@@ -8115,6 +8255,13 @@ function updateQuotes(data) {
                 img.style.visibility = 'hidden';
                 void img.offsetHeight;
                 img.style.visibility = oldVisibility || 'visible';
+            }
+
+            // 方法5: 强制浏览器重排所有图层
+            if (layerStack) {
+                layerStack.style.display = 'none';
+                void layerStack.offsetHeight;
+                layerStack.style.display = 'flex';
             }
         }
 
@@ -8180,6 +8327,9 @@ function initApp() {
                 switchMobileTab('map');
             }
 
+            // 更新图层控制面板（其他作者作品隐藏不相关图层）
+            updateLayerPanelForGuest(data.era === '其他作者优秀作品');
+
             // 直接绑定讨论区按钮事件（确保可靠）
             var submitBtn = document.getElementById('discussionSubmit');
             if (submitBtn) {
@@ -8196,6 +8346,22 @@ function initApp() {
 
             // 初始化访问统计
             initVisitorCounter();
+        }
+
+        // 根据作品类型更新图层控制面板
+        function updateLayerPanelForGuest(isGuest) {
+            var terrainCheck = document.getElementById('layerCheckTerrain');
+            var borderCheck = document.getElementById('layerCheckBorder');
+            var terrainItem = terrainCheck ? terrainCheck.closest('.layer-item') : null;
+            var borderItem = borderCheck ? borderCheck.closest('.layer-item') : null;
+
+            if (isGuest) {
+                if (terrainItem) terrainItem.style.display = 'none';
+                if (borderItem) borderItem.style.display = 'none';
+            } else {
+                if (terrainItem) terrainItem.style.display = '';
+                if (borderItem) borderItem.style.display = '';
+            }
         }
 
         // 加载保存的用户设置
