@@ -6470,12 +6470,20 @@ let currentIndex = -1;
                 var layerDef = activeLayerConfig[layerName];
                 var layerPath = paths[layerName];
 
+                var layerImg = document.getElementById('layer' + capitalize(layerName));
+
+                // 如果该图层在当前作品中不存在，隐藏它
+                if (!layerPath && layerImg) {
+                    layerImg.style.display = 'none';
+                    layerImg.classList.remove('loaded');
+                    continue;
+                }
+
                 if (layerName === 'terrain' && currentQuality === 'low') continue;
 
                 var checkbox = document.getElementById('layerCheck' + capitalize(layerName));
                 if (checkbox && !checkbox.checked && layerName !== 'bg') continue;
 
-                var layerImg = document.getElementById('layer' + capitalize(layerName));
                 var preloaded = getPreloadedLayer(layerName);
 
                 // ===== 立即显示图层（零等待）=====
@@ -6668,6 +6676,13 @@ let currentIndex = -1;
             const layerImg = document.getElementById('layer' + capitalize(layerName));
             const checkbox = document.getElementById('layerCheck' + capitalize(layerName));
             if (!layerImg) return;
+
+            // 如果路径不存在，隐藏图层
+            if (!path) {
+                layerImg.style.display = 'none';
+                layerImg.classList.remove('loaded');
+                return;
+            }
 
             var isGuest = item && item.era === '其他作者优秀作品';
             var guestConfig = isGuest ? getGuestLayerConfig(item) : null;
