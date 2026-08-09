@@ -3783,8 +3783,8 @@
             background: rgba(233, 69, 96, 0.1);
         }
 
-        /* 管理员精华操作 */
-        .dev-essential-btn {
+        /* 开发者精华操作 */
+        .admin-essential-btn {
             background: none;
             border: none;
             color: var(--text-muted);
@@ -3797,16 +3797,16 @@
             min-height: var(--btn-xs-h);
         }
 
-        .discussion-item:hover .dev-essential-btn {
+        .discussion-item:hover .admin-essential-btn {
             opacity: 1;
         }
 
-        .dev-essential-btn:hover {
+        .admin-essential-btn:hover {
             color: #f4d03f;
             background: rgba(244, 208, 63, 0.1);
         }
 
-        .dev-essential-btn.is-essential {
+        .admin-essential-btn.is-essential {
             opacity: 1;
             color: #f4d03f;
         }
@@ -3993,7 +3993,7 @@
         }
 
         /* ===== 开发者模式 ===== */
-        .dev-mode-indicator {
+        .admin-mode-indicator {
             position: fixed;
             top: 20px;
             left: 50%;
@@ -4007,20 +4007,20 @@
             z-index: 2000;
             letter-spacing: 2px;
             box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
-            animation: devPulse 2s ease-in-out infinite;
+            animation: adminPulse 2s ease-in-out infinite;
             display: none;
         }
 
-        .dev-mode-indicator.show {
+        .admin-mode-indicator.show {
             display: block;
         }
 
-        @keyframes devPulse {
+        @keyframes adminPulse {
             0%, 100% { box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4); }
             50% { box-shadow: 0 4px 30px rgba(233, 69, 96, 0.6); }
         }
 
-        .dev-login-overlay {
+        .admin-login-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -4037,12 +4037,12 @@
             transition: all 0.3s ease;
         }
 
-        .dev-login-overlay.show {
+        .admin-login-overlay.show {
             opacity: 1;
             visibility: visible;
         }
 
-        .dev-login-modal {
+        .admin-login-modal {
             background: var(--bg-panel);
             border: 2px solid var(--gold);
             border-radius: 16px;
@@ -4054,11 +4054,11 @@
             transition: transform 0.3s ease;
         }
 
-        .dev-login-overlay.show .dev-login-modal {
+        .admin-login-overlay.show .admin-login-modal {
             transform: scale(1);
         }
 
-        .dev-login-title {
+        .admin-login-title {
             font-size: 1.2rem;
             color: var(--gold);
             font-weight: 700;
@@ -4066,7 +4066,7 @@
             letter-spacing: 2px;
         }
 
-        .dev-login-input {
+        .admin-login-input {
             width: 100%;
             padding: 12px 16px;
             background: rgba(0, 0, 0, 0.3);
@@ -4081,15 +4081,15 @@
             margin-bottom: 15px;
         }
 
-        body.rice-paper-theme .dev-login-input {
+        body.rice-paper-theme .admin-login-input {
             background: rgba(255, 255, 255, 0.5);
         }
 
-        .dev-login-input:focus {
+        .admin-login-input:focus {
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
 
-        .dev-login-btn {
+        .admin-login-btn {
             width: 100%;
             padding: var(--btn-md-pad);
             background: var(--gold);
@@ -4105,19 +4105,19 @@
             min-height: var(--btn-md-h);
         }
 
-        .dev-login-btn:hover {
+        .admin-login-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
         }
 
-        .dev-login-error {
+        .admin-login-error {
             color: var(--accent);
             font-size: 0.8rem;
             margin-top: 10px;
             min-height: 20px;
         }
 
-        .dev-logout-btn {
+        .admin-logout-btn {
             background: none;
             border: 1px solid var(--accent);
             color: var(--accent);
@@ -4130,7 +4130,7 @@
             min-height: var(--btn-xs-h);
         }
 
-        .dev-logout-btn:hover {
+        .admin-logout-btn:hover {
             background: var(--accent);
             color: #fff;
         }
@@ -4792,6 +4792,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -4801,18 +4802,18 @@
     <div class="swipe-hint right-hint" id="swipeHintRight">左滑打开详情 →</div>
 
     <!-- 开发者模式指示器 -->
-    <div class="dev-mode-indicator" id="devModeIndicator">
-        🔐 开发者模式已开启
-        <button class="dev-logout-btn" onclick="devLogout()">退出</button>
+    <div class="admin-mode-indicator" id="adminModeIndicator">
+        🔧 开发者模式已开启
+        <button class="admin-logout-btn" onclick="adminLogout()">退出</button>
     </div>
 
-    <!-- 管理员登录弹窗 -->
-    <div class="dev-login-overlay" id="devLoginOverlay">
-        <div class="dev-login-modal" role="dialog" aria-label="开发者验证" aria-modal="true">
-            <div class="dev-login-title">🔐 开发者验证</div>
-            <input type="password" class="dev-login-input" id="devPasswordInput" placeholder="输入开发者密码" maxlength="20" aria-label="开发者密码" onkeydown="if(event.key==='Enter')devLogin()">
-            <button class="dev-login-btn" onclick="devLogin()">验证身份</button>
-            <div class="dev-login-error" id="devLoginError"></div>
+    <!-- 开发者登录弹窗 -->
+    <div class="admin-login-overlay" id="adminLoginOverlay">
+        <div class="admin-login-modal" role="dialog" aria-label="开发者验证" aria-modal="true">
+            <div class="admin-login-title">🔐 开发者验证</div>
+            <input type="password" class="admin-login-input" id="adminPasswordInput" placeholder="输入开发者密码" maxlength="20" aria-label="开发者密码" onkeydown="if(event.key==='Enter')adminLogin()">
+            <button class="admin-login-btn" onclick="adminLogin()">验证身份</button>
+            <div class="admin-login-error" id="adminLoginError"></div>
         </div>
     </div>
 
@@ -4906,11 +4907,11 @@
 
         <div class="settings-section">
             <label class="settings-label">开发者模式</label>
-            <div class="toggle-switch" onclick="toggleDevLogin()" id="devToggle">
-                <div class="toggle-track" id="devToggleTrack">
+            <div class="toggle-switch" onclick="toggleAdminLogin()" id="adminToggle">
+                <div class="toggle-track" id="adminToggleTrack">
                     <div class="toggle-thumb"></div>
                 </div>
-                <span class="toggle-label" id="devToggleLabel">未登录</span>
+                <span class="toggle-label" id="adminToggleLabel">未登录</span>
             </div>
             <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 8px; line-height: 1.5;">
                 开发者可以置顶和删除所有评论，普通用户只能删除自己的评论。
@@ -4940,8 +4941,8 @@
             </div>
 
             <div style="margin-bottom: 12px;">
-                <div class="toggle-switch" onclick="toggleLayerPanel()" style="margin-bottom: 8px;">
-                    <div class="toggle-track active" id="devLayerPanelToggle">
+                <div class="toggle-switch" onclick="toggleDevSetting('showLayerPanel')" style="margin-bottom: 8px;">
+                    <div class="toggle-track active" id="devToggleLayerPanel">
                         <div class="toggle-thumb"></div>
                     </div>
                     <span class="toggle-label">显示图层控制面板按钮</span>
@@ -4949,8 +4950,8 @@
             </div>
 
             <div style="margin-bottom: 12px;">
-                <div class="toggle-switch" onclick="toggleLoadingBar()" style="margin-bottom: 8px;">
-                    <div class="toggle-track active" id="devLoadingToggle">
+                <div class="toggle-switch" onclick="toggleDevSetting('showLoadingBar')" style="margin-bottom: 8px;">
+                    <div class="toggle-track active" id="devToggleLoadingBar">
                         <div class="toggle-thumb"></div>
                     </div>
                     <span class="toggle-label">显示加载进度条</span>
@@ -4958,8 +4959,8 @@
             </div>
 
             <div style="margin-bottom: 12px;">
-                <div class="toggle-switch" onclick="toggleSwipeHints()" style="margin-bottom: 8px;">
-                    <div class="toggle-track active" id="devSwipeToggle">
+                <div class="toggle-switch" onclick="toggleDevSetting('showSwipeHints')" style="margin-bottom: 8px;">
+                    <div class="toggle-track active" id="devToggleSwipeHints">
                         <div class="toggle-thumb"></div>
                     </div>
                     <span class="toggle-label">显示滑动手势提示</span>
@@ -4967,8 +4968,8 @@
             </div>
 
             <div style="margin-bottom: 12px;">
-                <div class="toggle-switch" onclick="togglePreload()" style="margin-bottom: 8px;">
-                    <div class="toggle-track active" id="devPreloadToggle">
+                <div class="toggle-switch" onclick="toggleDevSetting('preloadAdjacent')" style="margin-bottom: 8px;">
+                    <div class="toggle-track active" id="devTogglePreload">
                         <div class="toggle-thumb"></div>
                     </div>
                     <span class="toggle-label">预加载相邻地图</span>
@@ -4977,19 +4978,19 @@
 
             <div style="margin-bottom: 12px;">
                 <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; display: block;">地图对比度</label>
-                <input type="range" class="width-slider" id="devContrastSlider" min="50" max="150" value="100" oninput="updateMapContrast(this.value)">
+                <input type="range" class="width-slider" id="devContrastSlider" min="50" max="150" value="100" oninput="updateMapFilter('contrast', this.value)">
                 <div class="width-value" id="devContrastValue">100%</div>
             </div>
 
             <div style="margin-bottom: 12px;">
                 <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; display: block;">地图亮度</label>
-                <input type="range" class="width-slider" id="devBrightnessSlider" min="50" max="150" value="100" oninput="updateMapBrightness(this.value)">
+                <input type="range" class="width-slider" id="devBrightnessSlider" min="50" max="150" value="100" oninput="updateMapFilter('brightness', this.value)">
                 <div class="width-value" id="devBrightnessValue">100%</div>
             </div>
 
             <div style="margin-bottom: 12px;">
                 <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; display: block;">地图饱和度</label>
-                <input type="range" class="width-slider" id="devSaturationSlider" min="0" max="200" value="100" oninput="updateMapSaturation(this.value)">
+                <input type="range" class="width-slider" id="devSaturationSlider" min="0" max="200" value="100" oninput="updateMapFilter('saturation', this.value)">
                 <div class="width-value" id="devSaturationValue">100%</div>
             </div>
 
@@ -6272,46 +6273,44 @@ let currentIndex = -1;
                 switchMobileTab('map');
             }
 
-            // 更新图层控制面板（其他作者作品隐藏不相关图层）
-            updateLayerPanelForGuest(data.era === '其他作者优秀作品');
-
-            // 直接绑定讨论区按钮事件（确保可靠）
-            var submitBtn = document.getElementById('discussionSubmit');
-            if (submitBtn) {
-                submitBtn.onclick = function() { submitDiscussion(); };
-            }
-
-            // 绑定标签选择按钮
-            var tagBtns = document.querySelectorAll('.discussion-tag-option');
-            for (var i = 0; i < tagBtns.length; i++) {
-                (function(btn) {
-                    btn.onclick = function() { selectDiscussionTag(this); };
-                })(tagBtns[i]);
-            }
-
             // 初始化访问统计
             initVisitorCounter();
 
             // 更新开发者信息面板
-            if (isDevMode) {
+            if (isAdminMode) {
                 updateDevInfoPanel();
             }
         }
 
         // 根据作品类型更新图层控制面板
         function updateLayerPanelForGuest(isGuest) {
-            var terrainCheck = document.getElementById('layerCheckTerrain');
-            var borderCheck = document.getElementById('layerCheckBorder');
-            var terrainItem = terrainCheck ? terrainCheck.closest('.layer-item') : null;
-            var borderItem = borderCheck ? borderCheck.closest('.layer-item') : null;
+            var currentItem = historyData[currentIndex];
+            var guestConfig = (isGuest && currentItem && currentItem.layers) ? currentItem.layers : null;
 
-            if (isGuest) {
-                if (terrainItem) terrainItem.style.display = 'none';
-                if (borderItem) borderItem.style.display = 'none';
-            } else {
-                if (terrainItem) terrainItem.style.display = '';
-                if (borderItem) borderItem.style.display = '';
-            }
+            // 所有可能的图层
+            var allLayers = ['name', 'river', 'border', 'terrain', 'bg'];
+
+            allLayers.forEach(function(layerName) {
+                var checkbox = document.getElementById('layerCheck' + capitalize(layerName));
+                var item = checkbox ? checkbox.closest('.layer-item') : null;
+                if (!item) return;
+
+                if (isGuest && guestConfig) {
+                    // 其他作者作品：只显示作品中存在的图层
+                    if (guestConfig[layerName]) {
+                        item.style.display = '';
+                        checkbox.disabled = false;
+                    } else {
+                        item.style.display = 'none';
+                        checkbox.checked = false;
+                    }
+                } else {
+                    // 标准作品：显示所有图层
+                    item.style.display = '';
+                    checkbox.disabled = (layerName === 'bg');
+                    if (layerName !== 'bg') checkbox.checked = true;
+                }
+            });
         }
 
         function showLoading(path) {
@@ -6568,13 +6567,29 @@ let currentIndex = -1;
             var guestLayerConfig = isGuest ? getGuestLayerConfig(currentItem) : null;
             var activeLayerConfig = guestLayerConfig || layerConfig;
 
-            var layerConfigMap = {
-                'name': { name: '地名图层', priority: 1 },
-                'river': { name: '河湖图层', priority: 2 },
-                'border': { name: '国界图层', priority: 3 },
-                'terrain': { name: '地形图层', priority: 4 },
-                'bg': { name: '背景图层', priority: 5 }
-            };
+            var layerConfigMap;
+            if (isGuest && guestLayerConfig) {
+                // 其他作者作品：使用作品自带的图层配置
+                layerConfigMap = {};
+                var priority = 1;
+                for (var key in guestLayerConfig) {
+                    var cfg = guestLayerConfig[key];
+                    layerConfigMap[key] = { 
+                        name: key === 'bg' ? '背景图层' : (key === 'name' ? '地名图层' : key + '图层'), 
+                        priority: cfg.zIndex || priority 
+                    };
+                    priority++;
+                }
+            } else {
+                // 标准作品：使用固定图层配置
+                layerConfigMap = {
+                    'name': { name: '地名图层', priority: 1 },
+                    'river': { name: '河湖图层', priority: 2 },
+                    'border': { name: '国界图层', priority: 3 },
+                    'terrain': { name: '地形图层', priority: 4 },
+                    'bg': { name: '背景图层', priority: 5 }
+                };
+            }
 
             for (var layerName in layerConfigMap) {
                 var config = layerConfigMap[layerName];
@@ -6601,7 +6616,14 @@ let currentIndex = -1;
 
                 // ===== 立即显示图层（零等待）=====
                 if (layerImg) {
-                    if (!isGuest && isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
+                    if (isGuest) {
+                        // 其他作者作品：所有图层都通过 XHR 加载，先隐藏
+                        if (layerName === 'bg') {
+                            layerImg.style.display = 'block';
+                        } else {
+                            layerImg.style.display = 'none';
+                        }
+                    } else if (!isGuest && isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
                         // 非其他作者作品的通用图层有预加载：先显示通用图层作为占位
                         layerImg.src = preloaded.src;
                         layerImg.classList.add('loaded');
@@ -6642,17 +6664,31 @@ let currentIndex = -1;
                 }
             }
 
-            // 初始化加载状态
+            // 初始化加载状态（只初始化实际会加载的图层）
             for (var ln in layerConfigMap) {
-                layerLoadStates[ln] = {
-                    loaded: 0,
-                    total: 0,
-                    speed: 0,
-                    done: false,
-                    startTime: Date.now(),
-                    lastLoaded: 0,
-                    lastTime: Date.now()
-                };
+                var checkPath = paths[ln];
+                if (!checkPath) {
+                    // 图层不存在，标记为已完成
+                    layerLoadStates[ln] = {
+                        loaded: 1,
+                        total: 1,
+                        speed: 0,
+                        done: true,
+                        startTime: Date.now(),
+                        lastLoaded: 0,
+                        lastTime: Date.now()
+                    };
+                } else {
+                    layerLoadStates[ln] = {
+                        loaded: 0,
+                        total: 0,
+                        speed: 0,
+                        done: false,
+                        startTime: Date.now(),
+                        lastLoaded: 0,
+                        lastTime: Date.now()
+                    };
+                }
             }
 
             // 无需 XHR 的情况
@@ -6729,6 +6765,15 @@ let currentIndex = -1;
                     layerImg.src = blobUrl;
                     layerImg.classList.add('loaded');
                     layerImg.style.display = 'block';
+
+                    // 应用 guest 作品的图层配置（opacity、zIndex）
+                    var currentItem2 = historyData[currentIndex];
+                    if (currentItem2 && currentItem2.era === '其他作者优秀作品' && currentItem2.layers && currentItem2.layers[layer.name]) {
+                        var guestCfg = currentItem2.layers[layer.name];
+                        layerImg.style.opacity = guestCfg.opacity;
+                        layerImg.style.zIndex = guestCfg.zIndex;
+                        layerImg.style.mixBlendMode = 'normal';
+                    }
 
                     if (layer.name === 'bg') {
                         if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
@@ -6876,6 +6921,13 @@ let currentIndex = -1;
 
             // ===== 其他作者作品：直接加载专属文件 =====
             if (isGuest) {
+                // 使用作品自带的图层配置（opacity、zIndex）
+                var guestLayerDef = item.layers && item.layers[layerName];
+                if (guestLayerDef) {
+                    layerImg.style.opacity = guestLayerDef.opacity;
+                    layerImg.style.zIndex = guestLayerDef.zIndex;
+                    layerImg.style.mixBlendMode = 'normal';
+                }
                 layerImg.src = path;
                 layerImg.onload = function() {
                     layerImg.classList.add('loaded');
@@ -7006,12 +7058,13 @@ let currentIndex = -1;
                 if (state.done) {
                     doneCount++;
                 } else {
-                    var displayName = '图层';
+                    var displayName = name;
                     if (name === 'river') displayName = '河湖';
                     else if (name === 'terrain') displayName = '地形';
                     else if (name === 'border') displayName = '国界';
                     else if (name === 'name') displayName = '地名';
                     else if (name === 'bg') displayName = '背景';
+                    // 其他作者作品的自定义图层保持原名
 
                     var percent = state.total > 0 ? Math.round((state.loaded / state.total) * 100) : 0;
                     var speedText = state.speed > 0 ? formatSpeed(state.speed) : '连接中';
@@ -7807,11 +7860,11 @@ function updateQuotes(data) {
                     mapWrapper.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale3d(${s}, ${s}, 1)`;
                     if (zoomLevelDisplay) zoomLevelDisplay.textContent = Math.round(s * 100) + '%';
                     // 更新开发者调试信息
-                    if (isDevMode) {
-                        var devZoom = document.getElementById('devZoomLevel');
-                        var devTranslate = document.getElementById('devTranslate');
-                        if (devZoom) devZoom.textContent = Math.round(s * 100) + '%';
-                        if (devTranslate) devTranslate.textContent = Math.round(tx) + ', ' + Math.round(ty);
+                    if (isAdminMode) {
+                        var dz = document.getElementById('devZoomLevel');
+                        var dt = document.getElementById('devTranslate');
+                        if (dz) dz.textContent = Math.round(s * 100) + '%';
+                        if (dt) dt.textContent = Math.round(tx) + ', ' + Math.round(ty);
                     }
                     // 高画质模式下根据缩放比例动态调整渲染质量
                     if (currentQuality === 'high') {
@@ -8542,7 +8595,7 @@ function initApp() {
             setupImageProtection();
             detectLayout();
             loadSavedSettings();
-            checkDevStatus();
+            checkAdminStatus();
             loadDevSettings();
             // 恢复用户名
             const savedName = localStorage.getItem('discussionUserName');
@@ -8555,46 +8608,44 @@ function initApp() {
                 switchMobileTab('map');
             }
 
-            // 更新图层控制面板（其他作者作品隐藏不相关图层）
-            updateLayerPanelForGuest(data.era === '其他作者优秀作品');
-
-            // 直接绑定讨论区按钮事件（确保可靠）
-            var submitBtn = document.getElementById('discussionSubmit');
-            if (submitBtn) {
-                submitBtn.onclick = function() { submitDiscussion(); };
-            }
-
-            // 绑定标签选择按钮
-            var tagBtns = document.querySelectorAll('.discussion-tag-option');
-            for (var i = 0; i < tagBtns.length; i++) {
-                (function(btn) {
-                    btn.onclick = function() { selectDiscussionTag(this); };
-                })(tagBtns[i]);
-            }
-
             // 初始化访问统计
             initVisitorCounter();
 
             // 更新开发者信息面板
-            if (isDevMode) {
+            if (isAdminMode) {
                 updateDevInfoPanel();
             }
         }
 
         // 根据作品类型更新图层控制面板
         function updateLayerPanelForGuest(isGuest) {
-            var terrainCheck = document.getElementById('layerCheckTerrain');
-            var borderCheck = document.getElementById('layerCheckBorder');
-            var terrainItem = terrainCheck ? terrainCheck.closest('.layer-item') : null;
-            var borderItem = borderCheck ? borderCheck.closest('.layer-item') : null;
+            var currentItem = historyData[currentIndex];
+            var guestConfig = (isGuest && currentItem && currentItem.layers) ? currentItem.layers : null;
 
-            if (isGuest) {
-                if (terrainItem) terrainItem.style.display = 'none';
-                if (borderItem) borderItem.style.display = 'none';
-            } else {
-                if (terrainItem) terrainItem.style.display = '';
-                if (borderItem) borderItem.style.display = '';
-            }
+            // 所有可能的图层
+            var allLayers = ['name', 'river', 'border', 'terrain', 'bg'];
+
+            allLayers.forEach(function(layerName) {
+                var checkbox = document.getElementById('layerCheck' + capitalize(layerName));
+                var item = checkbox ? checkbox.closest('.layer-item') : null;
+                if (!item) return;
+
+                if (isGuest && guestConfig) {
+                    // 其他作者作品：只显示作品中存在的图层
+                    if (guestConfig[layerName]) {
+                        item.style.display = '';
+                        checkbox.disabled = false;
+                    } else {
+                        item.style.display = 'none';
+                        checkbox.checked = false;
+                    }
+                } else {
+                    // 标准作品：显示所有图层
+                    item.style.display = '';
+                    checkbox.disabled = (layerName === 'bg');
+                    if (layerName !== 'bg') checkbox.checked = true;
+                }
+            });
         }
 
         // 加载保存的用户设置
@@ -8621,16 +8672,16 @@ function initApp() {
         // 等待DOM完全加载后再初始化
         
         // ===== 开发者模式 =====
-        const DEV_PASSWORD = "zzbqq138";
-        let isDevMode = false;
+        const ADMIN_PASSWORD = "zzbqq138";
+        let isAdminMode = false;
 
-        function checkDevStatus() {
-            const saved = localStorage.getItem('devMode') === 'true';
+        function checkAdminStatus() {
+            const saved = localStorage.getItem('adminMode') === 'true';
             if (saved) {
-                isDevMode = true;
-                var indicator = document.getElementById('devModeIndicator');
-                var track = document.getElementById('devToggleTrack');
-                var label = document.getElementById('devToggleLabel');
+                isAdminMode = true;
+                var indicator = document.getElementById('adminModeIndicator');
+                var track = document.getElementById('adminToggleTrack');
+                var label = document.getElementById('adminToggleLabel');
                 if (indicator) indicator.classList.add('show');
                 if (track) track.classList.add('active');
                 if (label) label.textContent = '已登录';
@@ -8638,14 +8689,14 @@ function initApp() {
             }
         }
 
-        function toggleDevLogin() {
-            if (isDevMode) {
-                devLogout();
+        function toggleAdminLogin() {
+            if (isAdminMode) {
+                adminLogout();
                 return;
             }
-            var overlay = document.getElementById('devLoginOverlay');
-            var input = document.getElementById('devPasswordInput');
-            var errorEl = document.getElementById('devLoginError');
+            var overlay = document.getElementById('adminLoginOverlay');
+            var input = document.getElementById('adminPasswordInput');
+            var errorEl = document.getElementById('adminLoginError');
             if (overlay) {
                 overlay.classList.add('show');
                 if (input) {
@@ -8656,25 +8707,26 @@ function initApp() {
             }
         }
 
-        function devLogin() {
-            var input = document.getElementById('devPasswordInput');
-            var errorEl = document.getElementById('devLoginError');
+        function adminLogin() {
+            var input = document.getElementById('adminPasswordInput');
+            var errorEl = document.getElementById('adminLoginError');
             if (!input) return;
 
             var password = input.value;
-            if (password === DEV_PASSWORD) {
-                isDevMode = true;
-                localStorage.setItem('devMode', 'true');
-                var indicator = document.getElementById('devModeIndicator');
-                var track = document.getElementById('devToggleTrack');
-                var label = document.getElementById('devToggleLabel');
-                var overlay = document.getElementById('devLoginOverlay');
+            if (password === ADMIN_PASSWORD) {
+                isAdminMode = true;
+                localStorage.setItem('adminMode', 'true');
+                var indicator = document.getElementById('adminModeIndicator');
+                var track = document.getElementById('adminToggleTrack');
+                var label = document.getElementById('adminToggleLabel');
+                var overlay = document.getElementById('adminLoginOverlay');
                 if (indicator) indicator.classList.add('show');
                 if (track) track.classList.add('active');
                 if (label) label.textContent = '已登录';
                 if (overlay) overlay.classList.remove('show');
                 if (errorEl) errorEl.textContent = '';
                 if (currentIndex >= 0) loadDiscussions(currentIndex);
+                updateDevModeUI();
             } else {
                 if (errorEl) errorEl.textContent = '密码错误，请重试';
                 input.value = '';
@@ -8682,12 +8734,12 @@ function initApp() {
             }
         }
 
-        function devLogout() {
-            isDevMode = false;
-            localStorage.removeItem('devMode');
-            var indicator = document.getElementById('devModeIndicator');
-            var track = document.getElementById('devToggleTrack');
-            var label = document.getElementById('devToggleLabel');
+        function adminLogout() {
+            isAdminMode = false;
+            localStorage.removeItem('adminMode');
+            var indicator = document.getElementById('adminModeIndicator');
+            var track = document.getElementById('adminToggleTrack');
+            var label = document.getElementById('adminToggleLabel');
             if (indicator) indicator.classList.remove('show');
             if (track) track.classList.remove('active');
             if (label) label.textContent = '未登录';
@@ -8737,7 +8789,7 @@ function initApp() {
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            var overlay = document.getElementById('devLoginOverlay');
+            var overlay = document.getElementById('adminLoginOverlay');
             if (overlay) {
                 overlay.addEventListener('click', function(e) {
                     if (e.target === this) this.classList.remove('show');
@@ -8795,13 +8847,10 @@ let devSettings = {
     saturation: 100
 };
 
-// 加载保存的开发者设置
 function loadDevSettings() {
     var saved = localStorage.getItem('devSettings');
     if (saved) {
-        try {
-            devSettings = JSON.parse(saved);
-        } catch(e) {}
+        try { devSettings = JSON.parse(saved); } catch(e) {}
     }
     applyDevSettings();
 }
@@ -8811,24 +8860,58 @@ function saveDevSettings() {
 }
 
 function applyDevSettings() {
-    // 应用对比度、亮度、饱和度
-    updateMapFilter();
-
-    // 应用开关状态
-    var layerPanelBtn = document.querySelector('.control-btn[title="图层控制"]');
-    if (layerPanelBtn) {
-        layerPanelBtn.style.display = devSettings.showLayerPanel ? 'flex' : 'none';
-    }
-
-    // 滑动手势提示
+    updateMapFilterCSS();
+    var layerBtn = document.querySelector('.control-btn[title="图层控制"]');
+    if (layerBtn) layerBtn.style.display = devSettings.showLayerPanel ? 'flex' : 'none';
     var swipeHints = document.querySelectorAll('.swipe-hint');
-    swipeHints.forEach(function(el) {
-        el.style.display = devSettings.showSwipeHints ? '' : 'none';
-    });
+    swipeHints.forEach(function(el) { el.style.display = devSettings.showSwipeHints ? '' : 'none'; });
+
+    // 更新开关UI
+    var t1 = document.getElementById('devToggleLayerPanel');
+    var t2 = document.getElementById('devToggleLoadingBar');
+    var t3 = document.getElementById('devToggleSwipeHints');
+    var t4 = document.getElementById('devTogglePreload');
+    if (t1) t1.classList.toggle('active', devSettings.showLayerPanel);
+    if (t2) t2.classList.toggle('active', devSettings.showLoadingBar);
+    if (t3) t3.classList.toggle('active', devSettings.showSwipeHints);
+    if (t4) t4.classList.toggle('active', devSettings.preloadAdjacent);
+
+    // 更新滑块
+    var s1 = document.getElementById('devContrastSlider');
+    var s2 = document.getElementById('devBrightnessSlider');
+    var s3 = document.getElementById('devSaturationSlider');
+    if (s1) { s1.value = devSettings.contrast; document.getElementById('devContrastValue').textContent = devSettings.contrast + '%'; }
+    if (s2) { s2.value = devSettings.brightness; document.getElementById('devBrightnessValue').textContent = devSettings.brightness + '%'; }
+    if (s3) { s3.value = devSettings.saturation; document.getElementById('devSaturationValue').textContent = devSettings.saturation + '%'; }
+}
+
+function toggleDevSetting(key) {
+    devSettings[key] = !devSettings[key];
+    applyDevSettings();
+    saveDevSettings();
+}
+
+function updateMapFilter(type, value) {
+    if (type) devSettings[type] = parseInt(value);
+    var filter = 'contrast(' + devSettings.contrast + '%) brightness(' + devSettings.brightness + '%) saturate(' + devSettings.saturation + '%)';
+    var layerStack = document.getElementById('layerStack');
+    var mapImage = document.getElementById('mapImage');
+    if (layerStack) layerStack.style.filter = filter;
+    if (mapImage) mapImage.style.filter = filter;
+    if (type) {
+        var valEl = document.getElementById('dev' + type.charAt(0).toUpperCase() + type.slice(1) + 'Value');
+        if (valEl) valEl.textContent = devSettings[type] + '%';
+        saveDevSettings();
+    }
+}
+
+function updateMapFilterCSS() {
+    updateMapFilter();
 }
 
 function updateDevInfoPanel() {
-    if (!isDevMode) return;
+    if (!isAdminMode) return;
+    var data = currentIndex >= 0 && currentIndex < historyData.length ? historyData[currentIndex] : null;
 
     var pathDisplay = document.getElementById('devMapPathDisplay');
     var indexDisplay = document.getElementById('devMapIndex');
@@ -8837,34 +8920,26 @@ function updateDevInfoPanel() {
     var viewportSize = document.getElementById('devViewportSize');
     var cacheSize = document.getElementById('devCacheSize');
 
-    if (currentIndex >= 0 && currentIndex < historyData.length) {
-        var data = historyData[currentIndex];
-        if (pathDisplay) pathDisplay.textContent = data.path || '—';
-        if (indexDisplay) indexDisplay.textContent = currentIndex + ' / ' + (historyData.length - 1);
-    }
+    if (pathDisplay) pathDisplay.textContent = data && data.path ? data.path : '—';
+    if (indexDisplay) indexDisplay.textContent = currentIndex >= 0 ? currentIndex + ' / ' + (historyData.length - 1) : '—';
 
     if (layerStatus) {
         var layers = [];
         ['layerBg', 'layerTerrain', 'layerBorder', 'layerRiver', 'layerName'].forEach(function(id) {
             var el = document.getElementById(id);
-            if (el && el.classList.contains('loaded')) {
-                layers.push(id.replace('layer', '').toLowerCase());
-            }
+            if (el && el.classList.contains('loaded')) layers.push(id.replace('layer', '').toLowerCase());
         });
         layerStatus.textContent = layers.length > 0 ? layers.join(', ') : '无';
     }
 
     if (renderMode) {
         var mode = currentQuality === 'original' ? '原画' : (currentQuality === 'high' ? '高画质' : '低画质');
-        var zoom = Math.round(scale * 100);
-        renderMode.textContent = mode + ' @ ' + zoom + '%';
+        renderMode.textContent = mode + ' @ ' + Math.round(scale * 100) + '%';
     }
 
     if (viewportSize) {
         var vp = document.getElementById('mapViewport');
-        if (vp) {
-            viewportSize.textContent = vp.clientWidth + '×' + vp.clientHeight;
-        }
+        viewportSize.textContent = vp ? vp.clientWidth + '×' + vp.clientHeight : '—';
     }
 
     if (cacheSize) {
@@ -8872,88 +8947,25 @@ function updateDevInfoPanel() {
         cacheSize.textContent = Object.keys(cache).length + ' 张';
     }
 
-    // 更新设置面板中的路径显示
     var devMapPath = document.getElementById('devMapPath');
     var devLayerPaths = document.getElementById('devLayerPaths');
-    if (devMapPath && currentIndex >= 0) {
-        devMapPath.textContent = historyData[currentIndex].path || '—';
-    }
+    if (devMapPath && data) devMapPath.textContent = data.path || '—';
     if (devLayerPaths && currentLayerPaths) {
-        var pathsHtml = '';
+        var html = '';
         for (var key in currentLayerPaths) {
             if (!key.endsWith('_fallback')) {
-                pathsHtml += '<div style="margin-bottom: 2px;"><span style="color: var(--gold);">' + key + '</span>: ' + currentLayerPaths[key] + '</div>';
+                html += '<div style="margin-bottom:2px;"><span style="color:var(--gold);">' + key + '</span>: ' + currentLayerPaths[key] + '</div>';
             }
         }
-        devLayerPaths.innerHTML = pathsHtml || '无';
+        devLayerPaths.innerHTML = html || '无';
     }
 
-    // 更新调试信息
-    var devZoom = document.getElementById('devZoomLevel');
-    var devTranslate = document.getElementById('devTranslate');
-    var devQuality = document.getElementById('devQuality');
-    if (devZoom) devZoom.textContent = Math.round(scale * 100) + '%';
-    if (devTranslate) devTranslate.textContent = Math.round(translateX) + ', ' + Math.round(translateY);
-    if (devQuality) devQuality.textContent = currentQuality === 'original' ? '原画' : (currentQuality === 'high' ? '高画质' : '低画质');
-}
-
-function updateMapContrast(value) {
-    devSettings.contrast = parseInt(value);
-    document.getElementById('devContrastValue').textContent = value + '%';
-    updateMapFilter();
-    saveDevSettings();
-}
-
-function updateMapBrightness(value) {
-    devSettings.brightness = parseInt(value);
-    document.getElementById('devBrightnessValue').textContent = value + '%';
-    updateMapFilter();
-    saveDevSettings();
-}
-
-function updateMapSaturation(value) {
-    devSettings.saturation = parseInt(value);
-    document.getElementById('devSaturationValue').textContent = value + '%';
-    updateMapFilter();
-    saveDevSettings();
-}
-
-function updateMapFilter() {
-    var filter = 'contrast(' + devSettings.contrast + '%) brightness(' + devSettings.brightness + '%) saturate(' + devSettings.saturation + '%)';
-    var layerStack = document.getElementById('layerStack');
-    var mapImage = document.getElementById('mapImage');
-    if (layerStack) layerStack.style.filter = filter;
-    if (mapImage) mapImage.style.filter = filter;
-}
-
-function toggleLayerPanel() {
-    devSettings.showLayerPanel = !devSettings.showLayerPanel;
-    var track = document.getElementById('devLayerPanelToggle');
-    if (track) track.classList.toggle('active', devSettings.showLayerPanel);
-    applyDevSettings();
-    saveDevSettings();
-}
-
-function toggleLoadingBar() {
-    devSettings.showLoadingBar = !devSettings.showLoadingBar;
-    var track = document.getElementById('devLoadingToggle');
-    if (track) track.classList.toggle('active', devSettings.showLoadingBar);
-    saveDevSettings();
-}
-
-function toggleSwipeHints() {
-    devSettings.showSwipeHints = !devSettings.showSwipeHints;
-    var track = document.getElementById('devSwipeToggle');
-    if (track) track.classList.toggle('active', devSettings.showSwipeHints);
-    applyDevSettings();
-    saveDevSettings();
-}
-
-function togglePreload() {
-    devSettings.preloadAdjacent = !devSettings.preloadAdjacent;
-    var track = document.getElementById('devPreloadToggle');
-    if (track) track.classList.toggle('active', devSettings.preloadAdjacent);
-    saveDevSettings();
+    var dz = document.getElementById('devZoomLevel');
+    var dt = document.getElementById('devTranslate');
+    var dq = document.getElementById('devQuality');
+    if (dz) dz.textContent = Math.round(scale * 100) + '%';
+    if (dt) dt.textContent = Math.round(translateX) + ', ' + Math.round(translateY);
+    if (dq) dq.textContent = currentQuality === 'original' ? '原画' : (currentQuality === 'high' ? '高画质' : '低画质');
 }
 
 function clearImageCache() {
@@ -8964,29 +8976,14 @@ function clearImageCache() {
 }
 
 function exportCurrentData() {
-    if (currentIndex < 0 || currentIndex >= historyData.length) {
-        alert('请先选择一幅地图');
-        return;
-    }
+    if (currentIndex < 0 || currentIndex >= historyData.length) { alert('请先选择一幅地图'); return; }
     var data = historyData[currentIndex];
     var exportObj = {
-        index: currentIndex,
-        name: data.name,
-        year: data.year,
-        path: data.path,
-        era: data.era,
-        desc: data.desc,
-        quote: data.quote,
-        quoteAuthor: data.quoteAuthor,
-        span: data.span,
-        count: data.count,
-        reign: data.reign,
-        layers: currentLayerPaths,
-        scale: scale,
-        translateX: translateX,
-        translateY: translateY,
-        quality: currentQuality,
-        timestamp: new Date().toISOString()
+        index: currentIndex, name: data.name, year: data.year, path: data.path,
+        era: data.era, desc: data.desc, quote: data.quote, quoteAuthor: data.quoteAuthor,
+        span: data.span, count: data.count, reign: data.reign,
+        layers: currentLayerPaths, scale: scale, translateX: translateX, translateY: translateY,
+        quality: currentQuality, timestamp: new Date().toISOString()
     };
     var blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
@@ -8997,26 +8994,13 @@ function exportCurrentData() {
     URL.revokeObjectURL(url);
 }
 
-// 更新开发者模式UI显示
 function updateDevModeUI() {
     var devToolsSection = document.getElementById('devToolsSection');
     var devInfoPanel = document.getElementById('devInfoPanel');
-
-    if (devToolsSection) {
-        devToolsSection.style.display = isDevMode ? 'block' : 'none';
-    }
-    if (devInfoPanel) {
-        devInfoPanel.style.display = isDevMode ? 'block' : 'none';
-    }
-
-    if (isDevMode) {
-        updateDevInfoPanel();
-        loadDevSettings();
-    }
+    if (devToolsSection) devToolsSection.style.display = isAdminMode ? 'block' : 'none';
+    if (devInfoPanel) devInfoPanel.style.display = isAdminMode ? 'block' : 'none';
+    if (isAdminMode) { updateDevInfoPanel(); loadDevSettings(); }
 }
-
-// 在 selectMap 函数末尾添加开发者信息更新
-// 包装原有的 selectMap 调用
 
 function setupMentionListener() {
             var contentInput = document.getElementById('discussionContent');
@@ -9220,7 +9204,7 @@ function setupMentionListener() {
 
         // ===== 精华帖 =====
         async function toggleEssential(discussionId) {
-            if (!isDevMode) return;
+            if (!isAdminMode) return;
             if (!supabaseClient) return;
 
             try {
@@ -9339,7 +9323,7 @@ function setupMentionListener() {
 
         function renderDiscussionItem(item, tagLabels, myName, likesMap, myLikes, repliesMap) {
             var isOwn = item.name === myName;
-            var canDelete = isOwn || isDevMode;
+            var canDelete = isOwn || isAdminMode;
             var isLiked = myLikes.has(item.id);
             var likeCount = likesMap[item.id] || 0;
             var replies = repliesMap[item.id] || [];
@@ -9347,15 +9331,15 @@ function setupMentionListener() {
 
             var deleteBtn = '';
             if (canDelete) {
-                var title = isDevMode && !isOwn ? '开发者删除' : '删除';
+                var title = isAdminMode && !isOwn ? '开发者删除' : '删除';
                 deleteBtn = '<button class="discussion-delete-btn" onclick="deleteDiscussion(' + item.id + ')" title="' + title + '">✕</button>';
             }
 
             var essentialBtn = '';
-            if (isDevMode) {
+            if (isAdminMode) {
                 var essClass = isEssential ? 'is-essential' : '';
                 var essText = isEssential ? '取消精华' : '设为精华';
-                essentialBtn = '<button class="dev-essential-btn ' + essClass + '" onclick="toggleEssential(' + item.id + ')" title="' + essText + '">⭐</button>';
+                essentialBtn = '<button class="admin-essential-btn ' + essClass + '" onclick="toggleEssential(' + item.id + ')" title="' + essText + '">⭐</button>';
             }
 
             var essentialBadge = isEssential ? '<span class="essential-badge">⭐ 精华</span>' : '';
