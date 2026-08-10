@@ -6147,7 +6147,47 @@ let currentIndex = -1;
         const loadingPercent = document.getElementById('loadingPercent');
 
         // 初始化时间轴
+        // 对历史数据进行排序：其他作者优秀作品专栏内按年份排序
+        function sortHistoryData() {
+            // 按 era 分组
+            var groups = {};
+            historyData.forEach(function(item, idx) {
+                if (!groups[item.era]) groups[item.era] = [];
+                groups[item.era].push({ item: item, originalIndex: idx });
+            });
+
+            // 对其他作者优秀作品按年份排序
+            if (groups['其他作者优秀作品']) {
+                groups['其他作者优秀作品'].sort(function(a, b) {
+                    var yearA = parseMapYear(a.item.year) || 0;
+                    var yearB = parseMapYear(b.item.year) || 0;
+                    return yearA - yearB; // 升序排列（从旧到新）
+                });
+            }
+
+            // 重新构建排序后的数组和索引映射
+            var sortedData = [];
+            var indexMap = {}; // originalIndex -> newIndex
+            var eraOrder = ['史前时期', '早期国家', '帝国形成', '成熟帝国', '传统社会', '中国近代', '中国现代', '其他作者优秀作品'];
+
+            eraOrder.forEach(function(era) {
+                if (groups[era]) {
+                    groups[era].forEach(function(entry) {
+                        indexMap[entry.originalIndex] = sortedData.length;
+                        sortedData.push(entry.item);
+                    });
+                }
+            });
+
+            // 更新全局数据
+            historyData = sortedData;
+            return indexMap;
+        }
+
         function initTimeline() {
+            // 先对数据进行排序
+            sortHistoryData();
+
             const list = document.getElementById('timelineList');
             list.innerHTML = '';  // 清空已有内容，防止重复
             let currentEra = '';
@@ -6254,8 +6294,14 @@ let currentIndex = -1;
 
             // 重置所有图层：先隐藏所有图层，再根据新地图重新加载
             // 防止从普通地图切换时残留通用图层
-            // 加载图层系统（无缝切换 - 新图层覆盖在旧图层上加载）
-            loadAllLayersSeamless(data.path);
+            resetAllLayers();
+
+            // 根据作品类型预先配置图层控制面板
+            var isGuest = data.era === '其他作者优秀作品';
+            updateLayerPanelForGuest(isGuest);
+
+            // 加载图层系统（带进度显示）
+            loadAllLayersWithProgress(data.path);
 
             // 更新按钮状态
             updateNavButtons(index);
@@ -6285,6 +6331,7 @@ let currentIndex = -1;
         }
 
         // 根据作品类型更新图层控制面板
+        // 同时根据图层实际加载状态显示/隐藏控制项
         function updateLayerPanelForGuest(isGuest) {
             var currentItem = historyData[currentIndex];
             var guestConfig = (isGuest && currentItem && currentItem.layers) ? currentItem.layers : null;
@@ -6297,20 +6344,80 @@ let currentIndex = -1;
                 var item = checkbox ? checkbox.closest('.layer-item') : null;
                 if (!item) return;
 
+                // 检查该图层是否在当前作品中存在
+                var layerExists = false;
                 if (isGuest && guestConfig) {
-                    // 其他作者作品：只显示作品中存在的图层
-                    if (guestConfig[layerName]) {
-                        item.style.display = '';
-                        checkbox.disabled = false;
+                    // 其他作者作品：检查作品自带配置
+                    layerExists = !!guestConfig[layerName];
+                } else if (!isGuest) {
+                    // 标准作品：背景和地名一定存在，通用图层根据配置
+                    if (layerName === 'bg' || layerName === 'name') {
+                        layerExists = true;
                     } else {
-                        item.style.display = 'none';
-                        checkbox.checked = false;
+                        // 通用图层(river/border/terrain)在标准作品中存在
+                        layerExists = true;
                     }
+                }
+
+                // 如果图层在当前作品中不存在，隐藏控制项
+                if (!layerExists) {
+                    item.style.display = 'none';
+                    checkbox.checked = false;
+                    return;
+                }
+
+                // 图层存在，显示控制项
+                item.style.display = '';
+                checkbox.disabled = (layerName === 'bg');
+                if (layerName !== 'bg') checkbox.checked = true;
+            });
+        }
+
+        // 根据图层实际加载状态更新控制面板显示/隐藏
+        // 在图层加载完成后调用此函数
+        function updateLayerPanelByLoadState() {
+            var layerIds = [
+                { id: 'layerName', check: 'layerCheckName', name: 'name' },
+                { id: 'layerRiver', check: 'layerCheckRiver', name: 'river' },
+                { id: 'layerBorder', check: 'layerCheckBorder', name: 'border' },
+                { id: 'layerTerrain', check: 'layerCheckTerrain', name: 'terrain' },
+                { id: 'layerBg', check: 'layerCheckBg', name: 'bg' }
+            ];
+
+            layerIds.forEach(function(entry) {
+                var layerImg = document.getElementById(entry.id);
+                var checkbox = document.getElementById(entry.check);
+                var item = checkbox ? checkbox.closest('.layer-item') : null;
+                if (!item) return;
+
+                // 背景图层始终显示
+                if (entry.name === 'bg') return;
+
+                // 检查图层是否成功加载（loaded 类且 display 不为 none）
+                var isLoaded = layerImg && layerImg.classList.contains('loaded') && layerImg.style.display !== 'none';
+                var hasSrc = layerImg && layerImg.src && layerImg.src !== '' && !layerImg.src.endsWith(window.location.href);
+
+                // 如果图层未加载成功（没有src或未添加loaded类），隐藏控制项
+                if (!isLoaded || !hasSrc) {
+                    // 延迟检查，给加载一些时间
+                    setTimeout(function() {
+                        var layerImg2 = document.getElementById(entry.id);
+                        var isLoaded2 = layerImg2 && layerImg2.classList.contains('loaded') && layerImg2.style.display !== 'none';
+                        var hasSrc2 = layerImg2 && layerImg2.src && layerImg2.src !== '' && !layerImg2.src.endsWith(window.location.href);
+
+                        if (!isLoaded2 || !hasSrc2) {
+                            item.style.display = 'none';
+                            if (checkbox) checkbox.checked = false;
+                        } else {
+                            // 加载成功了，显示控制项
+                            item.style.display = '';
+                            if (checkbox && entry.name !== 'bg') checkbox.checked = true;
+                        }
+                    }, 500);
                 } else {
-                    // 标准作品：显示所有图层
+                    // 已经加载成功，确保显示
                     item.style.display = '';
-                    checkbox.disabled = (layerName === 'bg');
-                    if (layerName !== 'bg') checkbox.checked = true;
+                    if (checkbox && entry.name !== 'bg') checkbox.checked = true;
                 }
             });
         }
@@ -6476,10 +6583,12 @@ function getGuestLayerConfig(item) {
             var guestConfig = isGuest ? getGuestLayerConfig(item) : null;
 
             if (isGuest && guestConfig) {
-                // 其他作者作品：使用专属图层配置，不生成通用图层后备路径
+                // 其他作者作品：只使用作品自带的图层配置
+                // 绝对不生成任何通用图层路径
                 for (const [key, config] of Object.entries(guestConfig)) {
                     layers[key] = config.path;
                 }
+                // 确保不生成 _fallback 路径
                 return layers;
             }
 
@@ -6629,7 +6738,7 @@ function getGuestLayerConfig(item) {
 
             var layerConfigMap;
             if (isGuest && guestLayerConfig) {
-                // 其他作者作品：使用作品自带的图层配置
+                // 其他作者作品：只使用作品自带的图层配置
                 layerConfigMap = {};
                 var priority = 1;
                 for (var key in guestLayerConfig) {
@@ -6653,9 +6762,9 @@ function getGuestLayerConfig(item) {
 
             for (var layerName in layerConfigMap) {
                 var config = layerConfigMap[layerName];
-                var layerDef = activeLayerConfig[layerName];
                 var layerPath = paths[layerName];
-                var fallbackPath = paths[layerName + '_fallback'];
+                // 其他作者作品：绝对不生成 fallback 路径
+                var fallbackPath = isGuest ? null : paths[layerName + '_fallback'];
 
                 var layerImg = document.getElementById('layer' + capitalize(layerName));
 
@@ -6672,7 +6781,7 @@ function getGuestLayerConfig(item) {
                 if (checkbox && !checkbox.checked && layerName !== 'bg') continue;
 
                 var preloaded = getPreloadedLayer(layerName);
-                // 修复：其他作者作品强制不使用通用图层
+                // 其他作者作品强制标记为非通用图层
                 var isUniversal = !isGuest && layerConfig[layerName] && layerConfig[layerName].type === 'universal';
 
                 // ===== 立即显示图层（零等待）=====
@@ -6703,7 +6812,7 @@ function getGuestLayerConfig(item) {
                 var xhrFallback = fallbackPath;
 
                 if (isGuest) {
-                    // 其他作者作品：只加载专属图层，不加载通用图层后备
+                    // 其他作者作品：只加载专属图层，绝对不使用通用图层后备
                     needsXHR = true;
                     xhrFallback = null; // 禁用通用图层后备
                 } else if (layerName === 'bg' || layerName === 'name') {
@@ -6777,7 +6886,36 @@ function getGuestLayerConfig(item) {
 
             function checkComplete() {
                 completedXHR++;
-                if (completedXHR >= totalXHR) {
+                // 只有当所有 XHR 请求都完成，且所有图层状态都标记为 done 时才结束
+                var allDone = true;
+                var allLayersCount = 0;
+                var doneLayersCount = 0;
+                for (var name in layerLoadStates) {
+                    allLayersCount++;
+                    if (layerLoadStates[name].done) {
+                        doneLayersCount++;
+                    } else {
+                        allDone = false;
+                    }
+                }
+
+                // 必须满足：XHR全部完成 + 所有图层状态done + 至少有一个图层
+                if (completedXHR >= totalXHR && allDone && allLayersCount > 0) {
+                    // 额外延迟确保DOM更新完成
+                    setTimeout(function() {
+                        hideLoading();
+                        forceRepaint();
+                        // 根据实际加载状态更新图层控制面板
+                        updateLayerPanelByLoadState();
+                    }, 300);
+                } else if (completedXHR >= totalXHR && !allDone) {
+                    // XHR都完成了但还有图层状态未更新（异常情况），强制更新
+                    console.warn('XHR全部完成但图层状态未同步，强制结束加载');
+                    for (var n in layerLoadStates) {
+                        layerLoadStates[n].done = true;
+                        layerLoadStates[n].loaded = layerLoadStates[n].total || 1;
+                    }
+                    updateLayerLoadingDisplay();
                     setTimeout(function() {
                         hideLoading();
                         forceRepaint();
@@ -6789,429 +6927,6 @@ function getGuestLayerConfig(item) {
                 loadLayerWithFallback(layer, checkComplete);
             });
         }
-
-        // ========== 无缝图层切换系统 ==========
-        // 新图层直接在旧图层上加载，加载完成后再释放旧资源
-        // 避免切换时出现空白闪烁
-
-        function loadAllLayersSeamless(basePath) {
-            abortAllLayerLoads();
-            abortCurrentLoad();
-
-            placeholder.style.display = 'none';
-            mapImage.classList.remove('loaded');
-
-            var currentItem = historyData[currentIndex];
-            var paths = generateLayerPaths(basePath, currentItem);
-            currentLayerPaths = paths;
-
-            // 显示图层堆叠，隐藏单张图片
-            var layerStack = document.getElementById('layerStack');
-            var mapImageEl = document.getElementById('mapImage');
-            if (layerStack) layerStack.style.display = 'flex';
-            if (mapImageEl) mapImageEl.style.display = 'none';
-
-            // 记录每个图层当前的旧 src（用于后续释放）
-            var oldSrcMap = {};
-            var allLayers = ['layerBg', 'layerTerrain', 'layerBorder', 'layerRiver', 'layerName'];
-            allLayers.forEach(function(id) {
-                var img = document.getElementById(id);
-                if (img && img.src && img.src.startsWith('blob:')) {
-                    oldSrcMap[id] = img.src;
-                }
-            });
-
-            var isGuest = currentItem && currentItem.era === '其他作者优秀作品';
-            var guestConfig = isGuest ? getGuestLayerConfig(currentItem) : null;
-            var activeLayerConfig = guestConfig || layerConfig;
-
-            // 构建图层配置映射
-            var layerConfigMap;
-            if (isGuest && guestConfig) {
-                layerConfigMap = {};
-                var priority = 1;
-                for (var key in guestConfig) {
-                    var cfg = guestConfig[key];
-                    layerConfigMap[key] = { 
-                        name: key === 'bg' ? '背景图层' : (key === 'name' ? '地名图层' : key + '图层'), 
-                        priority: cfg.zIndex || priority 
-                    };
-                    priority++;
-                }
-            } else {
-                layerConfigMap = {
-                    'name': { name: '地名图层', priority: 1 },
-                    'river': { name: '河湖图层', priority: 2 },
-                    'border': { name: '国界图层', priority: 3 },
-                    'terrain': { name: '地形图层', priority: 4 },
-                    'bg': { name: '背景图层', priority: 5 }
-                };
-            }
-
-            // 收集需要加载的图层
-            var layersToLoad = [];
-
-            for (var layerName in layerConfigMap) {
-                var config = layerConfigMap[layerName];
-                var layerDef = activeLayerConfig[layerName];
-                var layerPath = paths[layerName];
-                var fallbackPath = paths[layerName + '_fallback'];
-                var layerImg = document.getElementById('layer' + capitalize(layerName));
-
-                // 如果该图层在当前作品中不存在，先隐藏它（但保留旧图直到新图加载）
-                if (!layerPath) {
-                    if (layerImg) {
-                        layerImg.style.display = 'none';
-                        layerImg.classList.remove('loaded');
-                        // 释放旧 blob URL
-                        if (oldSrcMap['layer' + capitalize(layerName)]) {
-                            try { URL.revokeObjectURL(oldSrcMap['layer' + capitalize(layerName)]); } catch(e) {}
-                            delete oldSrcMap['layer' + capitalize(layerName)];
-                        }
-                    }
-                    continue;
-                }
-
-                // 低画质跳过地形
-                if (layerName === 'terrain' && currentQuality === 'low') {
-                    if (layerImg) {
-                        layerImg.style.display = 'none';
-                        layerImg.classList.remove('loaded');
-                    }
-                    continue;
-                }
-
-                var checkbox = document.getElementById('layerCheck' + capitalize(layerName));
-                if (checkbox && !checkbox.checked && layerName !== 'bg') {
-                    if (layerImg) {
-                        layerImg.style.display = 'none';
-                    }
-                    continue;
-                }
-
-                var isUniversal = !isGuest && layerConfig[layerName] && layerConfig[layerName].type === 'universal';
-
-                // 对于通用图层，先显示预加载的通用图层作为占位（如果新专属图层还没加载完）
-                var preloaded = getPreloadedLayer(layerName);
-                if (!isGuest && isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
-                    // 先显示预加载的通用图层，避免空白
-                    if (layerImg && layerImg.style.display === 'none') {
-                        layerImg.src = preloaded.src;
-                        layerImg.classList.add('loaded');
-                        layerImg.style.display = 'block';
-                        layerImg.style.opacity = '1';
-                    }
-                }
-
-                // 准备 XHR 加载
-                var needsXHR = false;
-                var xhrPath = layerPath;
-                var xhrFallback = fallbackPath;
-
-                if (isGuest) {
-                    needsXHR = true;
-                    xhrFallback = null;
-                } else if (layerName === 'bg' || layerName === 'name') {
-                    needsXHR = true;
-                } else if (isUniversal) {
-                    needsXHR = true;
-                }
-
-                if (needsXHR && xhrPath) {
-                    layersToLoad.push({
-                        name: layerName,
-                        displayName: config.name,
-                        path: xhrPath,
-                        fallbackPath: xhrFallback,
-                        priority: config.priority,
-                        isUniversal: isUniversal,
-                        oldSrc: oldSrcMap['layer' + capitalize(layerName)] || null,
-                        layerImgId: 'layer' + capitalize(layerName)
-                    });
-                }
-            }
-
-            // 初始化加载状态
-            layerLoadStates = {};
-            for (var ln in layerConfigMap) {
-                var checkPath = paths[ln];
-                if (!checkPath) {
-                    layerLoadStates[ln] = { loaded: 1, total: 1, speed: 0, done: true, startTime: Date.now(), lastLoaded: 0, lastTime: Date.now() };
-                } else {
-                    layerLoadStates[ln] = { loaded: 0, total: 0, speed: 0, done: false, startTime: Date.now(), lastLoaded: 0, lastTime: Date.now() };
-                }
-            }
-
-            if (layersToLoad.length === 0) {
-                for (var ln2 in layerLoadStates) {
-                    layerLoadStates[ln2].done = true;
-                    layerLoadStates[ln2].loaded = 1;
-                    layerLoadStates[ln2].total = 1;
-                }
-                updateLayerLoadingDisplay();
-                setTimeout(function() {
-                    hideLoading();
-                    forceRepaint();
-                }, 150);
-                return;
-            }
-
-            showLoading(basePath);
-            updateLayerLoadingDisplay();
-
-            var totalXHR = layersToLoad.length;
-            var completedXHR = 0;
-
-            function checkComplete() {
-                completedXHR++;
-                if (completedXHR >= totalXHR) {
-                    setTimeout(function() {
-                        hideLoading();
-                        forceRepaint();
-                    }, 300);
-                }
-            }
-
-            layersToLoad.forEach(function(layer) {
-                loadLayerSeamless(layer, checkComplete);
-            });
-        }
-
-        // 无缝加载单个图层
-        function loadLayerSeamless(layer, onComplete) {
-            var xhr = new XMLHttpRequest();
-            layerXhrs[layer.name] = xhr;
-
-            xhr.open('GET', layer.path, true);
-            xhr.responseType = 'blob';
-            xhr.timeout = 30000;
-
-            xhr.onprogress = function(event) {
-                var state = layerLoadStates[layer.name];
-                if (!state) return;
-                if (event.lengthComputable) {
-                    state.loaded = event.loaded;
-                    state.total = event.total;
-                }
-                var now = Date.now();
-                var timeDiff = (now - state.lastTime) / 1000;
-                if (timeDiff > 0.2) {
-                    var bytesDiff = event.loaded - state.lastLoaded;
-                    state.speed = bytesDiff / timeDiff;
-                    state.lastLoaded = event.loaded;
-                    state.lastTime = now;
-                }
-                updateLayerLoadingDisplay();
-            };
-
-            xhr.onload = function() {
-                var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = state.total || 1;
-                }
-
-                var layerImg = document.getElementById(layer.layerImgId);
-
-                if (xhr.status === 200 && layerImg) {
-                    // 创建新的 blob URL
-                    var newBlobUrl = URL.createObjectURL(xhr.response);
-                    registerBlobUrl(newBlobUrl, layer.name);
-
-                    // 记录旧 src（用于释放）
-                    var oldSrc = layerImg.src;
-
-                    // 设置新 src
-                    layerImg.src = newBlobUrl;
-                    layerImg.classList.add('loaded');
-                    layerImg.style.display = 'block';
-                    layerImg.style.opacity = '1';
-
-                    // 应用 guest 作品的图层配置
-                    var currentItem2 = historyData[currentIndex];
-                    if (currentItem2 && currentItem2.era === '其他作者优秀作品' && currentItem2.layers && currentItem2.layers[layer.name]) {
-                        var guestCfg = currentItem2.layers[layer.name];
-                        layerImg.style.opacity = guestCfg.opacity;
-                        layerImg.style.zIndex = guestCfg.zIndex;
-                        layerImg.style.mixBlendMode = 'normal';
-                    } else {
-                        // 恢复标准配置
-                        var stdCfg = layerConfig[layer.name];
-                        if (stdCfg) {
-                            layerImg.style.opacity = stdCfg.defaultOpacity;
-                            layerImg.style.zIndex = stdCfg.zIndex;
-                            layerImg.style.mixBlendMode = stdCfg.blendMode;
-                        }
-                    }
-
-                    if (layer.name === 'bg') {
-                        var mapImg = document.getElementById('mapImage');
-                        if (mapImg) {
-                            mapImg.src = newBlobUrl;
-                            mapImg.classList.add('loaded');
-                        }
-                    }
-
-                    // 新图加载完成后，释放旧的 blob URL
-                    if (oldSrc && oldSrc.startsWith('blob:') && oldSrc !== newBlobUrl) {
-                        setTimeout(function() {
-                            try { URL.revokeObjectURL(oldSrc); } catch(e) {}
-                            // 从 activeBlobUrls 中移除
-                            activeBlobUrls = activeBlobUrls.filter(function(item) {
-                                return item.url !== oldSrc;
-                            });
-                        }, 500); // 延迟500ms释放，确保新图已渲染
-                    }
-
-                    console.log('✓ [无缝] ' + layer.displayName + ' 加载成功');
-
-                } else if (xhr.status === 404 && layer.fallbackPath && layer.isUniversal) {
-                    console.log(layer.displayName + ' 专属图层不存在(404)，回退到通用图层');
-                    if (state) state.loaded = 1;
-                    loadFallbackLayerSeamless(layer, onComplete);
-                    return;
-
-                } else if (xhr.status === 404) {
-                    console.log(layer.displayName + ' 不存在(404)，保持旧图层');
-                    if (state) state.loaded = 1;
-                    // 不隐藏图层，保持旧图显示
-                }
-
-                updateLayerLoadingDisplay();
-                if (onComplete) onComplete();
-            };
-
-            xhr.onerror = function() {
-                var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = 1;
-                }
-
-                if (layer.fallbackPath && layer.isUniversal) {
-                    console.log(layer.displayName + ' 专属图层加载失败，回退到通用图层');
-                    loadFallbackLayerSeamless(layer, onComplete);
-                    return;
-                }
-
-                console.log('✗ ' + layer.displayName + ' 加载失败，保持旧图层显示');
-                // 加载失败时保持旧图层显示，不做任何隐藏操作
-
-                updateLayerLoadingDisplay();
-                if (onComplete) onComplete();
-            };
-
-            xhr.ontimeout = function() {
-                var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = 1;
-                }
-                console.warn('⏱ ' + layer.displayName + ' 加载超时，保持旧图层');
-
-                if (layer.fallbackPath && layer.isUniversal) {
-                    loadFallbackLayerSeamless(layer, onComplete);
-                    return;
-                }
-
-                updateLayerLoadingDisplay();
-                if (onComplete) onComplete();
-            };
-
-            xhr.onabort = function() {
-                var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = 1;
-                }
-                if (onComplete) onComplete();
-            };
-
-            xhr.send();
-        }
-
-        // 无缝模式下的通用图层回退加载
-        function loadFallbackLayerSeamless(layer, onComplete) {
-            var fallbackXhr = new XMLHttpRequest();
-            layerXhrs[layer.name + '_fallback'] = fallbackXhr;
-
-            fallbackXhr.open('GET', layer.fallbackPath, true);
-            fallbackXhr.responseType = 'blob';
-            fallbackXhr.timeout = 30000;
-
-            fallbackXhr.onload = function() {
-                var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = state.total || 1;
-                }
-
-                var layerImg = document.getElementById(layer.layerImgId);
-
-                if (fallbackXhr.status === 200 && layerImg) {
-                    var oldSrc = layerImg.src;
-                    var newBlobUrl = URL.createObjectURL(fallbackXhr.response);
-                    registerBlobUrl(newBlobUrl, layer.name);
-
-                    layerImg.src = newBlobUrl;
-                    layerImg.classList.add('loaded');
-                    layerImg.style.display = 'block';
-                    layerImg.style.opacity = '1';
-
-                    // 释放旧 blob URL
-                    if (oldSrc && oldSrc.startsWith('blob:') && oldSrc !== newBlobUrl) {
-                        setTimeout(function() {
-                            try { URL.revokeObjectURL(oldSrc); } catch(e) {}
-                            activeBlobUrls = activeBlobUrls.filter(function(item) {
-                                return item.url !== oldSrc;
-                            });
-                        }, 500);
-                    }
-
-                    console.log('✓ [无缝] ' + layer.displayName + ' 通用图层加载成功(后备)');
-                } else {
-                    console.log('✗ ' + layer.displayName + ' 通用图层也不可用，保持旧图层');
-                }
-
-                updateLayerLoadingDisplay();
-                if (onComplete) onComplete();
-            };
-
-            fallbackXhr.onerror = function() {
-                var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = 1;
-                }
-                console.log('✗ ' + layer.displayName + ' 通用图层加载失败，保持旧图层');
-                updateLayerLoadingDisplay();
-                if (onComplete) onComplete();
-            };
-
-            fallbackXhr.ontimeout = function() {
-                var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = 1;
-                }
-                console.warn('⏱ ' + layer.displayName + ' 通用图层加载超时');
-                updateLayerLoadingDisplay();
-                if (onComplete) onComplete();
-            };
-
-            fallbackXhr.onabort = function() {
-                var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = 1;
-                }
-                if (onComplete) onComplete();
-            };
-
-            fallbackXhr.send();
-        }
-
-
 
         // 加载图层：先尝试专属路径，失败则回退到通用路径
         function loadLayerWithFallback(layer, onComplete) {
@@ -7276,8 +6991,10 @@ function getGuestLayerConfig(item) {
                         mapImage.classList.add('loaded');
                     }
                     console.log('✓ ' + layer.displayName + ' 专属图层加载成功');
+                    // 图层加载成功，更新控制面板
+                    updateLayerPanelByLoadState();
                 } else if (xhr.status === 404 && layer.fallbackPath && layer.isUniversal) {
-                    // 专属图层不存在(404)，回退到通用图层
+                    // 专属图层不存在(404)，且允许回退到通用图层（仅非其他作者作品）
                     console.log(layer.displayName + ' 专属图层不存在(404)，回退到通用图层');
                     if (state) state.loaded = 1;
                     loadFallbackLayer(layer, onComplete);
@@ -7302,7 +7019,7 @@ function getGuestLayerConfig(item) {
                     state.done = true;
                     state.loaded = 1;
                 }
-                // 网络错误，尝试回退
+                // 网络错误，尝试回退（仅非其他作者作品）
                 if (layer.fallbackPath && layer.isUniversal) {
                     console.log(layer.displayName + ' 专属图层加载失败，回退到通用图层');
                     loadFallbackLayer(layer, onComplete);
@@ -7328,7 +7045,7 @@ function getGuestLayerConfig(item) {
                 }
                 console.warn('⏱ ' + layer.displayName + ' 加载超时');
 
-                // 尝试回退
+                // 尝试回退（仅非其他作者作品）
                 if (layer.fallbackPath && layer.isUniversal) {
                     loadFallbackLayer(layer, onComplete);
                     return;
@@ -7381,6 +7098,8 @@ function getGuestLayerConfig(item) {
                         img.style.opacity = '';
                         img.style.transition = '';
                         img.style.filter = ''; // 清除可能的滤镜
+                        img.style.zIndex = ''; // 清除zIndex
+                        img.style.mixBlendMode = ''; // 清除混合模式
                     }
                 });
 
@@ -7400,7 +7119,40 @@ function getGuestLayerConfig(item) {
                 // 中止所有正在进行的加载
                 abortAllLayerLoads();
                 abortCurrentLoad();
+
+                // 重置图层控制面板为默认状态
+                resetLayerPanelToDefault();
             }, 150);
+        }
+
+        // 重置图层控制面板为默认状态
+        function resetLayerPanelToDefault() {
+            var allLayers = [
+                { name: 'name', check: 'layerCheckName' },
+                { name: 'river', check: 'layerCheckRiver' },
+                { name: 'border', check: 'layerCheckBorder' },
+                { name: 'terrain', check: 'layerCheckTerrain' },
+                { name: 'bg', check: 'layerCheckBg' }
+            ];
+
+            allLayers.forEach(function(layer) {
+                var checkbox = document.getElementById(layer.check);
+                var item = checkbox ? checkbox.closest('.layer-item') : null;
+                if (!item) return;
+
+                // 默认显示所有控制项
+                item.style.display = '';
+
+                if (layer.name === 'bg') {
+                    // 背景强制开启
+                    checkbox.checked = true;
+                    checkbox.disabled = true;
+                } else {
+                    // 其他图层默认选中
+                    checkbox.checked = true;
+                    checkbox.disabled = false;
+                }
+            });
         }
 
 
@@ -7418,7 +7170,7 @@ function getGuestLayerConfig(item) {
 
             var isGuest = item && item.era === '其他作者优秀作品';
 
-            // ===== 其他作者作品：直接加载专属文件 =====
+            // ===== 其他作者作品：直接加载专属文件，绝对不使用通用图层 =====
             if (isGuest) {
                 var guestLayerDef = item.layers && item.layers[layerName];
                 if (guestLayerDef) {
@@ -7430,15 +7182,20 @@ function getGuestLayerConfig(item) {
                 layerImg.onload = function() {
                     layerImg.classList.add('loaded');
                     layerImg.style.display = 'block';
+                    // 加载成功，更新控制面板
+                    updateLayerPanelByLoadState();
                 };
                 layerImg.onerror = function() {
                     console.error('图层加载失败: ' + path);
                     layerImg.style.display = 'none';
                     layerImg.classList.remove('loaded');
+                    // 加载失败，更新控制面板
+                    updateLayerPanelByLoadState();
                 };
                 return;
             }
 
+            // ===== 标准作品（"我的地图"专栏）=====
             var activeConfig = layerConfig[layerName];
             if (!activeConfig) return;
 
@@ -7460,6 +7217,7 @@ function getGuestLayerConfig(item) {
                         layerImg.style.display = 'block';
                     }
                     console.log('✓ 专属' + layerName + '图层加载成功: ' + path);
+                    updateLayerPanelByLoadState();
                 };
 
                 layerImg.onerror = function() {
@@ -7472,16 +7230,19 @@ function getGuestLayerConfig(item) {
                                 layerImg.style.display = 'block';
                             }
                             console.log('↺ 专属' + layerName + '图层不存在，已回退到通用图层');
+                            updateLayerPanelByLoadState();
                         };
                         layerImg.onerror = function() {
                             layerImg.classList.remove('loaded');
                             layerImg.style.display = 'none';
                             console.log('✗ ' + layerName + '图层加载失败(专属和通用均不可用)');
+                            updateLayerPanelByLoadState();
                         };
                     } else {
                         layerImg.classList.remove('loaded');
                         layerImg.style.display = 'none';
                         console.log('✗ ' + layerName + '图层无可用路径');
+                        updateLayerPanelByLoadState();
                     }
                 };
                 return;
@@ -7494,6 +7255,7 @@ function getGuestLayerConfig(item) {
                 if (checkbox && checkbox.checked) {
                     layerImg.style.display = 'block';
                 }
+                updateLayerPanelByLoadState();
                 return;
             }
 
@@ -7507,6 +7269,7 @@ function getGuestLayerConfig(item) {
                 } else if (checkbox && checkbox.checked) {
                     layerImg.style.display = 'block';
                 }
+                updateLayerPanelByLoadState();
             };
 
             layerImg.onerror = function() {
@@ -7519,6 +7282,7 @@ function getGuestLayerConfig(item) {
                     layerImg.style.display = 'none';
                     console.log('图层加载失败: ' + path);
                 }
+                updateLayerPanelByLoadState();
             };
         }
 
@@ -7552,6 +7316,8 @@ function getGuestLayerConfig(item) {
                     layerImg.style.display = 'block';
                     layerImg.style.opacity = '1';
                     console.log('✓ ' + layer.displayName + ' 通用图层加载成功(后备)');
+                    // 图层加载成功，更新控制面板
+                    updateLayerPanelByLoadState();
                 } else {
                     console.log('✗ ' + layer.displayName + ' 通用图层也不可用');
                     if (layerImg) {
@@ -7561,6 +7327,7 @@ function getGuestLayerConfig(item) {
                 }
 
                 updateLayerLoadingDisplay();
+                // 确保 onComplete 被调用以触发完成检测
                 if (onComplete) onComplete();
             };
 
@@ -7873,6 +7640,7 @@ function updateQuotes(data) {
         }
 
         function parseMapYear(yearStr) {
+            if (!yearStr) return null;
             // 处理 "旧石器"、"新石器"、"抗战" 等特殊年份
             if (yearStr === '旧石器') return -2000000;
             if (yearStr === '新石器') return -10000;
@@ -8790,82 +8558,37 @@ function updateQuotes(data) {
         const BASE_LAYER_CACHE = {};
         let baseLayersPreloaded = false;
 
-        // 基础图层配置（通用图层，所有地图共用）
+        // 基础图层配置（通用图层，仅在"我的地图"专栏中使用）
+        // 其他作者优秀作品专栏不使用任何通用图层
         const BASE_LAYERS = {
-            terrain: { path: 'maps/layers/terrain.webp', name: '地形图层', size: '约15MB' },
-            border: { path: 'maps/layers/border.webp', name: '国界图层', size: '约2MB' },
-            river: { path: 'maps/layers/river.webp', name: '河湖图层', size: '约3MB' }
+            terrain: { path: 'maps/layers/terrain.webp', name: '地形图层' },
+            border: { path: 'maps/layers/border.webp', name: '国界图层' },
+            river: { path: 'maps/layers/river.webp', name: '河湖图层' }
         };
 
         function preloadBaseLayers() {
-            if (baseLayersPreloaded) return;
-            baseLayersPreloaded = true;
-
-            console.log('检查基础图层预加载状态...');
-            const layerNames = Object.keys(BASE_LAYERS);
-            let completed = 0;
-            let successCount = 0;
-
+            // 不再预加载通用图层，通用图层按需加载
+            // 仅在进入展馆时更新UI状态
             var statusEl = document.getElementById('preloadStatus');
             var textEl = document.getElementById('preloadText');
-            if (statusEl) statusEl.style.opacity = '1';
-
-            layerNames.forEach(function(layerName) {
-                // 检查是否已经在立即预加载中完成
-                if (window.BASE_LAYER_CACHE && window.BASE_LAYER_CACHE[layerName]) {
-                    completed++;
-                    successCount++;
-                    console.log('✓ 已预加载: ' + BASE_LAYERS[layerName].name);
-                    updatePreloadStatus();
-                    return;
-                }
-
-                var config = BASE_LAYERS[layerName];
-                var img = new Image();
-
-                img.onload = function() {
-                    if (!window.BASE_LAYER_CACHE) window.BASE_LAYER_CACHE = {};
-                    window.BASE_LAYER_CACHE[layerName] = img;
-                    completed++;
-                    successCount++;
-                    console.log('✓ 预加载成功: ' + config.name);
-                    updatePreloadStatus();
-                };
-
-                img.onerror = function() {
-                    console.warn('✗ 预加载失败: ' + config.name + ' (' + config.path + ')');
-                    completed++;
-                    updatePreloadStatus();
-                };
-
-                // 设置超时（10秒）
+            if (textEl) textEl.textContent = '展馆已就绪';
+            if (statusEl) {
                 setTimeout(function() {
-                    if (!window.BASE_LAYER_CACHE || !window.BASE_LAYER_CACHE[layerName]) {
-                        console.warn('⏱ 预加载超时: ' + config.name);
-                        completed++;
-                        updatePreloadStatus();
-                    }
-                }, 10000);
-
-                img.src = config.path + '?t=' + Date.now();
-            });
-
-            function updatePreloadStatus() {
-                if (textEl) {
-                    textEl.textContent = '已加载 ' + successCount + '/' + layerNames.length + ' 个基础图层';
-                }
-                if (completed >= layerNames.length) {
-                    setTimeout(function() {
-                        if (statusEl) statusEl.style.opacity = '0';
-                        var enterBtn = document.getElementById('enterButton');
-                        if (enterBtn) enterBtn.textContent = '进入展馆';
-                    }, 600);
-                }
+                    statusEl.style.opacity = '0';
+                }, 300);
             }
+            var enterBtn = document.getElementById('enterButton');
+            if (enterBtn) enterBtn.textContent = '进入展馆';
         }
 
         // 获取预加载的基础图层
+        // 仅在"我的地图"专栏中使用通用图层，其他作者作品返回null
         function getPreloadedLayer(layerName) {
+            // 检查当前是否是其他作者优秀作品专栏
+            var currentItem = historyData[currentIndex];
+            if (currentItem && currentItem.era === '其他作者优秀作品') {
+                return null; // 其他作者作品不使用任何通用图层
+            }
             return (window.BASE_LAYER_CACHE && window.BASE_LAYER_CACHE[layerName]) || null;
         }
 
@@ -9181,6 +8904,7 @@ function initApp() {
         }
 
         // 根据作品类型更新图层控制面板
+        // 同时根据图层实际加载状态显示/隐藏控制项
         function updateLayerPanelForGuest(isGuest) {
             var currentItem = historyData[currentIndex];
             var guestConfig = (isGuest && currentItem && currentItem.layers) ? currentItem.layers : null;
@@ -9193,20 +8917,80 @@ function initApp() {
                 var item = checkbox ? checkbox.closest('.layer-item') : null;
                 if (!item) return;
 
+                // 检查该图层是否在当前作品中存在
+                var layerExists = false;
                 if (isGuest && guestConfig) {
-                    // 其他作者作品：只显示作品中存在的图层
-                    if (guestConfig[layerName]) {
-                        item.style.display = '';
-                        checkbox.disabled = false;
+                    // 其他作者作品：检查作品自带配置
+                    layerExists = !!guestConfig[layerName];
+                } else if (!isGuest) {
+                    // 标准作品：背景和地名一定存在，通用图层根据配置
+                    if (layerName === 'bg' || layerName === 'name') {
+                        layerExists = true;
                     } else {
-                        item.style.display = 'none';
-                        checkbox.checked = false;
+                        // 通用图层(river/border/terrain)在标准作品中存在
+                        layerExists = true;
                     }
+                }
+
+                // 如果图层在当前作品中不存在，隐藏控制项
+                if (!layerExists) {
+                    item.style.display = 'none';
+                    checkbox.checked = false;
+                    return;
+                }
+
+                // 图层存在，显示控制项
+                item.style.display = '';
+                checkbox.disabled = (layerName === 'bg');
+                if (layerName !== 'bg') checkbox.checked = true;
+            });
+        }
+
+        // 根据图层实际加载状态更新控制面板显示/隐藏
+        // 在图层加载完成后调用此函数
+        function updateLayerPanelByLoadState() {
+            var layerIds = [
+                { id: 'layerName', check: 'layerCheckName', name: 'name' },
+                { id: 'layerRiver', check: 'layerCheckRiver', name: 'river' },
+                { id: 'layerBorder', check: 'layerCheckBorder', name: 'border' },
+                { id: 'layerTerrain', check: 'layerCheckTerrain', name: 'terrain' },
+                { id: 'layerBg', check: 'layerCheckBg', name: 'bg' }
+            ];
+
+            layerIds.forEach(function(entry) {
+                var layerImg = document.getElementById(entry.id);
+                var checkbox = document.getElementById(entry.check);
+                var item = checkbox ? checkbox.closest('.layer-item') : null;
+                if (!item) return;
+
+                // 背景图层始终显示
+                if (entry.name === 'bg') return;
+
+                // 检查图层是否成功加载（loaded 类且 display 不为 none）
+                var isLoaded = layerImg && layerImg.classList.contains('loaded') && layerImg.style.display !== 'none';
+                var hasSrc = layerImg && layerImg.src && layerImg.src !== '' && !layerImg.src.endsWith(window.location.href);
+
+                // 如果图层未加载成功（没有src或未添加loaded类），隐藏控制项
+                if (!isLoaded || !hasSrc) {
+                    // 延迟检查，给加载一些时间
+                    setTimeout(function() {
+                        var layerImg2 = document.getElementById(entry.id);
+                        var isLoaded2 = layerImg2 && layerImg2.classList.contains('loaded') && layerImg2.style.display !== 'none';
+                        var hasSrc2 = layerImg2 && layerImg2.src && layerImg2.src !== '' && !layerImg2.src.endsWith(window.location.href);
+
+                        if (!isLoaded2 || !hasSrc2) {
+                            item.style.display = 'none';
+                            if (checkbox) checkbox.checked = false;
+                        } else {
+                            // 加载成功了，显示控制项
+                            item.style.display = '';
+                            if (checkbox && entry.name !== 'bg') checkbox.checked = true;
+                        }
+                    }, 500);
                 } else {
-                    // 标准作品：显示所有图层
+                    // 已经加载成功，确保显示
                     item.style.display = '';
-                    checkbox.disabled = (layerName === 'bg');
-                    if (layerName !== 'bg') checkbox.checked = true;
+                    if (checkbox && entry.name !== 'bg') checkbox.checked = true;
                 }
             });
         }
@@ -10078,37 +9862,12 @@ function setupMentionListener() {
         }
 
         // 页面加载完成后初始化
-        // 页面加载时立即开始预加载通用图层（不等待DOMContentLoaded）
+        // 页面加载时不再预加载通用图层
+        // 通用图层仅在"我的地图"专栏中使用，按需加载
         (function immediatePreload() {
-            // 检查是否已经在预加载中
-            if (window.__baseLayersPreloading) return;
-            window.__baseLayersPreloading = true;
-
-            console.log('🚀 立即开始预加载基础图层...');
-
-            const baseLayers = {
-                terrain: { path: 'maps/layers/terrain.webp', name: '地形图层' },
-                border: { path: 'maps/layers/border.webp', name: '国界图层' },
-                river: { path: 'maps/layers/river.webp', name: '河湖图层' }
-            };
-
+            // 仅初始化缓存对象，不预加载任何图层
             if (!window.BASE_LAYER_CACHE) window.BASE_LAYER_CACHE = {};
-
-            Object.keys(baseLayers).forEach(function(key) {
-                var config = baseLayers[key];
-                if (window.BASE_LAYER_CACHE[key]) return; // 已缓存
-
-                var img = new Image();
-                img.onload = function() {
-                    window.BASE_LAYER_CACHE[key] = img;
-                    console.log('✓ 预加载成功: ' + config.name);
-                };
-                img.onerror = function() {
-                    console.warn('✗ 预加载失败: ' + config.name);
-                };
-                // 添加时间戳防止缓存
-                img.src = config.path + '?t=' + Date.now();
-            });
+            console.log('🚀 地图馆已就绪，通用图层将按需加载');
         })();
 
         
