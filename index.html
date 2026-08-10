@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -945,6 +946,39 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+
+        /* 其他作者优秀作品 - 红色调特殊样式 */
+        .era-label-guest {
+            color: #c0392b !important;
+            border-left-color: #c0392b !important;
+            background: rgba(192, 57, 43, 0.12) !important;
+        }
+
+        body.rice-paper-theme .era-label-guest {
+            color: #8b0000 !important;
+            border-left-color: #8b0000 !important;
+            background: rgba(139, 0, 0, 0.08) !important;
+        }
+
+        body.bronze-theme .era-label-guest {
+            color: #e74c3c !important;
+            border-left-color: #e74c3c !important;
+            background: rgba(231, 76, 60, 0.12) !important;
+        }
+
+        body.cinnabar-theme .era-label-guest {
+            color: #ff6b6b !important;
+            border-left-color: #ff6b6b !important;
+            background: rgba(255, 107, 107, 0.15) !important;
+        }
+
+        .era-label-guest .era-quote {
+            color: rgba(192, 57, 43, 0.7) !important;
+        }
+
+        body.rice-paper-theme .era-label-guest .era-quote {
+            color: rgba(139, 0, 0, 0.6) !important;
         }
 
         body.bronze-theme .era-label {
@@ -4667,6 +4701,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -5916,7 +5951,9 @@ let currentIndex = -1;
                 if (item.era !== currentEra) {
                     currentEra = item.era;
                     const eraDiv = document.createElement('div');
-                    eraDiv.className = 'era-label';
+                    // 其他作者优秀作品使用特殊红色调样式
+                    const isGuestWork = currentEra === '其他作者优秀作品';
+                    eraDiv.className = isGuestWork ? 'era-label era-label-guest' : 'era-label';
                     eraDiv.innerHTML = `
                         <span>${currentEra}</span>
                         <span class="era-quote">${getEraQuote(currentEra)}</span>
