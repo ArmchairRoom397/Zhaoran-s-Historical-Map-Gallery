@@ -1465,6 +1465,60 @@
             color: var(--gold);
             margin-bottom: 10px;
             letter-spacing: 4px;
+            transition: all 0.4s ease;
+        }
+
+        .loading-text.complete {
+            color: #4a9b8e;
+        }
+
+        .loading-detail {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: "Courier New", monospace;
+            word-break: break-all;
+            max-width: 340px;
+            margin: 0 auto 10px;
+            opacity: 0.85;
+            line-height: 1.5;
+            min-height: 36px;
+            transition: all 0.3s ease;
+        }
+
+        .loading-detail.complete {
+            color: #4a9b8e;
+        }
+
+        .loading-speed {
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-top: 8px;
+            font-family: "Courier New", monospace;
+            min-height: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .loading-speed.complete {
+            color: #4a9b8e;
+        }
+
+        .loading-icon {
+            animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .loading-spinner.fade-out {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.8); }
         }
 
         .loading-path {
@@ -4913,14 +4967,6 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 12px;">
-                <div class="toggle-switch" onclick="toggleDevSetting('showLoadingBar')" style="margin-bottom: 8px;">
-                    <div class="toggle-track active" id="devToggleLoadingBar">
-                        <div class="toggle-thumb"></div>
-                    </div>
-                    <span class="toggle-label">显示加载进度条</span>
-                </div>
-            </div>
 
             <div style="margin-bottom: 12px;">
                 <div class="toggle-switch" onclick="toggleDevSetting('showSwipeHints')" style="margin-bottom: 8px;">
@@ -5189,10 +5235,10 @@
                     <!-- 加载进度指示 -->
                     <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite" aria-atomic="true">
                         <div class="loading-container">
-                            <div class="loading-spinner"></div>
-                            <div class="loading-text">图层加载中</div>
-                            <div class="loading-path" id="loadingPath">准备加载...</div>
-
+                            <div class="loading-spinner" id="loadingSpinner"></div>
+                            <div class="loading-icon" id="loadingIcon" style="display:none;font-size:2.5rem;margin-bottom:8px;">✓</div>
+                            <div class="loading-text" id="loadingText">图层加载中</div>
+                            <div class="loading-detail" id="loadingDetail">准备加载...</div>
                             <div class="loading-speed" id="loadingSpeed">等待中...</div>
                         </div>
                     </div>
@@ -6100,7 +6146,6 @@ let currentIndex = -1;
         const placeholder = document.getElementById('placeholder');
         const hdTip = document.getElementById('hdTip');
         const loadingOverlay = document.getElementById('loadingOverlay');
-        const loadingPath = document.getElementById('loadingPath');
 
         // 初始化时间轴
         function initTimeline() {
@@ -6274,10 +6319,19 @@ let currentIndex = -1;
         }
 
         function showLoading(path) {
-            loadingOverlay.classList.add('show');
-            loadingPath.textContent = '正在加载图层...';
-            var speedEl = document.getElementById('loadingSpeed');
-            if (speedEl) speedEl.textContent = '初始化中...';
+            var overlay = document.getElementById('loadingOverlay');
+            var spinner = document.getElementById('loadingSpinner');
+            var icon = document.getElementById('loadingIcon');
+            var text = document.getElementById('loadingText');
+            var detail = document.getElementById('loadingDetail');
+            var speed = document.getElementById('loadingSpeed');
+
+            if (overlay) overlay.classList.add('show');
+            if (spinner) { spinner.style.display = 'block'; spinner.classList.remove('fade-out'); }
+            if (icon) icon.style.display = 'none';
+            if (text) { text.textContent = '图层加载中'; text.classList.remove('complete'); }
+            if (detail) { detail.textContent = '准备加载...'; detail.classList.remove('complete'); }
+            if (speed) { speed.textContent = '初始化中...'; speed.classList.remove('complete'); }
         }
 
         function hideLoading() {
@@ -7154,10 +7208,13 @@ function getGuestLayerConfig(item) {
         }
 
         function updateLayerLoadingDisplay() {
-            var pathEl = document.getElementById('loadingPath');
-            var speedEl = document.getElementById('loadingSpeed');
+            var detail = document.getElementById('loadingDetail');
+            var speed = document.getElementById('loadingSpeed');
+            var text = document.getElementById('loadingText');
+            var spinner = document.getElementById('loadingSpinner');
+            var icon = document.getElementById('loadingIcon');
 
-            if (!pathEl || !speedEl) return;
+            if (!detail || !speed) return;
 
             var activeLayers = [];
             var doneCount = 0;
@@ -7183,21 +7240,29 @@ function getGuestLayerConfig(item) {
                 }
             }
 
-            if (doneCount >= totalCount && totalCount > 0) {
-                pathEl.textContent = '✓ 加载完成 ' + doneCount + '/' + totalCount;
-                speedEl.textContent = '完成';
+            var allDone = doneCount >= totalCount && totalCount > 0;
+
+            if (allDone) {
+                // 全部完成：切换为完成状态
+                if (spinner) { spinner.classList.add('fade-out'); setTimeout(function(){ spinner.style.display = 'none'; }, 300); }
+                if (icon) icon.style.display = 'block';
+                if (text) { text.textContent = '加载完成'; text.classList.add('complete'); }
+                if (detail) { detail.textContent = '✓ 所有图层已就绪 ' + doneCount + '/' + totalCount; detail.classList.add('complete'); }
+                if (speed) { speed.textContent = '完成'; speed.classList.add('complete'); }
             } else if (activeLayers.length > 0) {
-                pathEl.textContent = activeLayers.join('  |  ');
+                if (text) { text.textContent = '图层加载中'; text.classList.remove('complete'); }
+                if (detail) { detail.textContent = activeLayers.join('  |  '); detail.classList.remove('complete'); }
                 var maxSpeed = 0;
                 for (var n2 in layerLoadStates) {
                     if (layerLoadStates[n2] && layerLoadStates[n2].speed > maxSpeed) {
                         maxSpeed = layerLoadStates[n2].speed;
                     }
                 }
-                speedEl.textContent = maxSpeed > 0 ? '⚡ ' + formatSpeed(maxSpeed) : '连接中...';
+                if (speed) { speed.textContent = maxSpeed > 0 ? '⚡ ' + formatSpeed(maxSpeed) : '连接中...'; speed.classList.remove('complete'); }
             } else {
-                pathEl.textContent = '准备加载图层...';
-                speedEl.textContent = '初始化中';
+                if (text) { text.textContent = '图层加载中'; text.classList.remove('complete'); }
+                if (detail) { detail.textContent = '准备加载图层...'; detail.classList.remove('complete'); }
+                if (speed) { speed.textContent = '初始化中'; speed.classList.remove('complete'); }
             }
         }
 
@@ -8907,7 +8972,6 @@ function initApp() {
         // ===== 开发者工具功能 =====
 let devSettings = {
     showLayerPanel: true,
-    showLoadingBar: true,
     showSwipeHints: true,
     preloadAdjacent: true,
     contrast: 100,
@@ -8936,11 +9000,9 @@ function applyDevSettings() {
 
     // 更新开关UI
     var t1 = document.getElementById('devToggleLayerPanel');
-    var t2 = document.getElementById('devToggleLoadingBar');
     var t3 = document.getElementById('devToggleSwipeHints');
     var t4 = document.getElementById('devTogglePreload');
     if (t1) t1.classList.toggle('active', devSettings.showLayerPanel);
-    if (t2) t2.classList.toggle('active', devSettings.showLoadingBar);
     if (t3) t3.classList.toggle('active', devSettings.showSwipeHints);
     if (t4) t4.classList.toggle('active', devSettings.preloadAdjacent);
 
