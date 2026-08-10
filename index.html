@@ -4701,6 +4701,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -6719,6 +6720,11 @@ const HISTORY_DATA_INLINE = [
         "file": "weas.webp",
         "opacity": 1.0,
         "zIndex": 1
+      },
+      "terrain": {
+        "file": "weas_3.webp",
+        "opacity": 0.6,
+        "zIndex": 3
       }
     }
   }
@@ -7031,25 +7037,44 @@ let currentIndex = -1;
 
         // 切换单个图层显示/隐藏
         function updateLayerPanelForGuestWork() {
-            var universalLayers = ['river', 'border', 'terrain'];
-            universalLayers.forEach(function(layerName) {
+            var data = historyData[currentIndex];
+            var allLayerNames = ['name', 'river', 'border', 'terrain', 'bg'];
+
+            allLayerNames.forEach(function(layerName) {
                 var checkbox = document.getElementById('layerCheck' + capitalize(layerName));
                 var layerImg = document.getElementById('layer' + capitalize(layerName));
+
                 if (isGuestWork) {
-                    // 其他作者作品：禁用并取消勾选通用图层
-                    if (checkbox) {
-                        checkbox.checked = false;
-                        checkbox.disabled = true;
-                    }
-                    if (layerImg) {
-                        layerImg.style.display = 'none';
-                        layerImg.classList.remove('loaded');
+                    // 其他作者作品：根据数据中实际有的图层来启用复选框
+                    var hasLayer = data && data.layers && data.layers[layerName];
+                    if (hasLayer) {
+                        // 有该图层：启用并勾选
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            checkbox.disabled = false;
+                        }
+                        if (layerImg) {
+                            layerImg.style.display = 'block';
+                            layerImg.classList.add('loaded');
+                        }
+                    } else {
+                        // 没有该图层：禁用并取消勾选
+                        if (checkbox) {
+                            checkbox.checked = false;
+                            checkbox.disabled = true;
+                        }
+                        if (layerImg) {
+                            layerImg.style.display = 'none';
+                            layerImg.classList.remove('loaded');
+                        }
                     }
                 } else {
                     // 我的地图：启用并勾选通用图层
+                    var isUniversal = ['river', 'border', 'terrain'].indexOf(layerName) >= 0;
+                    var isBgOrName = layerName === 'bg' || layerName === 'name';
                     if (checkbox) {
                         checkbox.checked = true;
-                        checkbox.disabled = false;
+                        checkbox.disabled = layerName === 'bg'; // 背景强制开启
                     }
                     if (layerImg) {
                         layerImg.style.display = 'block';
@@ -7057,6 +7082,39 @@ let currentIndex = -1;
                     }
                 }
             });
+
+            // 更新图层面板标签，显示其他作者作品的专属图层信息
+            if (isGuestWork && data && data.layers) {
+                var layerLabels = {
+                    'name': { name: '地名', badge: '专属' },
+                    'river': { name: '河湖', badge: '专属' },
+                    'border': { name: '国界', badge: '专属' },
+                    'terrain': { name: '地形', badge: '专属' },
+                    'bg': { name: '背景', badge: '专属' }
+                };
+                for (var ln in layerLabels) {
+                    var labelEl = document.getElementById('layerLabel' + capitalize(ln));
+                    var badgeEl = document.getElementById('layerBadge' + capitalize(ln));
+                    var hasLayer = data.layers[ln];
+                    if (labelEl) labelEl.textContent = layerLabels[ln].name + (hasLayer ? '' : ' (无)');
+                    if (badgeEl) badgeEl.textContent = hasLayer ? '专属' : '—';
+                }
+            } else {
+                // 恢复默认标签
+                var defaultLabels = {
+                    'name': { name: '地名', badge: '顶层' },
+                    'river': { name: '河湖', badge: '专属/通用' },
+                    'border': { name: '国界', badge: '70%' },
+                    'terrain': { name: '地形', badge: '相乘' },
+                    'bg': { name: '背景', badge: '底层' }
+                };
+                for (var ln2 in defaultLabels) {
+                    var labelEl2 = document.getElementById('layerLabel' + capitalize(ln2));
+                    var badgeEl2 = document.getElementById('layerBadge' + capitalize(ln2));
+                    if (labelEl2) labelEl2.textContent = defaultLabels[ln2].name;
+                    if (badgeEl2) badgeEl2.textContent = defaultLabels[ln2].badge;
+                }
+            }
         }
 
         function toggleLayer(layerName) {
@@ -7109,16 +7167,28 @@ let currentIndex = -1;
         // 通用图层：使用固定路径，所有地图共用
         function generateLayerPaths(basePath) {
             const layers = {};
+            const data = historyData[currentIndex];
 
             // 判断是否是抗战地图（唯一使用专属河湖图层的地图）
             var isAntiJapanese = basePath.indexOf('anti_japanese') >= 0;
 
+            // ===== 其他作者优秀作品：使用数据中定义的专属图层 =====
+            if (isGuestWork && data && data.layers) {
+                const lastSlash = basePath.lastIndexOf('/');
+                const dir = lastSlash >= 0 ? basePath.substring(0, lastSlash + 1) : '';
+
+                for (const [layerName, layerInfo] of Object.entries(data.layers)) {
+                    if (layerInfo && layerInfo.file) {
+                        layers[layerName] = dir + layerInfo.file;
+                    }
+                }
+                return layers;
+            }
+
+            // ===== 我的地图：使用通用 + 专属图层系统 =====
             for (const [key, config] of Object.entries(layerConfig)) {
                 if (config.type === 'universal') {
-                    // 通用图层：仅我的地图使用，其他作者作品跳过
-                    if (!isGuestWork) {
-                        layers[key] = config.path;
-                    }
+                    layers[key] = config.path;
                 } else {
                     // 专属图层：基于当前地图路径生成
                     const lastDot = basePath.lastIndexOf('.');
@@ -7202,11 +7272,25 @@ let currentIndex = -1;
             var isRiver = layerName === 'river';
             var isUniversal = config.type === 'universal';
 
-            // ===== 其他作者作品：跳过通用图层 =====
-            if (isGuestWork && isUniversal && layerName !== 'bg') {
-                layerImg.style.display = 'none';
-                layerImg.classList.remove('loaded');
-                return;
+            // ===== 其他作者作品：跳过数据中没有定义的图层 =====
+            if (isGuestWork) {
+                var mapData = historyData[currentIndex];
+                var hasLayer = mapData && mapData.layers && mapData.layers[layerName];
+                if (!hasLayer && layerName !== 'bg') {
+                    layerImg.style.display = 'none';
+                    layerImg.classList.remove('loaded');
+                    return;
+                }
+                // 其他作者作品使用数据中定义的不透明度和混合模式
+                if (hasLayer && mapData.layers[layerName]) {
+                    var layerInfo = mapData.layers[layerName];
+                    if (layerInfo.opacity !== undefined) {
+                        layerImg.style.opacity = layerInfo.opacity;
+                    }
+                    if (layerInfo.zIndex !== undefined) {
+                        layerImg.style.zIndex = layerInfo.zIndex;
+                    }
+                }
             }
 
             // ===== 河湖图层：所有地图默认用通用路径 =====
@@ -7332,14 +7416,18 @@ let currentIndex = -1;
                 var layerDef = layerConfig[layerName];
                 var layerPath = paths[layerName];
 
-                // ===== 其他作者作品：跳过通用图层（背景除外）=====
-                if (isGuestWork && layerDef && layerDef.type === 'universal' && layerName !== 'bg') {
-                    var skipImg = document.getElementById('layer' + capitalize(layerName));
-                    if (skipImg) {
-                        skipImg.style.display = 'none';
-                        skipImg.classList.remove('loaded');
+                // ===== 其他作者作品：跳过数据中没有定义的图层（背景除外）=====
+                if (isGuestWork) {
+                    var mapData = historyData[currentIndex];
+                    var hasLayer = mapData && mapData.layers && mapData.layers[layerName];
+                    if (!hasLayer && layerName !== 'bg') {
+                        var skipImg = document.getElementById('layer' + capitalize(layerName));
+                        if (skipImg) {
+                            skipImg.style.display = 'none';
+                            skipImg.classList.remove('loaded');
+                        }
+                        continue;
                     }
-                    continue;
                 }
 
                 if (layerName === 'terrain' && currentQuality === 'low') continue;
@@ -9866,36 +9954,36 @@ function initApp() {
         <div class="layer-item">
             <div class="layer-item-left">
                 <input type="checkbox" class="layer-checkbox" id="layerCheckName" checked onchange="toggleLayer('name')">
-                <span class="layer-name">地名</span>
-                <span class="layer-badge">顶层</span>
+                <span class="layer-name" id="layerLabelName">地名</span>
+                <span class="layer-badge" id="layerBadgeName">顶层</span>
             </div>
         </div>
         <div class="layer-item">
             <div class="layer-item-left">
                 <input type="checkbox" class="layer-checkbox" id="layerCheckRiver" checked onchange="toggleLayer('river')">
-                <span class="layer-name">河湖</span>
-                <span class="layer-badge">专属/通用</span>
+                <span class="layer-name" id="layerLabelRiver">河湖</span>
+                <span class="layer-badge" id="layerBadgeRiver">专属/通用</span>
             </div>
         </div>
         <div class="layer-item">
             <div class="layer-item-left">
                 <input type="checkbox" class="layer-checkbox" id="layerCheckBorder" checked onchange="toggleLayer('border')">
-                <span class="layer-name">国界</span>
-                <span class="layer-badge">70%</span>
+                <span class="layer-name" id="layerLabelBorder">国界</span>
+                <span class="layer-badge" id="layerBadgeBorder">70%</span>
             </div>
         </div>
         <div class="layer-item">
             <div class="layer-item-left">
                 <input type="checkbox" class="layer-checkbox" id="layerCheckTerrain" checked onchange="toggleLayer('terrain')">
-                <span class="layer-name">地形</span>
-                <span class="layer-badge">相乘</span>
+                <span class="layer-name" id="layerLabelTerrain">地形</span>
+                <span class="layer-badge" id="layerBadgeTerrain">相乘</span>
             </div>
         </div>
         <div class="layer-item" style="opacity: 0.7;">
             <div class="layer-item-left">
                 <input type="checkbox" class="layer-checkbox" id="layerCheckBg" checked disabled title="背景图层不可关闭">
-                <span class="layer-name">背景</span>
-                <span class="layer-badge">底层</span>
+                <span class="layer-name" id="layerLabelBg">背景</span>
+                <span class="layer-badge" id="layerBadgeBg">底层</span>
             </div>
         </div>
     </div>
