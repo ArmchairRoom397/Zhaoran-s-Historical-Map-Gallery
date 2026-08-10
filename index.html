@@ -6761,18 +6761,59 @@ function getGuestLayerConfig(item) {
                 }
             }
 
-            // 无需 XHR 的情况
+            // 无需 XHR 的情况（所有图层都已预加载）
             if (layersToLoad.length === 0) {
+                // 检查所有预加载图层是否已真正渲染
+                var allRendered = true;
                 for (var ln2 in layerLoadStates) {
+                    var layerImg = document.getElementById('layer' + capitalize(ln2));
+                    if (layerImg && layerImg.style.display !== 'none') {
+                        // 如果图层应该显示但还没完成加载，等待
+                        if (!layerImg.complete && layerImg.src) {
+                            allRendered = false;
+                            break;
+                        }
+                    }
                     layerLoadStates[ln2].done = true;
                     layerLoadStates[ln2].loaded = 1;
                     layerLoadStates[ln2].total = 1;
                 }
+
                 updateLayerLoadingDisplay();
-                setTimeout(function() {
-                    hideLoading();
-                    forceRepaint();
-                }, 150);
+
+                if (allRendered) {
+                    setTimeout(function() {
+                        hideLoading();
+                        forceRepaint();
+                    }, 300);
+                } else {
+                    // 有图层还在渲染中，延迟检查
+                    var checkRenderInterval = setInterval(function() {
+                        var allDone = true;
+                        for (var ln3 in layerLoadStates) {
+                            var img = document.getElementById('layer' + capitalize(ln3));
+                            if (img && img.style.display !== 'none' && !img.complete) {
+                                allDone = false;
+                                break;
+                            }
+                        }
+                        if (allDone) {
+                            clearInterval(checkRenderInterval);
+                            for (var ln4 in layerLoadStates) {
+                                layerLoadStates[ln4].done = true;
+                            }
+                            updateLayerLoadingDisplay();
+                            setTimeout(function() {
+                                hideLoading();
+                                forceRepaint();
+                            }, 300);
+                        }
+                    }, 100);
+                    // 5秒超时保护
+                    setTimeout(function() {
+                        clearInterval(checkRenderInterval);
+                    }, 5000);
+                }
                 return;
             }
 
@@ -6826,11 +6867,6 @@ function getGuestLayerConfig(item) {
 
             xhr.onload = function() {
                 var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = state.total || 1;
-                }
-
                 var layerImg = document.getElementById('layer' + capitalize(layer.name));
 
                 if (xhr.status === 200 && layerImg) {
@@ -6840,44 +6876,70 @@ function getGuestLayerConfig(item) {
                     var blobUrl = URL.createObjectURL(xhr.response);
                     registerBlobUrl(blobUrl, layer.name);
 
+                    // 关键修改：等待图片真正加载完成后再标记状态
+                    layerImg.onload = function() {
+                        // 图片已渲染到屏幕上
+                        if (state) {
+                            state.done = true;
+                            state.loaded = state.total || 1;
+                        }
+                        layerImg.classList.add('loaded');
+                        layerImg.style.display = 'block';
+                        layerImg.style.opacity = '1';
+
+                        // 应用 guest 作品的图层配置
+                        var currentItem2 = historyData[currentIndex];
+                        if (currentItem2 && currentItem2.era === '其他作者优秀作品' && currentItem2.layers && currentItem2.layers[layer.name]) {
+                            var guestCfg = currentItem2.layers[layer.name];
+                            layerImg.style.opacity = guestCfg.opacity;
+                            layerImg.style.zIndex = guestCfg.zIndex;
+                            layerImg.style.mixBlendMode = 'normal';
+                        }
+
+                        if (layer.name === 'bg') {
+                            mapImage.src = blobUrl;
+                            mapImage.classList.add('loaded');
+                        }
+                        console.log('✓ ' + layer.displayName + ' 图层渲染完成');
+                        updateLayerLoadingDisplay();
+                        if (onComplete) onComplete();
+                    };
+
+                    layerImg.onerror = function() {
+                        console.error('✗ ' + layer.displayName + ' 图片渲染失败');
+                        if (state) {
+                            state.done = true;
+                            state.loaded = 1;
+                        }
+                        layerImg.style.display = 'none';
+                        layerImg.classList.remove('loaded');
+                        updateLayerLoadingDisplay();
+                        if (onComplete) onComplete();
+                    };
+
+                    // 设置 src 触发加载
                     layerImg.src = blobUrl;
-                    layerImg.classList.add('loaded');
-                    layerImg.style.display = 'block';
-                    layerImg.style.opacity = '1'; // 淡入显示
 
-                    // 应用 guest 作品的图层配置（opacity、zIndex）
-                    var currentItem2 = historyData[currentIndex];
-                    if (currentItem2 && currentItem2.era === '其他作者优秀作品' && currentItem2.layers && currentItem2.layers[layer.name]) {
-                        var guestCfg = currentItem2.layers[layer.name];
-                        layerImg.style.opacity = guestCfg.opacity;
-                        layerImg.style.zIndex = guestCfg.zIndex;
-                        layerImg.style.mixBlendMode = 'normal';
-                    }
-
-                    if (layer.name === 'bg') {
-                        // 背景图层同时更新单张图片兼容
-                        mapImage.src = blobUrl;
-                        mapImage.classList.add('loaded');
-                    }
-                    console.log('✓ ' + layer.displayName + ' 专属图层加载成功');
                 } else if (xhr.status === 404 && layer.fallbackPath && layer.isUniversal) {
                     // 专属图层不存在(404)，回退到通用图层
                     console.log(layer.displayName + ' 专属图层不存在(404)，回退到通用图层');
                     if (state) state.loaded = 1;
                     loadFallbackLayer(layer, onComplete);
                     return;
-                } else if (xhr.status === 404) {
-                    console.log(layer.displayName + ' 不存在(404)');
-                    if (state) state.loaded = 1;
-                    // 隐藏该图层
+                } else {
+                    // 其他错误
+                    console.log(layer.displayName + ' 加载失败 (' + xhr.status + ')');
+                    if (state) {
+                        state.done = true;
+                        state.loaded = 1;
+                    }
                     if (layerImg) {
                         layerImg.style.display = 'none';
                         layerImg.classList.remove('loaded');
                     }
+                    updateLayerLoadingDisplay();
+                    if (onComplete) onComplete();
                 }
-
-                updateLayerLoadingDisplay();
-                if (onComplete) onComplete();
             };
 
             xhr.onerror = function() {
@@ -6886,20 +6948,16 @@ function getGuestLayerConfig(item) {
                     state.done = true;
                     state.loaded = 1;
                 }
-                // 网络错误，尝试回退
                 if (layer.fallbackPath && layer.isUniversal) {
                     console.log(layer.displayName + ' 专属图层加载失败，回退到通用图层');
                     loadFallbackLayer(layer, onComplete);
                     return;
                 }
-
-                // 隐藏该图层
                 var layerImg = document.getElementById('layer' + capitalize(layer.name));
                 if (layerImg) {
                     layerImg.style.display = 'none';
                     layerImg.classList.remove('loaded');
                 }
-
                 updateLayerLoadingDisplay();
                 if (onComplete) onComplete();
             };
@@ -6911,19 +6969,15 @@ function getGuestLayerConfig(item) {
                     state.loaded = 1;
                 }
                 console.warn('⏱ ' + layer.displayName + ' 加载超时');
-
-                // 尝试回退
                 if (layer.fallbackPath && layer.isUniversal) {
                     loadFallbackLayer(layer, onComplete);
                     return;
                 }
-
                 var layerImg = document.getElementById('layer' + capitalize(layer.name));
                 if (layerImg) {
                     layerImg.style.display = 'none';
                     layerImg.classList.remove('loaded');
                 }
-
                 updateLayerLoadingDisplay();
                 if (onComplete) onComplete();
             };
@@ -7117,11 +7171,6 @@ function getGuestLayerConfig(item) {
 
             fallbackXhr.onload = function() {
                 var state = layerLoadStates[layer.name];
-                if (state) {
-                    state.done = true;
-                    state.loaded = state.total || 1;
-                }
-
                 var layerImg = document.getElementById('layer' + capitalize(layer.name));
 
                 if (fallbackXhr.status === 200 && layerImg) {
@@ -7131,21 +7180,46 @@ function getGuestLayerConfig(item) {
                     var blobUrl = URL.createObjectURL(fallbackXhr.response);
                     registerBlobUrl(blobUrl, layer.name);
 
+                    // 等待图片真正加载完成
+                    layerImg.onload = function() {
+                        if (state) {
+                            state.done = true;
+                            state.loaded = state.total || 1;
+                        }
+                        layerImg.classList.add('loaded');
+                        layerImg.style.display = 'block';
+                        layerImg.style.opacity = '1';
+                        console.log('✓ ' + layer.displayName + ' 通用图层渲染完成');
+                        updateLayerLoadingDisplay();
+                        if (onComplete) onComplete();
+                    };
+
+                    layerImg.onerror = function() {
+                        console.error('✗ ' + layer.displayName + ' 通用图层渲染失败');
+                        if (state) {
+                            state.done = true;
+                            state.loaded = 1;
+                        }
+                        layerImg.style.display = 'none';
+                        layerImg.classList.remove('loaded');
+                        updateLayerLoadingDisplay();
+                        if (onComplete) onComplete();
+                    };
+
                     layerImg.src = blobUrl;
-                    layerImg.classList.add('loaded');
-                    layerImg.style.display = 'block';
-                    layerImg.style.opacity = '1';
-                    console.log('✓ ' + layer.displayName + ' 通用图层加载成功(后备)');
                 } else {
                     console.log('✗ ' + layer.displayName + ' 通用图层也不可用');
+                    if (state) {
+                        state.done = true;
+                        state.loaded = 1;
+                    }
                     if (layerImg) {
                         layerImg.style.display = 'none';
                         layerImg.classList.remove('loaded');
                     }
+                    updateLayerLoadingDisplay();
+                    if (onComplete) onComplete();
                 }
-
-                updateLayerLoadingDisplay();
-                if (onComplete) onComplete();
             };
 
             fallbackXhr.onerror = function() {
@@ -7155,13 +7229,11 @@ function getGuestLayerConfig(item) {
                     state.loaded = 1;
                 }
                 console.log('✗ ' + layer.displayName + ' 通用图层加载失败');
-
                 var layerImg = document.getElementById('layer' + capitalize(layer.name));
                 if (layerImg) {
                     layerImg.style.display = 'none';
                     layerImg.classList.remove('loaded');
                 }
-
                 updateLayerLoadingDisplay();
                 if (onComplete) onComplete();
             };
@@ -7173,13 +7245,11 @@ function getGuestLayerConfig(item) {
                     state.loaded = 1;
                 }
                 console.warn('⏱ ' + layer.displayName + ' 通用图层加载超时');
-
                 var layerImg = document.getElementById('layer' + capitalize(layer.name));
                 if (layerImg) {
                     layerImg.style.display = 'none';
                     layerImg.classList.remove('loaded');
                 }
-
                 updateLayerLoadingDisplay();
                 if (onComplete) onComplete();
             };
