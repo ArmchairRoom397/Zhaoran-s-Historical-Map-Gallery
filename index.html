@@ -8505,7 +8505,8 @@ let currentIndex = -1;
             // 判断是否是抗战地图
             var isAntiJapanese = path.indexOf('anti_japanese') >= 0;
 
-            var layersToLoad = [];
+            var layersToLoadXHR = [];
+            var layersToLoadImg = []; // 需要通过 img.onload 等待的图层
             var layerConfigMap = {
                 'name': { name: '地名图层', priority: 1 },
                 'river': { name: '河湖图层', priority: 2 },
@@ -8541,51 +8542,56 @@ let currentIndex = -1;
                 var layerImg = document.getElementById('layer' + capitalize(layerName));
                 var preloaded = getPreloadedLayer(layerName);
 
-                // ===== 立即显示图层（零等待）=====
-                if (layerImg) {
-                    if (layerName === 'river') {
-                        // 河湖图层：所有地图先用通用路径显示
-                        var riverSrc = preloaded ? preloaded.src : layerPath;
+                // ===== 决定加载方式 =====
+                var needsXHR = false;
+                var xhrPath = layerPath;
+                var needsImgLoad = false; // 是否需要等待 img.onload
+
+                if (layerName === 'bg' || layerName === 'name') {
+                    // 背景、地名：XHR 加载
+                    needsXHR = true;
+                } else if (layerName === 'river') {
+                    // 河湖：所有地图先用通用路径显示
+                    var riverSrc = preloaded ? preloaded.src : layerPath;
+                    if (layerImg) {
                         layerImg.src = riverSrc;
                         layerImg.classList.add('loaded');
                         layerImg.style.display = 'block';
-                    } else if (preloaded && layerName !== 'bg' && layerName !== 'name') {
-                        // 其他通用图层：有预加载则直接显示
-                        layerImg.src = preloaded.src;
-                        layerImg.classList.add('loaded');
-                        layerImg.style.display = 'block';
-                    } else if (layerName === 'bg') {
-                        // 背景：等 XHR 加载
-                        layerImg.style.display = 'block';
                     }
-                }
-
-                // ===== 决定是否需要 XHR =====
-                var needsXHR = false;
-                var xhrPath = layerPath;
-
-                if (layerName === 'bg' || layerName === 'name') {
-                    // 背景、地名：必须 XHR 加载专属
-                    needsXHR = true;
-                } else if (layerName === 'river') {
-                    // 河湖：非抗战地图不需要 XHR（通用已显示）
                     // 抗战地图：XHR 加载专属河湖图层替换通用版
                     if (isAntiJapanese && paths['river_exclusive']) {
                         needsXHR = true;
                         xhrPath = paths['river_exclusive'];
                     }
+                } else if (preloaded && layerName !== 'bg' && layerName !== 'name') {
+                    // 其他通用图层：有预加载则直接显示
+                    if (layerImg) {
+                        layerImg.src = preloaded.src;
+                        layerImg.classList.add('loaded');
+                        layerImg.style.display = 'block';
+                    }
                 } else {
-                    // 地形、国界：universal 类型，无预加载则 XHR
-                    needsXHR = !preloaded;
+                    // 需要通过 img 加载并等待 onload
+                    if (layerImg && layerPath) {
+                        needsImgLoad = true;
+                        layerImg.src = layerPath;
+                    }
                 }
 
                 if (needsXHR && xhrPath) {
-                    layersToLoad.push({
+                    layersToLoadXHR.push({
                         name: layerName,
                         displayName: config.name,
                         path: xhrPath,
                         priority: config.priority,
                         isExclusive: isAntiJapanese && layerName === 'river'
+                    });
+                }
+                if (needsImgLoad) {
+                    layersToLoadImg.push({
+                        name: layerName,
+                        displayName: config.name,
+                        img: layerImg
                     });
                 }
             }
@@ -8603,8 +8609,11 @@ let currentIndex = -1;
                 };
             }
 
-            // 无需 XHR 的情况（大部分地图）
-            if (layersToLoad.length === 0) {
+            var totalTasks = layersToLoadXHR.length + layersToLoadImg.length;
+            var completedTasks = 0;
+
+            // 没有任何需要等待的任务（理论上不会发生，但做保护）
+            if (totalTasks === 0) {
                 for (var ln2 in layerLoadStates) {
                     layerLoadStates[ln2].done = true;
                     layerLoadStates[ln2].loaded = 1;
@@ -8621,10 +8630,67 @@ let currentIndex = -1;
             showLoading(path);
             updateLayerLoadingDisplay();
 
-            var totalXHR = layersToLoad.length;
-            var completedXHR = 0;
+            // 标记 img 加载完成的回调
+            function onImgLoad(layerName) {
+                var state = layerLoadStates[layerName];
+                if (state) {
+                    state.done = true;
+                    state.loaded = 1;
+                    state.total = 1;
+                }
+                completedTasks++;
+                updateLayerLoadingDisplay();
+                checkAllDone();
+            }
 
-            layersToLoad.forEach(function(layer) {
+            function onImgError(layerName) {
+                var state = layerLoadStates[layerName];
+                if (state) {
+                    state.done = true;
+                    state.loaded = 1;
+                    state.total = 1;
+                }
+                completedTasks++;
+                console.log(layerName + ' 图层加载失败');
+                updateLayerLoadingDisplay();
+                checkAllDone();
+            }
+
+            function checkAllDone() {
+                if (completedTasks >= totalTasks) {
+                    setTimeout(function() {
+                        hideLoading();
+                        forceRepaint();
+                    }, 300);
+                }
+            }
+
+            // 绑定 img.onload / onerror
+            layersToLoadImg.forEach(function(layer) {
+                var img = layer.img;
+                var name = layer.name;
+
+                // 如果图片已经缓存完成（complete && naturalWidth > 0）
+                if (img.complete && img.naturalWidth > 0) {
+                    onImgLoad(name);
+                    img.classList.add('loaded');
+                    img.style.display = 'block';
+                } else {
+                    img.onload = function() {
+                        img.classList.add('loaded');
+                        img.style.display = 'block';
+                        onImgLoad(name);
+                    };
+                    img.onerror = function() {
+                        img.classList.remove('loaded');
+                        img.style.display = 'none';
+                        onImgError(name);
+                    };
+                }
+            });
+
+            // XHR 加载
+            layersToLoadXHR.forEach(function(layer) {
                 var xhr = new XMLHttpRequest();
                 layerXhrs[layer.name] = xhr;
 
@@ -8655,7 +8721,7 @@ let currentIndex = -1;
                         state.done = true;
                         state.loaded = state.total || 1;
                     }
-                    completedXHR++;
+                    completedTasks++;
 
                     var layerImg = document.getElementById('layer' + capitalize(layer.name));
 
@@ -8680,13 +8746,7 @@ let currentIndex = -1;
                     }
 
                     updateLayerLoadingDisplay();
-
-                    if (completedXHR >= totalXHR) {
-                        setTimeout(function() {
-                            hideLoading();
-                            forceRepaint();
-                        }, 300);
-                    }
+                    checkAllDone();
                 };
 
                 xhr.onerror = function() {
@@ -8695,14 +8755,9 @@ let currentIndex = -1;
                         state.done = true;
                         state.loaded = 1;
                     }
-                    completedXHR++;
+                    completedTasks++;
                     updateLayerLoadingDisplay();
-                    if (completedXHR >= totalXHR) {
-                        setTimeout(function() {
-                            hideLoading();
-                            forceRepaint();
-                        }, 300);
-                    }
+                    checkAllDone();
                 };
 
                 xhr.onabort = function() {
@@ -8711,13 +8766,8 @@ let currentIndex = -1;
                         state.done = true;
                         state.loaded = 1;
                     }
-                    completedXHR++;
-                    if (completedXHR >= totalXHR) {
-                        setTimeout(function() {
-                            hideLoading();
-                            forceRepaint();
-                        }, 300);
-                    }
+                    completedTasks++;
+                    checkAllDone();
                 };
 
                 xhr.send();
@@ -9729,14 +9779,30 @@ function updateQuotes(data) {
 
         // ========== 防盗图保护系统（多层防护）==========        // ========== 防盗图保护系统（多层防护）==========
         function setupImageProtection() {
-            // 第一层：禁止右键菜单
+            // 第一层：全局禁止右键菜单（覆盖所有区域）
             document.addEventListener('contextmenu', function(e) {
-                if (e.target.tagName === 'IMG' || e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showProtectToast();
-                    return false;
+                // 允许输入框、文本域、编辑区域的右键（用于正常编辑操作）
+                var tagName = e.target.tagName;
+                var isInput = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+                var isEditable = e.target.isContentEditable;
+                var inSettings = e.target.closest('.settings-panel') || e.target.closest('#settingsPanel');
+                var inHelp = e.target.closest('.help-panel') || e.target.closest('#helpPanel');
+                var inAdmin = e.target.closest('.admin-login-modal') || e.target.closest('#adminLoginOverlay');
+
+                // 在设置面板、帮助面板、管理员登录框中允许右键（方便复制设置值）
+                if (isInput || isEditable || inSettings || inHelp || inAdmin) {
+                    return true;
                 }
+
+                // 其他所有区域禁止右键
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 如果在图片或地图区域，显示防盗图提示
+                if (e.target.tagName === 'IMG' || e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
+                    showProtectToast();
+                }
+                return false;
             }, true);
 
             // 第二层：禁止拖拽
@@ -9750,7 +9816,22 @@ function updateQuotes(data) {
 
             // 第三层：禁止复制
             document.addEventListener('copy', function(e) {
-                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
+                var tagName = e.target.tagName;
+                var isInput = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+                var isEditable = e.target.isContentEditable;
+                var inSettings = e.target.closest('.settings-panel') || e.target.closest('#settingsPanel');
+                var inHelp = e.target.closest('.help-panel') || e.target.closest('#helpPanel');
+                var inAdmin = e.target.closest('.admin-login-modal') || e.target.closest('#adminLoginOverlay');
+
+                // 允许输入框和设置面板中的复制
+                if (isInput || isEditable || inSettings || inHelp || inAdmin) {
+                    return true;
+                }
+
+                // 禁止地图区域和文字区域的复制
+                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper') || 
+                    e.target.closest('.info-panel') || e.target.closest('.timeline-panel') ||
+                    e.target.closest('.title-screen') || e.target.closest('.container')) {
                     e.preventDefault();
                     e.stopPropagation();
                     showProtectToast();
@@ -9760,7 +9841,20 @@ function updateQuotes(data) {
 
             // 第四层：禁止剪切
             document.addEventListener('cut', function(e) {
-                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
+                var tagName = e.target.tagName;
+                var isInput = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+                var isEditable = e.target.isContentEditable;
+                var inSettings = e.target.closest('.settings-panel') || e.target.closest('#settingsPanel');
+                var inHelp = e.target.closest('.help-panel') || e.target.closest('#helpPanel');
+                var inAdmin = e.target.closest('.admin-login-modal') || e.target.closest('#adminLoginOverlay');
+
+                if (isInput || isEditable || inSettings || inHelp || inAdmin) {
+                    return true;
+                }
+
+                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper') || 
+                    e.target.closest('.info-panel') || e.target.closest('.timeline-panel') ||
+                    e.target.closest('.title-screen') || e.target.closest('.container')) {
                     e.preventDefault();
                     e.stopPropagation();
                     return false;
@@ -9769,7 +9863,22 @@ function updateQuotes(data) {
 
             // 第五层：禁止选择（防止Ctrl+C复制图片地址）
             document.addEventListener('selectstart', function(e) {
-                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper')) {
+                var tagName = e.target.tagName;
+                var isInput = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+                var isEditable = e.target.isContentEditable;
+                var inSettings = e.target.closest('.settings-panel') || e.target.closest('#settingsPanel');
+                var inHelp = e.target.closest('.help-panel') || e.target.closest('#helpPanel');
+                var inAdmin = e.target.closest('.admin-login-modal') || e.target.closest('#adminLoginOverlay');
+
+                // 允许输入框和设置面板中的选择
+                if (isInput || isEditable || inSettings || inHelp || inAdmin) {
+                    return true;
+                }
+
+                // 禁止地图区域和文字区域的选择
+                if (e.target.closest('.map-viewport') || e.target.closest('.map-wrapper') || 
+                    e.target.closest('.info-panel') || e.target.closest('.timeline-panel') ||
+                    e.target.closest('.title-screen') || e.target.closest('.container')) {
                     e.preventDefault();
                     return false;
                 }
