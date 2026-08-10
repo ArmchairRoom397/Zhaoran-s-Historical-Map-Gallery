@@ -8839,7 +8839,51 @@ let currentIndex = -1;
             document.getElementById('metaCount').textContent = data.count;
             document.getElementById('metaIndex').textContent = `${index + 1} / ${historyData.length}`;
 
+            // 其他作者作品：显示作者信息
+            updateAuthorInfo(data);
+
             updateEraIntroCard(data.era, data.periodBg);
+        }
+
+        function updateAuthorInfo(data) {
+            const infoContent = document.querySelector('.info-content');
+            // 移除旧的作者信息卡片
+            const oldAuthorCard = document.getElementById('authorInfoCard');
+            if (oldAuthorCard) oldAuthorCard.remove();
+
+            if (data.era === '其他作者优秀作品' && data.author) {
+                const authorCard = document.createElement('div');
+                authorCard.id = 'authorInfoCard';
+                authorCard.className = 'info-section';
+                authorCard.style.animationDelay = '0.1s';
+
+                const authorLink = data.authorLink ? `<a href="${data.authorLink}" target="_blank" style="color: var(--gold); text-decoration: none;">${data.author}</a>` : data.author;
+                const orgText = data.organization ? `<div class="meta-item" style="border-bottom: none; padding: 4px 0;"><span class="meta-label">所属社团</span><span class="meta-value">${data.organization}</span></div>` : '';
+
+                authorCard.innerHTML = `
+                    <div class="section-title">✍️ 作者信息</div>
+                    <div class="meta-list" style="margin-top: 8px;">
+                        <div class="meta-item" style="border-bottom: none; padding: 4px 0;">
+                            <span class="meta-label">作者</span>
+                            <span class="meta-value">${authorLink}</span>
+                        </div>
+                        ${orgText}
+                    </div>
+                `;
+
+                // 插入到时期背景卡片之后（如果存在）或第一个位置
+                const periodCard = document.getElementById('periodBgCard');
+                if (periodCard && periodCard.style.display !== 'none') {
+                    periodCard.after(authorCard);
+                } else {
+                    const firstSection = infoContent.querySelector('.info-section');
+                    if (firstSection) {
+                        infoContent.insertBefore(authorCard, firstSection);
+                    } else {
+                        infoContent.appendChild(authorCard);
+                    }
+                }
+            }
         }
 
         function updateEraIntroCard(era, periodBg) {
