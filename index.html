@@ -4509,6 +4509,1115 @@
     
     
 
+    
+
+        /* ===== 增强动画效果 ===== */
+
+        /* 1. 时间轴项目入场动画（仅在首次加载时触发） */
+        .timeline-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-list.initial-load .timeline-item {
+            animation: slideInLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .timeline-list.initial-load .timeline-item:nth-child(1) { animation-delay: 0.02s; }
+        .timeline-list.initial-load .timeline-item:nth-child(2) { animation-delay: 0.04s; }
+        .timeline-list.initial-load .timeline-item:nth-child(3) { animation-delay: 0.06s; }
+        .timeline-list.initial-load .timeline-item:nth-child(4) { animation-delay: 0.08s; }
+        .timeline-list.initial-load .timeline-item:nth-child(5) { animation-delay: 0.10s; }
+        .timeline-list.initial-load .timeline-item:nth-child(6) { animation-delay: 0.12s; }
+        .timeline-list.initial-load .timeline-item:nth-child(7) { animation-delay: 0.14s; }
+        .timeline-list.initial-load .timeline-item:nth-child(8) { animation-delay: 0.16s; }
+        .timeline-list.initial-load .timeline-item:nth-child(9) { animation-delay: 0.18s; }
+        .timeline-list.initial-load .timeline-item:nth-child(10) { animation-delay: 0.20s; }
+        .timeline-list.initial-load .timeline-item:nth-child(n+11) { animation-delay: 0.22s; }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 2. 时间轴项目悬停光效 */
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+            pointer-events: none;
+            border-radius: 6px;
+        }
+
+        .timeline-item:hover::after {
+            transform: translateX(100%);
+        }
+
+        body.bronze-theme .timeline-item::after {
+            background: linear-gradient(90deg, transparent, rgba(127, 176, 105, 0.08), transparent);
+        }
+
+        body.cinnabar-theme .timeline-item::after {
+            background: linear-gradient(90deg, transparent, rgba(192, 57, 43, 0.08), transparent);
+        }
+
+        /* 3. 信息面板卡片悬浮效果 */
+        .info-section {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+        }
+
+        .info-section:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 4. 元数据项悬停高亮 */
+        .meta-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meta-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--gold);
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .meta-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .meta-item:hover {
+            background: rgba(212, 175, 55, 0.03);
+            padding-left: 12px;
+        }
+
+        body.rice-paper-theme .meta-item:hover {
+            background: rgba(139, 69, 19, 0.03);
+        }
+
+        /* 5. 导航按钮脉冲动画 */
+        .nav-btn:not(:disabled) {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn:not(:disabled)::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(212, 175, 55, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .nav-btn:not(:disabled):active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* 6. 控制按钮呼吸光效 */
+        .control-btn {
+            animation: controlGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes controlGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+            50% { box-shadow: 0 0 15px 2px rgba(212, 175, 55, 0.15); }
+        }
+
+        body.bronze-theme .control-btn {
+            animation: controlGlowBronze 3s ease-in-out infinite;
+        }
+
+        @keyframes controlGlowBronze {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(127, 176, 105, 0); }
+            50% { box-shadow: 0 0 15px 2px rgba(127, 176, 105, 0.15); }
+        }
+
+        body.cinnabar-theme .control-btn {
+            animation: controlGlowCinnabar 3s ease-in-out infinite;
+        }
+
+        @keyframes controlGlowCinnabar {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+            50% { box-shadow: 0 0 15px 2px rgba(192, 57, 43, 0.15); }
+        }
+
+        /* 7. 设置和帮助按钮悬停旋转 */
+        .settings-btn:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .help-btn:hover {
+            transform: scale(1.15) rotate(-10deg);
+        }
+
+        /* 8. 搜索框聚焦扩展动画 */
+        .search-input {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .search-input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        /* 9. 时期标签入场动画（仅在初始加载时触发） */
+        .era-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-list.initial-load .era-label {
+            animation: eraSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        @keyframes eraSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 10. 名言横幅（简化效果） */
+        .quote-banner {
+            position: relative;
+        }
+
+        /* 11. 页脚名言（简化动画） */
+        .footer-quote {
+            /* 持续淡入淡出动画已简化 */
+        }
+
+        /* 12. 地图加载时的缩放入场 */
+        .layer-image.loaded {
+            animation: mapZoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes mapZoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* 13. 移动端标签栏图标弹跳 */
+        .mobile-tab.active .mobile-tab-icon {
+            animation: iconBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes iconBounce {
+            0% { transform: scale(1) translateY(0); }
+            40% { transform: scale(1.2) translateY(-4px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+
+        /* 14. 侧边栏切换按钮悬停滑动 */
+        .sidebar-toggle {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .sidebar-toggle:hover {
+            width: 36px;
+            letter-spacing: 2px;
+        }
+
+        /* 15. 讨论区卡片悬停抬升 */
+        .discussion-card {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .discussion-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        body.rice-paper-theme .discussion-card:hover {
+            border-color: rgba(139, 69, 19, 0.3);
+        }
+
+        /* 16. 讨论项交错入场（仅在列表更新时触发） */
+        .discussion-item {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .discussion-list.animating .discussion-item {
+            animation: discussionSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        .discussion-list.animating .discussion-item:nth-child(1) { animation-delay: 0s; }
+        .discussion-list.animating .discussion-item:nth-child(2) { animation-delay: 0.05s; }
+        .discussion-list.animating .discussion-item:nth-child(3) { animation-delay: 0.1s; }
+        .discussion-list.animating .discussion-item:nth-child(4) { animation-delay: 0.15s; }
+        .discussion-list.animating .discussion-item:nth-child(5) { animation-delay: 0.2s; }
+        .discussion-list.animating .discussion-item:nth-child(n+6) { animation-delay: 0.25s; }
+
+        @keyframes discussionSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 17. 精华标签闪烁 */
+        .essential-badge {
+            animation: essentialPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes essentialPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 208, 63, 0.3); }
+            50% { box-shadow: 0 0 8px 2px rgba(244, 208, 63, 0.2); }
+        }
+
+        /* 18. 分享按钮渐变流光 */
+        .share-card-btn.primary {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .share-card-btn.primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .share-card-btn.primary:hover::before {
+            left: 100%;
+        }
+
+        /* 19. 加载进度条流光效果 */
+        .loading-progress-bar {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: progressShine 1.5s ease-in-out infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* 20. 主题选项悬停3D倾斜 */
+        .theme-option {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .theme-option:hover {
+            transform: translateY(-5px) scale(1.03) rotateX(5deg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* 21. 质量选项悬停弹跳 */
+        .quality-option {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .quality-option:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .quality-option.active {
+            animation: qualityActive 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes qualityActive {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1.03); }
+        }
+
+        /* 22. 帮助面板内容区交错入场（仅在面板打开时触发） */
+        .help-section {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .help-panel.open .help-section {
+            animation: helpSectionSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .help-panel.open .help-section:nth-child(1) { animation-delay: 0.05s; }
+        .help-panel.open .help-section:nth-child(2) { animation-delay: 0.1s; }
+        .help-panel.open .help-section:nth-child(3) { animation-delay: 0.15s; }
+        .help-panel.open .help-section:nth-child(4) { animation-delay: 0.2s; }
+        .help-panel.open .help-section:nth-child(5) { animation-delay: 0.25s; }
+        .help-panel.open .help-section:nth-child(6) { animation-delay: 0.3s; }
+
+        @keyframes helpSectionSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 23. 图层项悬停滑动 */
+        .layer-item {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .layer-item:hover {
+            transform: translateX(8px);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        /* 24. 博物馆标题微光效果 */
+        .museum-title {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .museum-title::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation: titleShine 4s ease-in-out infinite;
+        }
+
+        @keyframes titleShine {
+            0% { left: -100%; }
+            50%, 100% { left: 150%; }
+        }
+
+        /* 25. 当前年份数字闪烁 */
+        .current-year {
+            animation: yearGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes yearGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+            50% { text-shadow: 0 0 30px rgba(212, 175, 55, 0.6), 0 0 60px rgba(212, 175, 55, 0.2); }
+        }
+
+        body.bronze-theme .current-year {
+            animation: yearGlowBronze 3s ease-in-out infinite;
+        }
+
+        @keyframes yearGlowBronze {
+            0%, 100% { text-shadow: 0 0 20px rgba(127, 176, 105, 0.3); }
+            50% { text-shadow: 0 0 30px rgba(127, 176, 105, 0.6), 0 0 60px rgba(127, 176, 105, 0.2); }
+        }
+
+        body.cinnabar-theme .current-year {
+            animation: yearGlowCinnabar 3s ease-in-out infinite;
+        }
+
+        @keyframes yearGlowCinnabar {
+            0%, 100% { text-shadow: 0 0 20px rgba(192, 57, 43, 0.3); }
+            50% { text-shadow: 0 0 30px rgba(192, 57, 43, 0.6), 0 0 60px rgba(192, 57, 43, 0.2); }
+        }
+
+        /* 26. 在位君主标签呼吸 */
+        .current-reign {
+            animation: reignBreathe 4s ease-in-out infinite;
+        }
+
+        @keyframes reignBreathe {
+            0%, 100% { border-color: rgba(212, 175, 55, 0.3); }
+            50% { border-color: rgba(212, 175, 55, 0.6); }
+        }
+
+        /* 27. 时期背景卡片展开动画 */
+        .era-intro-card {
+            animation: cardExpand 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform-origin: top center;
+        }
+
+        @keyframes cardExpand {
+            from {
+                opacity: 0;
+                transform: scaleY(0.8) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: scaleY(1) translateY(0);
+            }
+        }
+
+        /* 28. 提交按钮点击波纹 */
+        .discussion-submit-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .discussion-submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .discussion-submit-btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* 29. 切换开关弹性动画 */
+        .toggle-track {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .toggle-track.active {
+            animation: toggleBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes toggleBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 30. 滑动指示条脉冲 */
+        .swipe-indicator {
+            animation: swipePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes swipePulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* 31. 管理员指示器更明显的脉冲 */
+        .admin-mode-indicator.show {
+            animation: adminPulse 2s ease-in-out infinite, adminSlideDown 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes adminSlideDown {
+            from {
+                transform: translateX(-50%) translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* 32. 角落装饰持续微动 */
+        .corner-ornament {
+            animation: cornerFloat 6s ease-in-out infinite;
+        }
+
+        .corner-ornament.top-left { animation-delay: 0s; }
+        .corner-ornament.top-right { animation-delay: 1.5s; }
+        .corner-ornament.bottom-left { animation-delay: 3s; }
+        .corner-ornament.bottom-right { animation-delay: 4.5s; }
+
+        @keyframes cornerFloat {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2px, -2px); }
+            50% { transform: translate(0, 0); }
+            75% { transform: translate(-2px, 2px); }
+        }
+
+        /* 33. 欢迎界面图标浮动 */
+        .placeholder-icon {
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 34. 输入框标签选择弹跳 */
+        .discussion-tag-option {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .discussion-tag-option:hover {
+            transform: scale(1.08);
+        }
+
+        .discussion-tag-option.active {
+            animation: tagPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes tagPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* 35. 感谢标签悬停翻转 */
+        .thanks-tag {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .thanks-tag:hover {
+            transform: translateY(-3px) rotate(-2deg);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+        }
+
+        /* 36. 快捷键列表项悬停高亮 */
+        .shortcut-list {
+            transition: all 0.3s ease;
+        }
+
+        .shortcut-key {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .shortcut-key:hover {
+            transform: scale(1.1);
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--gold);
+        }
+
+        /* 37. 联系信息行悬停 */
+        .contact-row {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .contact-row:hover {
+            transform: translateX(5px);
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        /* 38. 指南项悬停 */
+        .guide-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .guide-item:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        .guide-item:hover .guide-icon {
+            animation: iconWiggle 0.5s ease;
+        }
+
+        @keyframes iconWiggle {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        /* 39. 图层面板展开动画 */
+        .layer-panel.show {
+            animation: layerPanelSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes layerPanelSlideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+        }
+
+        /* 40. 分享弹窗缩放入场 */
+        .share-modal-overlay.show .share-modal {
+            animation: shareModalBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes shareModalBounce {
+            0% {
+                transform: scale(0.8) translateY(40px);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.02) translateY(-5px);
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* 41. 加载文字闪烁 */
+        .loading-text {
+            animation: loadingTextPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loadingTextPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* 42. 加载百分比（简化） */
+        .loading-percent {
+            /* 跳动动画已简化 */
+        }
+
+        /* 43. 顶部装饰线流光 */
+        .ornament-line {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ornament-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+            animation: lineShine 3s ease-in-out infinite;
+        }
+
+        @keyframes lineShine {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        /* 44. 分隔线装饰 */
+        .title-divider {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title-divider::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 30%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
+            animation: dividerShine 4s ease-in-out infinite;
+        }
+
+        @keyframes dividerShine {
+            0% { left: -30%; }
+            100% { left: 130%; }
+        }
+
+        /* 45. 滚动提示线脉冲 */
+        .scroll-line {
+            animation: scrollLinePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollLinePulse {
+            0%, 100% { 
+                opacity: 0.3; 
+                transform: scaleY(1);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scaleY(1.3);
+            }
+        }
+
+        /* 46. 设置面板滑入增强 */
+        .settings-panel.open {
+            animation: settingsSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes settingsSlideIn {
+            from {
+                transform: translateX(30px);
+                opacity: 0.8;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 47. 帮助面板滑入增强 */
+        .help-panel.open {
+            animation: helpSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes helpSlideIn {
+            from {
+                transform: translateX(30px);
+                opacity: 0.8;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 48. 关闭按钮悬停旋转 */
+        .close-settings:hover,
+        .close-help:hover,
+        .share-modal-close:hover,
+        .layer-panel-close:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .close-settings,
+        .close-help,
+        .share-modal-close,
+        .layer-panel-close {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 49. 移动端标签切换滑动 */
+        .mobile-tab {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: translateX(-50%);
+        }
+
+        .mobile-tab.active::after {
+            width: 60%;
+        }
+
+        /* 50. 竖屏导航按钮悬停 */
+        .portrait-nav .nav-btn {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .portrait-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        /* 51. 图片保护提示弹跳入场 */
+        .protect-toast.show {
+            animation: toastBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes toastBounce {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            60% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 52. 画质切换提示 */
+        #qualityToast {
+            animation: qualityToastBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes qualityToastBounce {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-10deg); }
+            60% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0); }
+        }
+
+        /* 53. 时期详情项悬停 */
+        .era-detail-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .era-detail-item:hover {
+            transform: translateX(5px);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        /* 54. 搜索无结果提示 */
+        .timeline-item.hidden {
+            animation: itemHide 0.3s ease forwards;
+        }
+
+        @keyframes itemHide {
+            to {
+                opacity: 0;
+                transform: scale(0.9);
+                height: 0;
+                padding: 0;
+                margin: 0;
+            }
+        }
+
+        /* 55. 年份徽章微光 */
+        .year-badge {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .year-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: badgeShine 3s ease-in-out infinite;
+        }
+
+        @keyframes badgeShine {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        /* 56. 主标题火焰效果增强（已移除呼吸动画避免布局问题） */
+        .main-title {
+            /* 动画已移除，保留原有火焰伪元素效果 */
+        }
+
+        /* 57. 副标题动画（已简化避免干扰布局） */
+        .subtitle {
+            /* 保留原有入场动画，移除持续闪烁 */
+        }
+
+        /* 58. 进入按钮光晕脉冲（简化版） */
+        .enter-button {
+            animation: enterButtonGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes enterButtonGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+            50% { box-shadow: 0 0 15px 2px rgba(212, 175, 55, 0.1); }
+        }
+
+        body.bronze-theme .enter-button {
+            animation: enterButtonGlowBronze 3s ease-in-out infinite;
+        }
+
+        @keyframes enterButtonGlowBronze {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(127, 176, 105, 0); }
+            50% { box-shadow: 0 0 15px 2px rgba(127, 176, 105, 0.1); }
+        }
+
+        body.cinnabar-theme .enter-button {
+            animation: enterButtonGlowCinnabar 3s ease-in-out infinite;
+        }
+
+        @keyframes enterButtonGlowCinnabar {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+            50% { box-shadow: 0 0 15px 2px rgba(192, 57, 43, 0.1); }
+        }
+
+        /* 59. 过渡墨滴增强 */
+        .ink-drop {
+            filter: blur(2px);
+        }
+
+        /* 60. 地图视口背景（移除动画避免性能问题） */
+        .map-viewport {
+            /* 背景动画已移除 */
+        }
+
+        /* 61. 信息面板头部（简化） */
+        .info-header::after {
+            /* 渐变流动动画已简化 */
+        }
+
+        /* 62. 底部页脚（已简化） */
+        /* 占位已移除 */
+
+        /* 63. 图层复选框点击反馈 */
+        .layer-checkbox {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .layer-checkbox:active {
+            transform: scale(1.3);
+        }
+
+        /* 64. 讨论区输入框聚焦扩展 */
+        .discussion-input:focus,
+        .discussion-textarea:focus,
+        .reply-textarea:focus {
+            transform: scale(1.01);
+        }
+
+        /* 65. 回复区域展开动画 */
+        .reply-input-area.show {
+            animation: replyExpand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes replyExpand {
+            from {
+                opacity: 0;
+                transform: scaleY(0.8);
+                transform-origin: top;
+            }
+            to {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+        }
+
+        /* 66. @下拉框入场 */
+        .mention-dropdown.show {
+            animation: dropdownPop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes dropdownPop {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* 67. 图片预览入场 */
+        .discussion-image-preview.show {
+            animation: imagePreviewPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes imagePreviewPop {
+            from {
+                opacity: 0;
+                transform: scale(0.5) rotate(-5deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0);
+            }
+        }
+
+        /* 68. 管理员登录弹窗增强 */
+        .admin-login-modal {
+            animation: adminModalBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes adminModalBounce {
+            0% { transform: scale(0.8) rotate(-5deg); }
+            60% { transform: scale(1.02) rotate(2deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        /* 69. 滑动手势提示淡入 */
+        .swipe-hint.show {
+            animation: hintFadeIn 0.3s ease;
+        }
+
+        @keyframes hintFadeIn {
+            from { opacity: 0; transform: translateY(-50%) translateX(-10px); }
+            to { opacity: 1; transform: translateY(-50%) translateX(0); }
+        }
+
+        /* 70. 空状态图标浮动 */
+        .discussion-empty-icon {
+            animation: emptyIconFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes emptyIconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* 71. 访问统计数字高亮 */
+        #visitorNumber {
+            animation: numberGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes numberGlow {
+            0%, 100% { text-shadow: 0 0 5px rgba(212, 175, 55, 0.3); }
+            50% { text-shadow: 0 0 15px rgba(212, 175, 55, 0.6); }
+        }
+
+        /* 72. 缩放级别显示脉冲 */
+        .zoom-level {
+            animation: zoomLevelPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes zoomLevelPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+            50% { box-shadow: 0 0 10px 2px rgba(212, 175, 55, 0.1); }
+        }
+
+        /* 73. 时期标签引用文字闪烁 */
+        .era-quote {
+            animation: eraQuoteShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes eraQuoteShimmer {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* 74. 列表滚动条（简化） */
+        .timeline-list::-webkit-scrollbar-thumb {
+            /* 闪光动画已简化 */
+        }
+
+        /* 75. 标题屏幕背景（移除动画避免性能问题） */
+        .title-screen::before {
+            /* 背景动画已移除，保持静态纹理 */
+        }
     </style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录61幅中国历史地图，从史前文明到当代中国，串联华夏文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,昭燃,地图馆,华夏文明">
@@ -4702,6 +5811,8 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -4814,27 +5925,9 @@
 
         </div>
 
-        <div class="settings-section">
-            <label class="settings-label">管理员模式</label>
-            <div class="toggle-switch" onclick="toggleAdminLogin()" id="adminToggle">
-                <div class="toggle-track" id="adminToggleTrack">
-                    <div class="toggle-thumb"></div>
-                </div>
-                <span class="toggle-label" id="adminToggleLabel">未登录</span>
-            </div>
-            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 8px; line-height: 1.5;">
-                管理员可以删除所有评论，普通用户只能删除自己的评论。
-            </div>
-        </div>
+        
 
-        <div class="settings-section">
-            <label class="settings-label">关于</label>
-            <div style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">
-                <p>昭燃的历史地图馆</p>
-                <p style="margin-top: 10px;">以史为鉴，可以知兴替</p>
-                <p style="margin-top: 10px;">共收录 61 幅历史地图</p>
-            </div>
-        </div>
+        
     </div>
 
     <!-- 帮助面板 -->
@@ -4850,9 +5943,10 @@
             <div class="help-section">
                 <div class="help-section-title">关于地图馆</div>
                 <div class="help-section-content">
-                    <p><strong>昭燃的历史地图馆</strong>是一个专注于中国历史地理可视化的在线展馆，收录了从史前文明到当代中国的 61 幅历史地图。</p>
-                    <p>本馆以"以史为鉴，可以知兴替"为理念，通过交互式地图浏览，帮助用户直观地理解中国历代疆域变迁、政权更迭与文明演进。</p>
-                    <p>地图按时间顺序排列，涵盖史前时期、早期国家、帝国形成、成熟帝国、传统社会、中国近代、中国现代七大历史时期。</p>
+                    <p><strong>昭燃的历史地图馆</strong>是一个专注于中外历史地理数字化展示的在线平台，致力于通过电子历史地图为用户呈现跨越时空的历史图景。</p>
+                    <p>地图馆收录了作者昭燃从史前文明到当代中国的 61 幅历史地图，涵盖中国历史七大时期——史前时期、早期国家、帝国形成、成熟帝国、传统社会、中国近代与中国现代。同时精选其他作者的中外历史地图作品，展现全球视野下的历史地理变迁。</p>
+                    <p>本馆以"以史为鉴，可以知兴替"为核心理念，采用多图层叠加渲染技术（背景、地形、国界、河湖、地名五层独立控制），支持原画/高画质/低画质三级画质调节，适配桌面端、平板与移动设备多场景浏览。用户可通过时间轴、搜索、键盘快捷键等多种方式探索地图，深入了解历代疆域变迁、政权更迭与文明演进。</p>
+                    <p>平台还提供学术讨论区，支持用户发表见解、互动交流，构建历史地理爱好者的知识共享社区。</p>
                 </div>
             </div>
 
@@ -4933,7 +6027,7 @@
                         <span class="contact-icon">📺</span>
                         <div class="contact-info-text">
                             <strong>Bilibili</strong>
-                            昭燃墨客
+                            <a href="https://space.bilibili.com/1807601961" target="_blank" style="color: var(--gold); text-decoration: none;">昭燃墨客</a>
                         </div>
                     </div>
                     <div class="contact-row">
@@ -4954,7 +6048,6 @@
                 </div>
                 <div class="thanks-list">
                     <span class="thanks-tag highlight">地图制作院</span>
-                    <span class="thanks-tag highlight">史图馆</span>
                     <span class="thanks-tag highlight">KimiAI</span>
                 </div>
             </div>
@@ -4963,7 +6056,7 @@
             <div class="help-section">
                 <div class="help-section-title">ℹ️ 版本信息</div>
                 <div class="help-section-content">
-                    <p>昭燃的历史地图馆 v1.0</p>
+                    <p>昭燃的历史地图馆 v1.0 正式版</p>
                     <p>共收录 61 幅历史地图 · 涵盖 7 大历史时期</p>
                     <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.7;">© 2024 昭燃 · 以史为鉴，可以知兴替</p>
                 </div>
@@ -4979,7 +6072,7 @@
     </div>
 
     <!-- 标题界面 -->
-    <div class="title-screen" id="titleScreen">
+    <div class="title-screen" id="titleScreen" onclick="enterMuseum()">
         <div class="corner-ornament top-left"></div>
         <div class="corner-ornament top-right"></div>
         <div class="corner-ornament bottom-left"></div>
@@ -5002,11 +6095,11 @@
                 <p class="quote-author">—— 司马迁《报任安书》</p>
             </div>
             
-            <button class="enter-button" onclick="enterMuseum()" id="enterButton">进入展馆</button>
+            <button class="enter-button" onclick="event.stopPropagation(); enterMuseum();" id="enterButton">点击任意区域进入展馆</button>
         </div>
 
         <div class="bottom-ornament">
-            <p class="scroll-hint">点击按钮开启时空之旅</p>
+            <p class="scroll-hint">点击任意区域开启时空之旅</p>
             <div class="scroll-line"></div>
         </div>
     </div>
@@ -5255,7 +6348,10 @@
     <script>
         // 进入展馆函数 - 带历史感动画
         function enterMuseum() {
+            // 防止重复触发
             const titleScreen = document.getElementById('titleScreen');
+            if (titleScreen.classList.contains('hidden')) return;
+
             const mainContainer = document.getElementById('mainContainer');
             const transitionOverlay = document.getElementById('transitionOverlay');
             
@@ -6874,7 +7970,14 @@ let currentIndex = -1;
                         <span class="era-quote">${getEraQuote(currentEra)}</span>
                     `;
                     list.appendChild(eraDiv);
-                }
+                
+
+            // 添加初始加载动画类，稍后移除
+            list.classList.add('initial-load');
+            setTimeout(function() {
+                list.classList.remove('initial-load');
+            }, 1000);
+        }
 
                 const div = document.createElement('div');
                 div.className = 'timeline-item';
@@ -9571,7 +10674,13 @@ function initApp() {
                     var item = allDiscussions[i];
                     html += renderDiscussionItem(item, tagLabels, myName, likesMap, myLikes, repliesMap);
                 }
-                listEl.innerHTML = html;
+                
+            // 添加动画类
+            listEl.classList.add('animating');
+            setTimeout(function() {
+                listEl.classList.remove('animating');
+            }, 800);
+            listEl.innerHTML = html;
             } catch (e) {
                 console.error('加载评论错误:', e);
                 listEl.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⚠️</div><div>加载失败</div></div>';
