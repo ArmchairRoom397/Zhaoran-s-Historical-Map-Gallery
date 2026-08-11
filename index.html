@@ -1474,6 +1474,17 @@
             z-index: 100;
         }
 
+        .map-controls-left {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+        }
+
         .control-btn {
             width: 44px;
             height: 44px;
@@ -2261,6 +2272,11 @@
                 right: 12px;
             }
 
+            .map-controls-left {
+                bottom: 80px;
+                left: 12px;
+            }
+
             .control-btn {
                 width: 40px;
                 height: 40px;
@@ -2397,6 +2413,11 @@
             .map-controls {
                 bottom: 65px;
                 right: 12px;
+            }
+
+            .map-controls-left {
+                bottom: 65px;
+                left: 12px;
             }
 
             .control-btn {
@@ -6187,6 +6208,9 @@
             <button class="control-btn" onclick="toggleLayerPanel()" title="图层控制">🧩</button>
             <div class="zoom-level" id="zoomLevel">100%</div>
         </div>
+        <div class="map-controls-left" id="mapControlsLeft">
+            <button class="control-btn" onclick="reloadCurrentMap()" title="重新加载该地图">🔄</button>
+        </div>
         </div>
 
         <!-- 右侧信息面板 -->
@@ -9742,6 +9766,28 @@ function updateQuotes(data) {
                 scale = newScale;
                 updateTransform();
             }
+        }
+
+        // 重新加载当前地图
+        function reloadCurrentMap() {
+            if (currentIndex < 0 || currentIndex >= historyData.length) return;
+            const data = historyData[currentIndex];
+            // 中止当前加载
+            abortAllLayerLoads();
+            abortCurrentLoad();
+            // 重置视图
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+            // 清除图层缓存
+            const layers = document.querySelectorAll('.layer-image');
+            layers.forEach(function(layer) {
+                layer.classList.remove('loaded');
+                layer.style.display = 'none';
+            });
+            // 重新加载
+            loadImageWithProgress(data.path);
         }
 
         function resetView() {
