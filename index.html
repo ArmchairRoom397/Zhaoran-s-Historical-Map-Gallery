@@ -5839,6 +5839,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -8670,8 +8671,12 @@ let currentIndex = -1;
             }
 
             // ===== 我的地图：使用通用 + 专属图层系统 =====
+            // 世界历史专栏：不加载通用河湖、国界、地形图层，只加载专属图层
+            const isWorldHistory = data.era === '世界历史';
             for (const [key, config] of Object.entries(layerConfig)) {
                 if (config.type === 'universal') {
+                    // 世界历史不加载通用图层
+                    if (isWorldHistory) continue;
                     layers[key] = config.path;
                 } else {
                     // 专属图层：基于当前地图路径生成
