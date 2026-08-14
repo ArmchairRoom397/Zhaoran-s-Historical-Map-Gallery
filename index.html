@@ -919,6 +919,7 @@
         .timeline-list {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 8px;
             -webkit-overflow-scrolling: touch;
         }
@@ -1015,7 +1016,7 @@
         }
 
         .timeline-item.active {
-            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), transparent);
+            background: var(--bg-hover);
             border-left-color: var(--gold);
         }
 
@@ -2115,6 +2116,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
+        
 
         .theme-option {
             padding: 15px;
@@ -2124,6 +2126,7 @@
             text-align: center;
             transition: all 0.3s;
         }
+        
 
         .theme-option:hover {
             border-color: var(--gold);
@@ -3748,33 +3751,6 @@
             background: rgba(233, 69, 96, 0.1);
         }
 
-        /* 管理员精华操作 */
-        .admin-essential-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: all 0.2s;
-            opacity: 0;
-        }
-
-        .discussion-item:hover .admin-essential-btn {
-            opacity: 1;
-        }
-
-        .admin-essential-btn:hover {
-            color: #f4d03f;
-            background: rgba(244, 208, 63, 0.1);
-        }
-
-        .admin-essential-btn.is-essential {
-            opacity: 1;
-            color: #f4d03f;
-        }
-
         /* 分享弹窗 */
         .share-modal-overlay {
             position: fixed;
@@ -3953,182 +3929,6 @@
                 padding: 12px;
                 gap: 10px;
             }
-        }
-
-        /* ===== 管理员模式 ===== */
-        .admin-mode-indicator {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.9), rgba(233, 69, 96, 0.9));
-            color: #fff;
-            padding: 8px 24px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            z-index: 2000;
-            letter-spacing: 2px;
-            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
-            animation: adminPulse 2s ease-in-out infinite;
-            display: none;
-        }
-
-        .admin-mode-indicator.show {
-            display: block;
-        }
-
-        @keyframes adminPulse {
-            0%, 100% { box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4); }
-            50% { box-shadow: 0 4px 30px rgba(233, 69, 96, 0.6); }
-        }
-
-        .admin-login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 3000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .admin-login-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .admin-login-modal {
-            background: var(--bg-panel);
-            border: 2px solid var(--gold);
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 360px;
-            width: 90%;
-            text-align: center;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .admin-login-overlay.show .admin-login-modal {
-            transform: scale(1);
-        }
-
-        .admin-login-title {
-            font-size: 1.2rem;
-            color: var(--gold);
-            font-weight: 700;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-
-        .admin-login-input {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--gold);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: "Courier New", monospace;
-            font-size: 1rem;
-            text-align: center;
-            letter-spacing: 3px;
-            outline: none;
-            margin-bottom: 15px;
-        }
-
-        body.rice-paper-theme .admin-login-input {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        .admin-login-input:focus {
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .admin-login-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--gold);
-            color: var(--bg-dark);
-            border: none;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            letter-spacing: 2px;
-        }
-
-        .admin-login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
-        }
-
-        .admin-login-error {
-            color: var(--accent);
-            font-size: 0.8rem;
-            margin-top: 10px;
-            min-height: 20px;
-        }
-
-        .admin-logout-btn {
-            background: none;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            margin-left: 10px;
-            transition: all 0.2s;
-        }
-
-        .admin-logout-btn:hover {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .discussion-item.is-own {
-            border-left-color: #4a9b8e;
-            background: rgba(74, 155, 142, 0.08);
-        }
-
-        body.rice-paper-theme .discussion-item.is-own {
-            background: rgba(74, 155, 142, 0.05);
-        }
-
-        /* 滑动手势指示条 */
-        .swipe-indicator {
-            position: fixed;
-            top: 50%;
-            width: 4px;
-            height: 60px;
-            background: rgba(212, 175, 55, 0.3);
-            border-radius: 2px;
-            z-index: 95;
-            transition: all 0.3s ease;
-            pointer-events: none;
-        }
-
-        .swipe-indicator.left {
-            left: 2px;
-        }
-
-        .swipe-indicator.right {
-            right: 2px;
-        }
-
-        .swipe-indicator.active {
-            background: rgba(212, 175, 55, 0.8);
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
         }
 
         /* 滑动手势提示 */
@@ -4735,11 +4535,6 @@
             position: relative;
         }
 
-        /* 11. 页脚名言（简化动画） */
-        .footer-quote {
-            /* 持续淡入淡出动画已简化 */
-        }
-
         /* 12. 地图加载时的缩放入场 */
         .layer-image.loaded {
             animation: mapZoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -5070,22 +4865,6 @@
             50% { opacity: 0.7; }
         }
 
-        /* 31. 管理员指示器更明显的脉冲 */
-        .admin-mode-indicator.show {
-            animation: adminPulse 2s ease-in-out infinite, adminSlideDown 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes adminSlideDown {
-            from {
-                transform: translateX(-50%) translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
-        }
-
         /* 32. 角落装饰持续微动 */
         .corner-ornament {
             animation: cornerFloat 6s ease-in-out infinite;
@@ -5232,11 +5011,6 @@
         @keyframes loadingTextPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
-        }
-
-        /* 42. 加载百分比（简化） */
-        .loading-percent {
-            /* 跳动动画已简化 */
         }
 
         /* 43. 顶部装饰线流光 */
@@ -5447,16 +5221,6 @@
             100% { left: 200%; }
         }
 
-        /* 56. 主标题火焰效果增强（已移除呼吸动画避免布局问题） */
-        .main-title {
-            /* 动画已移除，保留原有火焰伪元素效果 */
-        }
-
-        /* 57. 副标题动画（已简化避免干扰布局） */
-        .subtitle {
-            /* 保留原有入场动画，移除持续闪烁 */
-        }
-
         /* 58. 进入按钮光晕脉冲（简化版） */
         .enter-button {
             animation: enterButtonGlow 3s ease-in-out infinite;
@@ -5489,19 +5253,6 @@
         .ink-drop {
             filter: blur(2px);
         }
-
-        /* 60. 地图视口背景（移除动画避免性能问题） */
-        .map-viewport {
-            /* 背景动画已移除 */
-        }
-
-        /* 61. 信息面板头部（简化） */
-        .info-header::after {
-            /* 渐变流动动画已简化 */
-        }
-
-        /* 62. 底部页脚（已简化） */
-        /* 占位已移除 */
 
         /* 63. 图层复选框点击反馈 */
         .layer-checkbox {
@@ -5568,17 +5319,6 @@
             }
         }
 
-        /* 68. 管理员登录弹窗增强 */
-        .admin-login-modal {
-            animation: adminModalBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes adminModalBounce {
-            0% { transform: scale(0.8) rotate(-5deg); }
-            60% { transform: scale(1.02) rotate(2deg); }
-            100% { transform: scale(1) rotate(0); }
-        }
-
         /* 69. 滑动手势提示淡入 */
         .swipe-hint.show {
             animation: hintFadeIn 0.3s ease;
@@ -5629,16 +5369,206 @@
             50% { opacity: 1; }
         }
 
-        /* 74. 列表滚动条（简化） */
-        .timeline-list::-webkit-scrollbar-thumb {
-            /* 闪光动画已简化 */
+
+        /* ===== 开发者模式样式 ===== */
+        .dev-mode-indicator {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(74, 155, 142, 0.9), rgba(107, 196, 181, 0.9));
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 2000;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 20px rgba(74, 155, 142, 0.4);
+            animation: devPulse 2s ease-in-out infinite;
+            display: none;
         }
 
-        /* 75. 标题屏幕背景（移除动画避免性能问题） */
-        .title-screen::before {
-            /* 背景动画已移除，保持静态纹理 */
+        .dev-mode-indicator.show {
+            display: block;
         }
-    </style>
+
+        @keyframes devPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(74, 155, 142, 0.4); }
+            50% { box-shadow: 0 4px 30px rgba(107, 196, 181, 0.6); }
+        }
+
+    
+        /* ===== 开发者模式登录弹窗样式 ===== */
+        .admin-login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .admin-login-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .admin-login-modal {
+            background: var(--bg-panel);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            padding: 40px 36px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
+        }
+
+        .admin-login-overlay.show .admin-login-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .admin-login-title {
+            font-size: 1.4rem;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+            font-family: "Noto Serif SC", serif;
+        }
+
+        .admin-login-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        body.rice-paper-theme .admin-login-input {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .admin-login-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            transform: scale(1.02);
+        }
+
+        .admin-login-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .admin-login-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--gold);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .admin-login-btn:hover::before {
+            left: 100%;
+        }
+
+        .admin-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+        }
+
+        .admin-login-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .admin-login-error {
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-top: 12px;
+            min-height: 20px;
+            font-weight: 600;
+        }
+
+        /* 退出按钮 */
+        .admin-logout-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.5);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+
+        .admin-logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .admin-login-modal {
+                padding: 30px 24px;
+                margin: 0 10px;
+            }
+
+            .admin-login-title {
+                font-size: 1.2rem;
+            }
+
+            .admin-login-input {
+                padding: 12px 14px;
+                font-size: 0.95rem;
+            }
+
+            .admin-login-btn {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+            }
+        }
+</style>
     <meta name="description" content="昭燃的历史地图馆 - 以史为鉴，可以知兴替。收录80+幅中外历史地图，从史前文明到当代世界，串联世界各个文明的时空脉络。">
     <meta name="keywords" content="历史地图,中国历史,世界历史,昭燃,地图馆">
     <meta name="author" content="昭燃">
@@ -5840,6 +5770,8 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -5848,22 +5780,20 @@
     <div class="swipe-hint left-hint" id="swipeHintLeft">← 右滑打开时间轴</div>
     <div class="swipe-hint right-hint" id="swipeHintRight">左滑打开详情 →</div>
 
-    <!-- 管理员模式指示器 -->
-    <div class="admin-mode-indicator" id="adminModeIndicator">
-        🔐 管理员模式已开启
-        <button class="admin-logout-btn" onclick="adminLogout()">退出</button>
+    <!-- 开发者模式指示器 -->
+    <div class="dev-mode-indicator" id="devModeIndicator">
+        🔧 开发者模式已开启
+        <button class="admin-logout-btn" onclick="devModeLogout()">退出</button>
     </div>
-
-    <!-- 管理员登录弹窗 -->
-    <div class="admin-login-overlay" id="adminLoginOverlay">
+    <!-- 开发者模式密码验证弹窗 -->
+    <div class="admin-login-overlay" id="devModeLoginOverlay">
         <div class="admin-login-modal">
-            <div class="admin-login-title">🔐 管理员验证</div>
-            <input type="password" class="admin-login-input" id="adminPasswordInput" placeholder="输入管理员密码" maxlength="20" onkeydown="if(event.key==='Enter')adminLogin()">
-            <button class="admin-login-btn" onclick="adminLogin()">验证身份</button>
-            <div class="admin-login-error" id="adminLoginError"></div>
+            <div class="admin-login-title">🔧 开发者模式验证</div>
+            <input type="password" class="admin-login-input" id="devModePasswordInput" placeholder="输入开发者密码" maxlength="20" onkeydown="if(event.key==='Enter')devModeLogin()">
+            <button class="admin-login-btn" onclick="devModeLogin()">验证身份</button>
+            <div class="admin-login-error" id="devModeLoginError"></div>
         </div>
     </div>
-
     
 
     <!-- 过渡动画 -->
@@ -5951,10 +5881,19 @@
             </div>
 
         </div>
+        <div class="settings-section">
+            <label class="settings-label">开发者模式</label>
+            <div class="toggle-switch" onclick="toggleDevMode()" id="devModeToggle">
+                <div class="toggle-track" id="devModeTrack">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <span class="toggle-label" id="devModeLabel">已关闭</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; line-height: 1.5;">
+                开启后可管理评论（删除、置顶），需密码验证
+            </div>
+        </div>
 
-        
-
-        
     </div>
 
     <!-- 帮助面板 -->
@@ -6095,7 +6034,7 @@
     <div class="protect-toast" id="protectToast">
         <span class="toast-icon">🛡️</span>
         <div>版权保护</div>
-        <div class="toast-sub">未经作者允许，禁止保存、复制、传播图片</div>
+        <div class="toast-sub">未经作者允许，严禁保存、复制地图文件！</div>
     </div>
 
     <!-- 标题界面 -->
@@ -6126,7 +6065,7 @@
         </div>
 
         <div class="bottom-ornament">
-            <p class="scroll-hint">点击任意区域开启时空之旅</p>
+            <p class="scroll-hint">点击任意区域进入地图馆</p>
             <div class="scroll-line"></div>
         </div>
     </div>
@@ -6928,7 +6867,7 @@
         // 历史数据与名言库
         let historyData = [];
 
-// 内联历史数据（从historyData.json合并）
+// 历史数据
 const HISTORY_DATA_INLINE = [
 {
     "year": "旧石器",
@@ -7816,9 +7755,32 @@ const HISTORY_DATA_INLINE = [
     }
   },
 {
+    "year": "前201年",
+    "reign": "西汉·高帝六年",
+    "name": "高帝六年汉全图",
+    "era": "其他作者优秀作品",
+    "path": "maps/guest/gaodi_201bc.webp",
+    "span": "前201年",
+    "count": "1个",
+    "desc": "前201年，刘邦称帝后第六年，西汉王朝初建，天下方定。此时刘邦大封异姓诸侯王与功臣列侯，韩信为楚王、彭越为梁王、英布为淮南王，张耳为赵王，卢绾为燕王，吴芮为长沙王，加上韩信（韩王信）为韩王，共七位异姓诸侯王。同时封萧何、曹参、张良等功臣为列侯，食邑遍布关东各地。关中之地由中央直接管辖，设内史，辖京畿诸县。此时汉朝疆域东接大海，西至陇西，北抵长城，南达长江，奠定了西汉版图的基本框架。",
+    "quote": "大风起兮云飞扬，威加海内兮归故乡",
+    "quoteAuthor": "—— 刘邦《大风歌》",
+    "periodBg": "汉高帝六年（前201年），刘邦已在位六年，楚汉战争的硝烟刚刚散去，西汉王朝初建，天下方定。此时刘邦大封异姓诸侯王与功臣列侯，以酬谢他们在反秦灭楚中的功勋。异姓诸侯王有楚王韩信、梁王彭越、淮南王英布、赵王张耳、燕王卢绾、长沙王吴芮、韩王韩信共七位，各据一方，拥兵自重。同时大封列侯，萧何封酂侯、曹参封平阳侯、张良封留侯、周勃封绛侯、灌婴封颍阴侯等，食邑遍布关东各地。关中之地由中央直接管辖，设内史，辖京畿诸县。然而，异姓诸侯王的存在始终是中央集权的隐患。同年，韩王信因匈奴压力被迫以马邑投降匈奴，刘邦亲征未果，这一事件揭开了汉初中央与地方矛盾的序幕，也为后来刘邦逐步翦除异姓诸侯王埋下伏笔。",
+    "author": "Champion-Link",
+    "authorLink": "https://space.bilibili.com/3546852173548307",
+    "organization": "地图制作院",
+    "layers": {
+      "bg": {
+        "file": "gaodi_201bc.webp",
+        "opacity": 1.0,
+        "zIndex": 1
+      }
+    }
+  },
+{
     "year": "前139年",
     "reign": "西汉·武帝建元二年/帕提亚·弗拉特斯二世/塞琉古·安条克七世",
-    "name": "公元前139年西亚形势图",
+    "name": "西亚形势图",
     "era": "其他作者优秀作品",
     "path": "maps/guest/weas.webp",
     "span": "前139年",
@@ -7856,7 +7818,7 @@ const HISTORY_DATA_INLINE = [
 {
     "year": "前127年",
     "reign": "西汉·武帝元朔二年",
-    "name": "西汉《新秦中考》示例图",
+    "name": "《新秦中考》示例图",
     "era": "其他作者优秀作品",
     "path": "maps/guest/xqzk.webp",
     "span": "前215年-前127年",
@@ -7911,6 +7873,29 @@ const HISTORY_DATA_INLINE = [
         "file": "dongyue_111bc_1.webp",
         "opacity": 1.0,
         "zIndex": 5
+      }
+    }
+  },
+{
+    "year": "610年",
+    "reign": "隋·炀帝大业六年",
+    "name": "大隋极盛，繁景藏忧——隋朝疆域图",
+    "era": "其他作者优秀作品",
+    "path": "maps/guest/sui_610ad.webp",
+    "span": "610年",
+    "count": "1个",
+    "desc": "大业六年（610年），隋朝正值极盛之时，却也是危机暗伏的转折点。此时大运河已全线贯通，以洛阳为中心，北抵涿郡，南至余杭，沟通海河、黄河、淮河、长江、钱塘江五大水系，全长两千余公里，是世界上最伟大的水利工程之一。隋炀帝为炫耀国威，在洛阳大陈百戏，戏场周围五千步，奏乐者一万八千人，声闻数十里，灯火通明如昼，持续十五日。同年，隋朝疆域东起大海，西至且末，北接突厥，南达交趾，国土辽阔。然而，表面的繁华掩盖不住内在的危机：大业六年已有四次民变因抗拒府兵制征召而爆发；正月，数十人自称弥勒佛入建国门图谋起事，被齐王暕斩杀，连坐者千余家；三月，炀帝幸江都宫，开始长期离京巡游；为征高句丽，课天下富人买武马，器仗务求精新。繁景之下，亡隋之兆已现。",
+    "quote": "繁华事散逐香尘，流水无情草自春",
+    "quoteAuthor": "—— 杜牧",
+    "periodBg": "大业六年（610年），隋朝在隋炀帝杨广统治下达到极盛，却也是由盛转衰的临界点。此时大运河工程已全线竣工，以洛阳为中心，北起涿郡（今北京），南至余杭（今杭州），沟通海河、黄河、淮河、长江、钱塘江五大水系，全长两千余公里，是世界上最伟大的水利工程之一，对后世中国南北经济文化交流产生了深远影响。同年，隋炀帝为向西域使者和商人炫耀国威，在洛阳天津街大陈百戏，戏场周围五千步，一万八千余人奏乐，灯火通明如昼，持续十五日。又令市人衣华丽服装，饭馆酒食免费招待胡商，以显示中国之富。然而，表面的繁华掩盖不住深刻的危机。大业六年，因抗拒府兵制征召已爆发四次民变；正月，数十人自称弥勒佛入建国门图谋起事，被齐王杨暕斩杀，连坐者千余家；三月，炀帝幸江都宫，开始长期离京巡游；为次年征高句丽做准备，课天下富人买武马，每匹至十万钱，简阅器仗，滥恶者立斩。同年，陈棱、张镇周率军渡海攻占流求（今台湾），俘获万余人。隋朝疆域东起大海，西至且末，北接突厥，南达交趾，国土辽阔，但繁景之下，亡隋之兆已悄然显现。",
+    "author": "玄墨",
+    "authorLink": "https://space.bilibili.com/3706970068486282",
+    "organization": "地图制作院",
+    "layers": {
+      "bg": {
+        "file": "sui_610ad.webp",
+        "opacity": 1.0,
+        "zIndex": 1
       }
     }
   },
@@ -8006,6 +7991,29 @@ const HISTORY_DATA_INLINE = [
         "opacity": 1.0,
         "zIndex": 2,
         "blendMode": "multiply"
+      }
+    }
+  },
+{
+    "year": "1888年",
+    "reign": "清·光绪十四年",
+    "name": "新疆省全图",
+    "era": "其他作者优秀作品",
+    "path": "maps/guest/xinjiang_1888.webp",
+    "span": "1888年",
+    "count": "1个",
+    "desc": "1888年，新疆建省后第四年，行省制度已初步确立。1884年清政府正式设甘肃新疆省，刘锦棠为首任巡抚，省治迪化（今乌鲁木齐）。1888年伊塔道正式设立，标志着新疆建省最终完成。此时新疆分为四道：镇迪道（省会所在）、阿克苏道、喀什噶尔道、伊塔道，下辖府、厅、州、县，行政建置与内地划一。左宗棠收复新疆后，沙俄虽归还伊犁，但割占了霍尔果斯河以西大片领土。此时新疆疆域东接甘肃，西邻浩罕（俄属），北界科布多、塔尔巴哈台，南抵昆仑山，总面积约160余万平方公里。",
+    "quote": "故土新归，建省设治",
+    "quoteAuthor": "—— 新疆建省",
+    "periodBg": "1888年是新疆建省进程中的关键年份。1884年清政府正式设甘肃新疆省，取\"故土新归\"之意，刘锦棠为首任巡抚，省治迪化（今乌鲁木齐），标志着新疆军府制向行省制的重大转变。建省初期设镇迪道、阿克苏道、喀什噶尔道三道。1888年伊塔道正式设立，辖伊犁府及塔城直隶厅，标志着新疆建省最终完成。此时新疆分为四道，下辖府、厅、州、县，行政建置与内地划一，结束了长期以来军府制、伯克制、扎萨克制并行的复杂局面。左宗棠率军收复新疆（1875-1878年），击溃阿古柏侵略势力，1881年通过《中俄改订条约》收回被沙俄强占十一年的伊犁，但霍尔果斯河以西七万多平方公里领土被割占。建省后新疆推行屯田、兴修水利、整顿吏治，社会经济逐步恢复。",
+    "author": "Champion-Link",
+    "authorLink": "https://space.bilibili.com/3546852173548307",
+    "organization": "地图制作院",
+    "layers": {
+      "bg": {
+        "file": "xinjiang_1888.webp",
+        "opacity": 1.0,
+        "zIndex": 1
       }
     }
   },
@@ -8294,7 +8302,7 @@ async function loadHistoryData() {
             ],
         };
 
-        // 通用名言（作为后备）
+        // 通用名言（后备）
 
 const generalQuotes = [
             { text: "究天人之际，通古今之变", author: "司马迁" },
@@ -8671,25 +8679,33 @@ let currentIndex = -1;
             }
 
             // ===== 我的地图：使用通用 + 专属图层系统 =====
-            // 世界历史专栏：不加载通用河湖、国界、地形图层，只加载专属图层
+            // 世界历史专栏：使用数据中定义的专属图层（同其他作者作品逻辑）
             const isWorldHistory = data.era === '世界历史';
-            for (const [key, config] of Object.entries(layerConfig)) {
-                if (config.type === 'universal') {
-                    // 世界历史不加载通用图层
-                    if (isWorldHistory) continue;
-                    layers[key] = config.path;
-                } else {
-                    // 专属图层：基于当前地图路径生成
-                    const lastDot = basePath.lastIndexOf('.');
-                    const lastSlash = basePath.lastIndexOf('/');
-
-                    if (lastDot > 0 && lastSlash > 0) {
-                        const dir = basePath.substring(0, lastSlash + 1);
-                        const filename = basePath.substring(lastSlash + 1, lastDot);
-                        const ext = basePath.substring(lastDot);
-                        layers[key] = dir + filename + config.suffix + ext;
+            if (isWorldHistory && data.layers) {
+                const lastSlash = basePath.lastIndexOf('/');
+                const dir = lastSlash >= 0 ? basePath.substring(0, lastSlash + 1) : '';
+                for (const [layerName, layerInfo] of Object.entries(data.layers)) {
+                    if (layerInfo && layerInfo.file) {
+                        layers[layerName] = dir + layerInfo.file;
+                    }
+                }
+            } else {
+                for (const [key, config] of Object.entries(layerConfig)) {
+                    if (config.type === 'universal') {
+                        layers[key] = config.path;
                     } else {
-                        layers[key] = basePath;
+                        // 专属图层：基于当前地图路径生成
+                        const lastDot = basePath.lastIndexOf('.');
+                        const lastSlash = basePath.lastIndexOf('/');
+
+                        if (lastDot > 0 && lastSlash > 0) {
+                            const dir = basePath.substring(0, lastSlash + 1);
+                            const filename = basePath.substring(lastSlash + 1, lastDot);
+                            const ext = basePath.substring(lastDot);
+                            layers[key] = dir + filename + config.suffix + ext;
+                        } else {
+                            layers[key] = basePath;
+                        }
                     }
                 }
             }
@@ -8785,30 +8801,41 @@ let currentIndex = -1;
                 }
             }
 
-            // ===== 河湖图层：所有地图默认用通用路径 =====
+            // ===== 河湖图层 =====
             if (isRiver) {
-                var riverSrc = preloaded ? preloaded.src : config.path;
-                layerImg.src = riverSrc;
-                layerImg.classList.add('loaded');
-                layerImg.style.display = 'block';
+                if (isWorldHistory || isGuestWork) {
+                    // 世界历史和其他作者作品：使用专属图层（不加载通用图层）
+                    if (layerImg) {
+                        layerImg.src = path;
+                        layerImg.classList.add('loaded');
+                        layerImg.style.display = 'block';
+                    }
+                } else {
+                    // 其他地图：先用通用路径显示
+                    var riverSrc = preloaded ? preloaded.src : config.path;
+                    layerImg.src = riverSrc;
+                    layerImg.classList.add('loaded');
+                    layerImg.style.display = 'block';
 
-                // 如果传入了专属路径（抗战地图），后台尝试加载替换
-                if (path && path !== config.path && path !== riverSrc) {
-                    var exclusiveImg = new Image();
-                    exclusiveImg.onload = function() {
-                        layerImg.src = exclusiveImg.src;
-                        console.log('河湖专属图层加载成功，已替换通用图层');
-                    };
-                    exclusiveImg.onerror = function() {
-                        console.log('河湖专属图层不存在，保持通用图层');
-                    };
-                    exclusiveImg.src = path;
+                    // 如果传入了专属路径（抗战地图），后台尝试加载替换
+                    if (path && path !== config.path && path !== riverSrc) {
+                        var exclusiveImg = new Image();
+                        exclusiveImg.onload = function() {
+                            layerImg.src = exclusiveImg.src;
+                            console.log('河湖专属图层加载成功，已替换通用图层');
+                        };
+                        exclusiveImg.onerror = function() {
+                            console.log('河湖专属图层不存在，保持通用图层');
+                        };
+                        exclusiveImg.src = path;
+                    }
                 }
                 return;
             }
 
             // ===== 其他 universal 图层（地形、国界）=====
-            if (isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name') {
+            if (isUniversal && preloaded && layerName !== 'bg' && layerName !== 'name' && !isWorldHistory && !isGuestWork) {
+                // 世界历史和其他作者作品不使用通用图层
                 layerImg.src = preloaded.src;
                 layerImg.classList.add('loaded');
                 if (checkbox && checkbox.checked) {
@@ -8893,6 +8920,16 @@ let currentIndex = -1;
 
             // 判断是否是抗战地图
             var isAntiJapanese = path.indexOf('anti_japanese') >= 0;
+            // 判断是否是其他作者作品
+            var isGuestWork = false;
+            if (currentIndex >= 0 && currentIndex < historyData.length) {
+                isGuestWork = historyData[currentIndex].era === '其他作者优秀作品';
+            }
+            // 判断是否是世界历史
+            var isWorldHistory = false;
+            if (currentIndex >= 0 && currentIndex < historyData.length) {
+                isWorldHistory = historyData[currentIndex].era === '世界历史';
+            }
 
             var layersToLoadXHR = [];
             var layersToLoadImg = []; // 需要通过 img.onload 等待的图层
@@ -8940,27 +8977,41 @@ let currentIndex = -1;
                     // 背景、地名：XHR 加载
                     needsXHR = true;
                 } else if (layerName === 'river') {
-                    // 河湖：所有地图先用通用路径显示
-                    var riverSrc = preloaded ? preloaded.src : layerPath;
-                    if (layerImg) {
-                        layerImg.src = riverSrc;
-                        layerImg.classList.add('loaded');
-                        layerImg.style.display = 'block';
-                    }
-                    // 抗战地图：XHR 加载专属河湖图层替换通用版
-                    if (isAntiJapanese && paths['river_exclusive']) {
+                    // 河湖：世界历史和抗战地图使用专属图层，其他地图使用通用图层
+                    if (isWorldHistory || isGuestWork) {
+                        // 世界历史/其他作者作品：使用 data.layers 中的专属路径
+                        if (layerImg && layerPath) {
+                            needsImgLoad = true;
+                            layerImg.src = layerPath;
+                        }
+                    } else if (isAntiJapanese && paths['river_exclusive']) {
+                        // 抗战地图：先用通用路径显示，XHR 加载专属图层替换
+                        var riverSrc = preloaded ? preloaded.src : layerPath;
+                        if (layerImg) {
+                            layerImg.src = riverSrc;
+                            layerImg.classList.add('loaded');
+                            layerImg.style.display = 'block';
+                        }
                         needsXHR = true;
                         xhrPath = paths['river_exclusive'];
+                    } else {
+                        // 其他地图：使用通用图层
+                        var riverSrc = preloaded ? preloaded.src : layerPath;
+                        if (layerImg) {
+                            layerImg.src = riverSrc;
+                            layerImg.classList.add('loaded');
+                            layerImg.style.display = 'block';
+                        }
                     }
-                } else if (preloaded && layerName !== 'bg' && layerName !== 'name') {
-                    // 其他通用图层：有预加载则直接显示
+                } else if (preloaded && layerName !== 'bg' && layerName !== 'name' && !isWorldHistory && !isGuestWork) {
+                    // 其他通用图层（仅我的地图）：有预加载则直接显示
                     if (layerImg) {
                         layerImg.src = preloaded.src;
                         layerImg.classList.add('loaded');
                         layerImg.style.display = 'block';
                     }
                 } else {
-                    // 需要通过 img 加载并等待 onload
+                    // 需要通过 img 加载并等待 onload（世界历史/其他作者作品/无预加载）
                     if (layerImg && layerPath) {
                         needsImgLoad = true;
                         layerImg.src = layerPath;
@@ -8973,7 +9024,7 @@ let currentIndex = -1;
                         displayName: config.name,
                         path: xhrPath,
                         priority: config.priority,
-                        isExclusive: isAntiJapanese && layerName === 'river'
+                        isExclusive: (isAntiJapanese || isWorldHistory || isGuestWork) && layerName === 'river'
                     });
                 }
                 if (needsImgLoad) {
@@ -10045,6 +10096,8 @@ function updateQuotes(data) {
                 layer.classList.remove('loaded');
                 layer.style.display = 'none';
             });
+            // 重置图层路径缓存，确保重新生成
+            currentLayerPaths = {};
             // 重新加载
             loadImageWithProgress(data.path);
         }
@@ -10746,6 +10799,7 @@ function updateQuotes(data) {
 function initApp() {
             loadHistoryData();
             setupEventListeners();
+            initDevMode(); 
             setupImageProtection();
             detectLayout();
             loadSavedSettings();
@@ -10800,79 +10854,74 @@ function initApp() {
             applyToolbarSetting();
         }
 
-        // 等待DOM完全加载后再初始化
-        
-        // ===== 管理员模式 =====
-        const ADMIN_PASSWORD = "zzbqq138";
-        let isAdminMode = false;
+        // ===== 开发者模式 =====
+        const DEV_MODE_PASSWORD = 'zzbqq138';
+        let devModeEnabled = localStorage.getItem('devModeEnabled') === 'true';
 
-        function checkAdminStatus() {
-            const saved = localStorage.getItem('adminMode') === 'true';
-            if (saved) {
-                isAdminMode = true;
-                var indicator = document.getElementById('adminModeIndicator');
-                var track = document.getElementById('adminToggleTrack');
-                var label = document.getElementById('adminToggleLabel');
-                if (indicator) indicator.classList.add('show');
-                if (track) track.classList.add('active');
-                if (label) label.textContent = '已登录';
+        function initDevMode() {
+            if (devModeEnabled) {
+                showDevModeIndicator();
+                updateDevModeUI(true);
             }
         }
 
-        function toggleAdminLogin() {
-            if (isAdminMode) {
-                adminLogout();
-                return;
-            }
-            var overlay = document.getElementById('adminLoginOverlay');
-            var input = document.getElementById('adminPasswordInput');
-            var errorEl = document.getElementById('adminLoginError');
-            if (overlay) {
-                overlay.classList.add('show');
-                if (input) {
-                    input.value = '';
-                    input.focus();
-                }
-                if (errorEl) errorEl.textContent = '';
-            }
-        }
-
-        function adminLogin() {
-            var input = document.getElementById('adminPasswordInput');
-            var errorEl = document.getElementById('adminLoginError');
-            if (!input) return;
-
-            var password = input.value;
-            if (password === ADMIN_PASSWORD) {
-                isAdminMode = true;
-                localStorage.setItem('adminMode', 'true');
-                var indicator = document.getElementById('adminModeIndicator');
-                var track = document.getElementById('adminToggleTrack');
-                var label = document.getElementById('adminToggleLabel');
-                var overlay = document.getElementById('adminLoginOverlay');
-                if (indicator) indicator.classList.add('show');
-                if (track) track.classList.add('active');
-                if (label) label.textContent = '已登录';
-                if (overlay) overlay.classList.remove('show');
-                if (errorEl) errorEl.textContent = '';
-                if (currentIndex >= 0) loadDiscussions(currentIndex);
+        function toggleDevMode() {
+            if (devModeEnabled) {
+                devModeLogout();
             } else {
-                if (errorEl) errorEl.textContent = '密码错误，请重试';
-                input.value = '';
-                input.focus();
+                document.getElementById('devModeLoginOverlay').classList.add('show');
+                document.getElementById('devModePasswordInput').value = '';
+                document.getElementById('devModePasswordInput').focus();
+                document.getElementById('devModeLoginError').textContent = '';
             }
         }
 
-        function adminLogout() {
-            isAdminMode = false;
-            localStorage.removeItem('adminMode');
-            var indicator = document.getElementById('adminModeIndicator');
-            var track = document.getElementById('adminToggleTrack');
-            var label = document.getElementById('adminToggleLabel');
-            if (indicator) indicator.classList.remove('show');
-            if (track) track.classList.remove('active');
-            if (label) label.textContent = '未登录';
-            if (currentIndex >= 0) loadDiscussions(currentIndex);
+        function devModeLogin() {
+            var input = document.getElementById('devModePasswordInput').value;
+            var errorEl = document.getElementById('devModeLoginError');
+            
+            if (input === DEV_MODE_PASSWORD) {
+                devModeEnabled = true;
+                localStorage.setItem('devModeEnabled', 'true');
+                document.getElementById('devModeLoginOverlay').classList.remove('show');
+                showDevModeIndicator();
+                updateDevModeUI(true);
+                errorEl.textContent = '';
+            } else {
+                errorEl.textContent = '密码错误，请重试';
+                document.getElementById('devModePasswordInput').value = '';
+                document.getElementById('devModePasswordInput').focus();
+            }
+        }
+
+        function devModeLogout() {
+            devModeEnabled = false;
+            localStorage.removeItem('devModeEnabled');
+            hideDevModeIndicator();
+            updateDevModeUI(false);
+        }
+
+        function showDevModeIndicator() {
+            document.getElementById('devModeIndicator').classList.add('show');
+        }
+
+        function hideDevModeIndicator() {
+            document.getElementById('devModeIndicator').classList.remove('show');
+        }
+
+        function updateDevModeUI(enabled) {
+            var track = document.getElementById('devModeTrack');
+            var label = document.getElementById('devModeLabel');
+            if (track) track.classList.toggle('active', enabled);
+            if (label) label.textContent = enabled ? '已开启' : '已关闭';
+            
+            if (currentIndex >= 0) {
+                renderDiscussions();
+            }
+        }
+
+        function isDevMode() {
+            return devModeEnabled;
         }
 
         // ===== Supabase 讨论区功能 2.0（升级版）=====
@@ -11150,7 +11199,8 @@ function initApp() {
                 try {
                     await supabaseClient.from('discussion_replies').insert([{
                         discussion_id: discussionId,
-                        map_index: currentIndex,
+                        map_path: (historyData[currentIndex] && historyData[currentIndex].path) || '',
+                    map_index: currentIndex,
                         name: name,
                         content: content
                     }]);
@@ -11196,11 +11246,16 @@ function initApp() {
             countEl.textContent = '加载中...';
 
             try {
+                // 使用地图路径作为唯一标识符，避免索引变化导致评论区错位
+                var mapPath = '';
+                if (mapIndex >= 0 && mapIndex < historyData.length) {
+                    mapPath = historyData[mapIndex].path || '';
+                }
                 // 加载主评论
                 var { data: discussions, error } = await supabaseClient
                     .from('map_discussions')
                     .select('*')
-                    .eq('map_index', mapIndex)
+                    .eq('map_path', mapPath)
                     .order('is_essential', { ascending: false })
                     .order('created_at', { ascending: false })
                     .limit(50);
@@ -11315,7 +11370,23 @@ function initApp() {
             var essentialClass = isEssential ? 'is-essential' : '';
             var tagHtml = tagLabels[item.tag] || '';
             var timeStr = formatTime(item.created_at);
-
+            var isDev = isDevMode();
+            var essentialBtn = '';
+            var deleteBtn = '';
+            
+            if (isDev) {
+                // 开发者模式：显示精华按钮
+                essentialBtn = '<button class="admin-essential-btn ' + (item.is_essential ? 'is-essential' : '') + '" ' +
+                    'onclick="event.stopPropagation();toggleEssential(\'' + item.id + '\', ' + !item.is_essential + ')" ' +
+                    'title="' + (item.is_essential ? '取消置顶' : '设为精华') + '">' +
+                    (item.is_essential ? '⭐' : '☆') + '</button>';
+    
+                // 开发者模式：显示删除按钮
+                deleteBtn = '<button class="discussion-delete-btn" ' +
+                    'onclick="event.stopPropagation();deleteDiscussion(\'' + item.id + '\')" ' +
+                    'title="删除评论" style="opacity:1;">🗑️</button>';
+            } else {
+            
             var imageHtml = '';
             if (item.image_url) {
                 imageHtml = '<div class="discussion-item-image"><img src="' + escapeHtml(item.image_url) + '" alt="评论图片" onclick="window.open(this.src)"></div>';
@@ -11365,6 +11436,7 @@ function initApp() {
                 '</div></div>' +
                 '</div>';
             return html;
+            }
         }
 
         function formatTime(isoString) {
@@ -11409,6 +11481,7 @@ function initApp() {
                 }
 
                 var insertData = {
+                    map_path: (historyData[currentIndex] && historyData[currentIndex].path) || '',
                     map_index: currentIndex,
                     name: userName,
                     content: content,
