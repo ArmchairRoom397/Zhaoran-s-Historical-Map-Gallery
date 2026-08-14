@@ -5772,6 +5772,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <!-- 滑动手势指示条 -->
@@ -10368,6 +10369,10 @@ function updateQuotes(data) {
 
                 // ===== 全面禁止所有 Ctrl+ / Cmd+ 组合键 =====
                 if (e.ctrlKey || e.metaKey) {
+                    // 允许 Ctrl+R / Cmd+R 刷新页面
+                    if (e.key === 'r' || e.key === 'R') {
+                        return true;
+                    }
                     // 一律拦截，无论地图是否加载
                     e.preventDefault();
                     e.stopPropagation();
