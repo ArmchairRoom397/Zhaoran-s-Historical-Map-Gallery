@@ -850,17 +850,16 @@
             top: 50%;
             left: 50%;
             transform: translate3d(-50%, -50%, 0);
-            transition: none;
+            transition: transform 0.05s linear;
             will-change: transform;
-            width: 90vw;
-            height: 80vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            -webkit-transform: translate3d(-50%, -50%, 0);
+            backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            -webkit-perspective: 1000;
-            contain: layout style paint;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+        }
+
+        .map-wrapper.smooth-transition {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .map-placeholder {
             position: absolute;
@@ -5863,6 +5862,8 @@
             _translateX: 0,
             _translateY: 0,
             _isDragging: false,
+            _startTranslateX: 0,
+            _startTranslateY: 0,
             _startX: 0,
             _startY: 0,
             _lastMouseX: 0,
@@ -6057,11 +6058,35 @@
             },
 
             resetView: function() {
-                this._scale = 1;
-                this._translateX = 0;
-                this._translateY = 0;
-                this._updateTransform();
-                setTimeout(function() { Map._forceRepaint(); }, 50);
+                // 使用动画过渡到初始状态
+                var startScale = this._scale;
+                var startTx = this._translateX;
+                var startTy = this._translateY;
+                var targetScale = 1;
+                var targetTx = 0;
+                var targetTy = 0;
+                
+                var duration = 400;
+                var startTime = performance.now();
+                var self = this;
+                
+                function animate(time) {
+                    var elapsed = time - startTime;
+                    var progress = Math.min(elapsed / duration, 1);
+                    // 缓出函数
+                    progress = 1 - Math.pow(1 - progress, 3);
+                    
+                    self._scale = startScale + (targetScale - startScale) * progress;
+                    self._translateX = startTx + (targetTx - startTx) * progress;
+                    self._translateY = startTy + (targetTy - startTy) * progress;
+                    self._updateTransform();
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                }
+                
+                requestAnimationFrame(animate);
             },
 
             zoomIn: function() {
@@ -6083,11 +6108,20 @@
             },
 
             _zoomAtPoint: function(px, py, newScale) {
+                // 限制缩放范围
+                newScale = Math.max(0.2, Math.min(10, newScale));
+                
+                // 计算当前的缩放中心对应的世界坐标
                 var sx = px * this._scale + this._translateX;
                 var sy = py * this._scale + this._translateY;
+                
                 this._scale = newScale;
                 this._translateX = sx - px * this._scale;
                 this._translateY = sy - py * this._scale;
+                
+                // 直接更新，不经过 RAF 节流，让缩放更跟手
+                this._updateTransformImmediate();
+                // 同时保留 RAF 更新，确保最终状态一致
                 this._updateTransform();
             },
 
@@ -6100,6 +6134,10 @@
 
             _updateTransform: function() {
                 var self = this;
+                
+                // 移除 _applyConstraints 调用，暂时禁用约束以避免跳动
+                // this._applyConstraints();
+                
                 this._pendingTransform = { scale: this._scale, tx: this._translateX, ty: this._translateY };
                 if (!this._rafId) {
                     this._rafId = requestAnimationFrame(function() {
@@ -6110,13 +6148,60 @@
                             ty = self._pendingTransform.ty;
                         self._pendingTransform = null;
                         var wrapper = document.getElementById('mapWrapper');
-                        if (wrapper) wrapper.style.transform = 'translate3d(calc(-50% + ' + tx +
-                            'px), calc(-50% + ' + ty + 'px), 0) scale3d(' + s + ',' + s + ',1)';
+                        if (wrapper) {
+                            wrapper.style.transform = 'translate3d(calc(-50% + ' + tx + 
+                                'px), calc(-50% + ' + ty + 'px), 0) scale3d(' + s + ',' + s + ',1)';
+                        }
                         var zl = document.getElementById('zoomLevel');
                         if (zl) zl.textContent = Math.round(s * 100) + '%';
                         if (Quality.current === 'high') Quality.updateHighQualityRendering();
                     });
                 }
+            },
+            _updateTransformImmediate: function() {
+                // 直接更新 transform，不经过 RAF 节流，用于拖拽
+                var wrapper = document.getElementById('mapWrapper');
+                if (wrapper) {
+                    wrapper.style.transform = 'translate3d(calc(-50% + ' + this._translateX + 
+                        'px), calc(-50% + ' + this._translateY + 'px), 0) scale3d(' + this._scale + ',' + this._scale + ',1)';
+                }
+                var zl = document.getElementById('zoomLevel');
+                if (zl) zl.textContent = Math.round(this._scale * 100) + '%';
+            },
+            _applyConstraints: function() {
+                // 获取地图包装器和视口的尺寸
+                var wrapper = document.getElementById('mapWrapper');
+                var viewport = document.getElementById('mapViewport');
+                if (!wrapper || !viewport) return;
+                
+                var wrapperRect = wrapper.getBoundingClientRect();
+                var vpRect = viewport.getBoundingClientRect();
+                
+                // 计算地图的显示尺寸（基于缩放）
+                // 由于地图使用 object-fit: contain，我们估算实际显示尺寸
+                var baseW = wrapperRect.width;
+                var baseH = wrapperRect.height;
+                var scale = this._scale;
+                
+                // 计算有效的平移范围
+                var margin = 0.2; // 允许20%的溢出
+                var maxTx = baseW * scale * (0.5 + margin);
+                var maxTy = baseH * scale * (0.5 + margin);
+                
+                // 约束平移
+                // 注意：_translateX 是相对于 centered 位置的偏移
+                // 但由于我们使用 translate3d(calc(-50% + tx), calc(-50% + ty), 0) 定位
+                // 实际上 tx, ty 是在中心点基础上的偏移
+                // 我们简单约束一下，防止地图完全移出视野
+                var minTx = -maxTx;
+                var maxTxClamp = maxTx;
+                var minTy = -maxTy;
+                var maxTyClamp = maxTy;
+                
+                if (this._translateX < minTx) this._translateX = minTx;
+                if (this._translateX > maxTxClamp) this._translateX = maxTxClamp;
+                if (this._translateY < minTy) this._translateY = minTy;
+                if (this._translateY > maxTyClamp) this._translateY = maxTyClamp;
             },
 
             _forceRepaint: function() {
@@ -6461,101 +6546,227 @@
                 return Math.round(bps) + ' B/s';
             },
 
-            setupEvents: function() {
+            _setupEvents: function() {
                 var viewport = document.getElementById('mapViewport');
                 var self = this;
 
-                if (viewport) {
-                    viewport.addEventListener('mousedown', function(e) {
-                        if (e.target.closest('.toolbar') || e.target.closest('.layer-panel')) return;
-                        self._isDragging = true;
-                        self._startX = e.clientX - self._translateX;
-                        self._startY = e.clientY - self._translateY;
-                        self._lastMouseX = e.clientX;
-                        self._lastMouseY = e.clientY;
-                    });
-                    document.addEventListener('mousemove', function(e) {
-                        self._lastMouseX = e.clientX;
-                        self._lastMouseY = e.clientY;
-                        if (!self._isDragging) return;
-                        var now = performance.now();
-                        if (now - self._lastDragTime < 16) return;
-                        self._lastDragTime = now;
-                        self._translateX = e.clientX - self._startX;
-                        self._translateY = e.clientY - self._startY;
-                        self._updateTransform();
-                    });
-                    document.addEventListener('mouseup', function() { self._isDragging = false; });
+                if (!viewport) return;
 
-                    viewport.addEventListener('wheel', function(e) {
-                        e.preventDefault();
-                        var now = performance.now();
-                        if (now - self._lastZoomWheelTime < 16) return;
-                        self._lastZoomWheelTime = now;
-                        var delta = e.deltaY > 0 ? 0.9 : 1.1;
-                        var ns = Math.max(0.2, Math.min(10, self._scale * delta));
-                        var pt = self._getPointOnImage(e.clientX, e.clientY);
-                        self._zoomAtPoint(pt.x, pt.y, ns);
-                    }, { passive: false });
+                // ===== 鼠标拖拽 =====
+                viewport.addEventListener('mousedown', function(e) {
+                    if (e.target.closest('.layer-panel') || e.target.closest('.control-btn')) return;
+                    
+                    self._isDragging = true;
+                    self._startX = e.clientX;
+                    self._startY = e.clientY;
+                    self._startTranslateX = self._translateX;
+                    self._startTranslateY = self._translateY;
+                    self._lastMouseX = e.clientX;
+                    self._lastMouseY = e.clientY;
+                    
+                    viewport.style.cursor = 'grabbing';
+                    e.preventDefault();
+                });
 
-                    var touches = [];
-                    var lastCenter = { x: 0, y: 0 };
-                    viewport.addEventListener('touchstart', function(e) {
-                        touches = Array.from(e.touches);
-                        if (touches.length === 1) {
-                            self._isDragging = true;
-                            self._startX = touches[0].clientX - self._translateX;
-                            self._startY = touches[0].clientY - self._translateY;
-                            self._lastMouseX = touches[0].clientX;
-                            self._lastMouseY = touches[0].clientY;
-                        } else if (touches.length === 2) {
-                            self._isDragging = false;
-                            e.preventDefault();
-                            self._initialDistance = Math.hypot(touches[0].clientX - touches[1].clientX,
-                                touches[0].clientY - touches[1].clientY);
-                            self._initialScale = self._scale;
-                            lastCenter = { x: (touches[0].clientX + touches[1].clientX) / 2,
-                                y: (touches[0].clientY + touches[1].clientY) / 2 };
-                        }
-                    }, { passive: false });
-                    viewport.addEventListener('touchmove', function(e) {
-                        e.preventDefault();
-                        touches = Array.from(e.touches);
-                        var now = performance.now();
-                        if (now - self._lastDragTime < 16) return;
-                        self._lastDragTime = now;
-                        if (touches.length === 1 && self._isDragging) {
-                            self._translateX = touches[0].clientX - self._startX;
-                            self._translateY = touches[0].clientY - self._startY;
-                            self._lastMouseX = touches[0].clientX;
-                            self._lastMouseY = touches[0].clientY;
-                            self._updateTransform();
-                        } else if (touches.length === 2) {
-                            var cd = Math.hypot(touches[0].clientX - touches[1].clientX, touches[0]
-                                .clientY - touches[1].clientY);
-                            var cc = { x: (touches[0].clientX + touches[1].clientX) / 2,
-                                y: (touches[0].clientY + touches[1].clientY) / 2 };
-                            if (self._initialDistance > 0) {
-                                var ns2 = Math.max(0.2, Math.min(10, self._initialScale * (cd / self
-                                    ._initialDistance)));
-                                var pt2 = self._getPointOnImage(lastCenter.x, lastCenter.y);
-                                self._zoomAtPoint(pt2.x, pt2.y, ns2);
-                            }
-                            lastCenter = cc;
-                        }
-                    }, { passive: false });
-                    viewport.addEventListener('touchend', function(e) {
+                document.addEventListener('mousemove', function(e) {
+                    self._lastMouseX = e.clientX;
+                    self._lastMouseY = e.clientY;
+                    
+                    if (!self._isDragging) return;
+                    
+                    var dx = e.clientX - self._startX;
+                    var dy = e.clientY - self._startY;
+                    
+                    self._translateX = self._startTranslateX + dx;
+                    self._translateY = self._startTranslateY + dy;
+                    
+                    self._updateTransformImmediate();
+                });
+
+                document.addEventListener('mouseup', function() {
+                    if (self._isDragging) {
                         self._isDragging = false;
-                        touches = Array.from(e.touches);
-                        if (touches.length === 1) {
-                            self._startX = touches[0].clientX - self._translateX;
-                            self._startY = touches[0].clientY - self._translateY;
-                            self._isDragging = true;
+                        viewport.style.cursor = 'grab';
+                    }
+                });
+
+                viewport.addEventListener('mouseleave', function() {
+                    if (self._isDragging) {
+                        self._isDragging = false;
+                        viewport.style.cursor = '';
+                    }
+                });
+
+                // ===== 滚轮缩放 =====
+                viewport.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    
+                    var now = performance.now();
+                    if (now - self._lastZoomWheelTime < 16) return;
+                    self._lastZoomWheelTime = now;
+                    
+                    var delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    var newScale = Math.max(0.2, Math.min(10, self._scale * delta));
+                    
+                    var rect = viewport.getBoundingClientRect();
+                    var cx = e.clientX - rect.left - rect.width / 2;
+                    var cy = e.clientY - rect.top - rect.height / 2;
+                    var px = (cx - self._translateX) / self._scale;
+                    var py = (cy - self._translateY) / self._scale;
+                    
+                    self._zoomAtPoint(px, py, newScale);
+                    
+                    if (Quality.current === 'high') {
+                        Quality.updateHighQualityRendering();
+                    }
+                }, { passive: false });
+
+                // ===== 触摸支持 =====
+                var touchTouches = [];
+                var touchLastCenter = { x: 0, y: 0 };
+                var touchStartScale = 1;
+                var touchStartDist = 0;
+                var touchStartTranslateX = 0;
+                var touchStartTranslateY = 0;
+                var touchIsDragging = false;
+                var touchDragStartX = 0;
+                var touchDragStartY = 0;
+                var touchHasMoved = false;
+
+                viewport.addEventListener('touchstart', function(e) {
+                    if (e.target.closest('.layer-panel') || e.target.closest('.control-btn')) return;
+                    
+                    touchTouches = Array.from(e.touches);
+                    
+                    if (touchTouches.length === 1) {
+                        // 单指拖拽
+                        touchIsDragging = true;
+                        touchDragStartX = touchTouches[0].clientX;
+                        touchDragStartY = touchTouches[0].clientY;
+                        touchStartTranslateX = self._translateX;
+                        touchStartTranslateY = self._translateY;
+                        self._lastMouseX = touchTouches[0].clientX;
+                        self._lastMouseY = touchTouches[0].clientY;
+                        touchHasMoved = false;
+                    } else if (touchTouches.length === 2) {
+                        // 双指缩放
+                        touchIsDragging = false;
+                        e.preventDefault();
+                        
+                        var dx = touchTouches[0].clientX - touchTouches[1].clientX;
+                        var dy = touchTouches[0].clientY - touchTouches[1].clientY;
+                        touchStartDist = Math.hypot(dx, dy);
+                        touchStartScale = self._scale;
+                        touchStartTranslateX = self._translateX;
+                        touchStartTranslateY = self._translateY;
+                        
+                        touchLastCenter = {
+                            x: (touchTouches[0].clientX + touchTouches[1].clientX) / 2,
+                            y: (touchTouches[0].clientY + touchTouches[1].clientY) / 2
+                        };
+                    }
+                }, { passive: false });
+
+                viewport.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                    touchTouches = Array.from(e.touches);
+                    
+                    var now = performance.now();
+                    if (now - self._lastDragTime < 16) return;
+                    self._lastDragTime = now;
+                    
+                    if (touchTouches.length === 1 && touchIsDragging) {
+                        // 单指拖拽
+                        var dx = touchTouches[0].clientX - touchDragStartX;
+                        var dy = touchTouches[0].clientY - touchDragStartY;
+                        
+                        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                            touchHasMoved = true;
                         }
-                    });
-                    viewport.addEventListener('touchcancel', function() { self._isDragging = false;
-                        touches = []; });
-                }
+                        
+                        self._translateX = touchStartTranslateX + dx;
+                        self._translateY = touchStartTranslateY + dy;
+                        self._updateTransform();
+                        self._lastMouseX = touchTouches[0].clientX;
+                        self._lastMouseY = touchTouches[0].clientY;
+                        
+                    } else if (touchTouches.length === 2) {
+                        // 双指缩放
+                        var dx2 = touchTouches[0].clientX - touchTouches[1].clientX;
+                        var dy2 = touchTouches[0].clientY - touchTouches[1].clientY;
+                        var dist = Math.hypot(dx2, dy2);
+                        
+                        if (touchStartDist > 0) {
+                            var scaleRatio = dist / touchStartDist;
+                            var newScale = Math.max(0.2, Math.min(10, touchStartScale * scaleRatio));
+                            
+                            var center = {
+                                x: (touchTouches[0].clientX + touchTouches[1].clientX) / 2,
+                                y: (touchTouches[0].clientY + touchTouches[1].clientY) / 2
+                            };
+                            
+                            var rect2 = viewport.getBoundingClientRect();
+                            var cx2 = center.x - rect2.left - rect2.width / 2;
+                            var cy2 = center.y - rect2.top - rect2.height / 2;
+                            
+                            var px2 = (cx2 - touchStartTranslateX) / touchStartScale;
+                            var py2 = (cy2 - touchStartTranslateY) / touchStartScale;
+                            
+                            self._scale = newScale;
+                            self._translateX = cx2 - px2 * self._scale;
+                            self._translateY = cy2 - py2 * self._scale;
+                            self._updateTransform();
+                            
+                            touchLastCenter = center;
+                        }
+                    }
+                }, { passive: false });
+
+                viewport.addEventListener('touchend', function(e) {
+                    touchTouches = Array.from(e.touches);
+                    touchIsDragging = false;
+                    
+                    if (touchTouches.length === 0) {
+                        viewport.style.cursor = '';
+                    } else if (touchTouches.length === 1) {
+                        touchIsDragging = true;
+                        touchDragStartX = touchTouches[0].clientX;
+                        touchDragStartY = touchTouches[0].clientY;
+                        touchStartTranslateX = self._translateX;
+                        touchStartTranslateY = self._translateY;
+                        touchHasMoved = false;
+                    }
+                });
+
+                viewport.addEventListener('touchcancel', function() {
+                    touchIsDragging = false;
+                    touchTouches = [];
+                    viewport.style.cursor = '';
+                });
+
+                // ===== 初始化光标 =====
+                viewport.style.cursor = 'grab';
+
+                // ===== 窗口大小变化检测 =====
+                var resizeTimeout = null;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(function() {
+                        var wrapper = document.getElementById('mapWrapper');
+                        if (!wrapper) return;
+                        var rect = wrapper.getBoundingClientRect();
+                        var vpRect = viewport.getBoundingClientRect();
+                        var threshold = 500;
+                        if (rect.left > vpRect.right + threshold || 
+                            rect.right < vpRect.left - threshold ||
+                            rect.top > vpRect.bottom + threshold ||
+                            rect.bottom < vpRect.top - threshold) {
+                            self.resetView();
+                        }
+                    }, 300);
+                });
+
+                console.log('🗺️ 地图交互已初始化（拖拽 + 滚轮缩放 + 触摸支持）');
             },
         };
 
