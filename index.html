@@ -4068,6 +4068,7 @@
             box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
         }
     </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -8480,6 +8481,9 @@
                 this.protection.init();
   
                 this.layout.detect();
+
+                // 初始化地图交互（拖拽、滚轮缩放、触摸）
+                Map._setupEvents();
 
                 // 进入后显示空白状态
                 var self = this;
