@@ -4228,9 +4228,10 @@
             <div class="help-section">
                 <div class="help-section-title">关于地图馆</div>
                 <div class="help-section-content">
-                    <p><strong>昭燃的历史地图馆</strong>是一个专注于中外历史地理数字化展示的在线平台。</p>
-                    <p>收录80+幅历史地图，涵盖中国历史七大时期及世界历史。</p>
-                    <p>采用多图层叠加渲染技术，支持原画/高画质/低画质三级调节。</p>
+                    <p><strong>昭燃的历史地图馆</strong>是一个专注于中外历史地理数字化展示的在线平台，致力于通过电子历史地图为用户呈现跨越时空的历史图景。</p>
+                    <p>地图馆主要收录了作者昭燃从史前文明到当代中国的61幅历史地图，涵盖中国历史七大时期--史前时期、早期国家、帝国形成、成熟帝国、传统社会、中国近代与中国现代。同时精选其他作者的中外历史地图作品，藏图总数 80+ 。</p>
+                    <p>本馆以”以史为鉴，可以知兴替"为核心理念，采用多图层叠加渲染技术(背景、地形、国界、河湖、地名五层独立控制)，支持原画/高画质/低画质三级画质调节，适配桌面端、平板与移动设备多场景浏览。用户可通过时间轴、搜索、键盘快捷键等多种方式探索地图，深入了解历代疆域变迁、政权更迭与文明演进。</p>
+                    <p>平台还提供学术讨论区（评论区），支持用户发表见解、互动交流，构建历史、地理爱好者的知识共享社区。</p>
                 </div>
             </div>
             <div class="help-section">
@@ -4245,7 +4246,7 @@
                 </div>
             </div>
             <div class="help-section">
-                <div class="help-section-title">⌨️ 快捷键</div>
+                <div class="help-section-title">⌨️ 电脑端快捷键</div>
                 <div class="shortcut-list">
                     <span class="shortcut-key">←</span>
                     <span class="shortcut-desc">切换到上一幅地图</span>
@@ -4299,7 +4300,7 @@
             <div class="help-section">
                 <div class="help-section-title">ℹ️ 版本信息</div>
                 <div class="help-section-content">
-                    <p>昭燃的历史地图馆 v1.0</p>
+                    <p>昭燃的历史地图馆 v1.1</p>
                     <p>共收录 80+ 幅历史地图 · 涵盖 8 大历史时期</p>
                     <p style="margin-top:8px;font-size:0.8rem;opacity:0.7;">© 2024 昭燃 · 以史为鉴，可以知兴替</p>
                 </div>
@@ -8584,7 +8585,7 @@
                     setTimeout(function() { self.layout.switchTab('map'); }, 500);
                 }
 
-                console.log('✨ 昭燃的历史地图馆 v1.0 已启动');
+                console.log('✨ 昭燃的历史地图馆 v1.1 已启动');
             },
 
             _renderTimeline: function() {
@@ -8608,7 +8609,8 @@
                             "传统社会": "治乱兴衰",
                             "中国近代": "救亡图存",
                             "中国现代": "复兴之路",
-                            "世界历史": "纵观世界"
+                            "世界历史": "纵观世界",
+                            "其他作者作品": "博采众长"
                         };
                         eraDiv.innerHTML = '<span>' + currentEra + '</span><span class="era-quote">' + (quotes[currentEra] || '') + '</span>';
                         list.appendChild(eraDiv);
