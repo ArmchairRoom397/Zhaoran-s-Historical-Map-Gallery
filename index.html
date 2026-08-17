@@ -4069,6 +4069,7 @@
         }
     </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -8287,68 +8288,78 @@
         };
         /*模块 13: 访问统计 (Visitor)*/
         const Visitor = {
-            VISITOR_COOKIE_KEY: 'visitor_last_visit',
+            VISITOR_KEY: 'visitor_last_visit_time',
 
             init: function() {
-                var cached = localStorage.getItem('visitorCount');
-                if (cached) this._updateDisplay(parseInt(cached));
-
-                var counted = sessionStorage.getItem('visitorCounted');
-                if (!counted) {
-                    this._increment();
-                    sessionStorage.setItem('visitorCounted', 'true');
-                } else {
-                    this._fetch();
-                }
-                this._updateToday();
+                // 每次进入都记录（刷新页面也算新访问）
+                this._recordVisit();
+                // 同时获取最新数据用于显示
+                this._fetch();
             },
 
-            _increment: function() {
-                if (!Discussion._supabase) { this._incrementLocal(); return; }
+            // 记录一次访问（原子操作，不重复）
+            _recordVisit: function() {
                 var self = this;
-                Discussion._supabase.from('site_stats').select('visitor_count, id').eq('site_key', 'zhaoran_map')
-                    .single().then(function(res) {
-                        if (res.error && res.error.code !== 'PGRST116') { self._incrementLocal(); return; }
-                        var newCount = 1,
-                            id = null;
-                        if (res.data) { newCount = (res.data.visitor_count || 0) + 1;
-                            id = res.data.id; }
-                        if (id) {
-                            Discussion._supabase.from('site_stats').update({ visitor_count: newCount,
-                                    last_updated: new Date().toISOString() }).eq('id', id).then();
-                        } else {
-                            Discussion._supabase.from('site_stats').insert([{ site_key: 'zhaoran_map',
-                                    visitor_count: newCount, last_updated: new Date().toISOString() }])
-                                .then();
-                        }
-                        self._updateDisplay(newCount);
-                        localStorage.setItem('visitorCount', newCount);
-                    });
+
+                // 调用 RPC 函数原子性 +1
+                fetch(Discussion._apiUrl + '/rpc/increment_visitor', {
+                    method: 'POST',
+                    headers: Discussion._headers(),
+                    body: JSON.stringify({ site: 'zhaoran_map' })
+                })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('RPC failed: ' + res.status);
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data && data.visitor_count !== undefined) {
+                        self._updateDisplay(data.visitor_count);
+                        localStorage.setItem('visitorCount', data.visitor_count);
+                        // 记录本次访问时间
+                        localStorage.setItem(self.VISITOR_KEY, new Date().toISOString());
+                        self._updateToday();
+                    }
+                })
+                .catch(function(err) {
+                    console.error('访问统计失败:', err);
+                    self._incrementLocal();
+                });
             },
 
+            // 获取最新数据（用于刷新显示）
             _fetch: function() {
-                if (!Discussion._supabase) return;
                 var self = this;
-                Discussion._supabase.from('site_stats').select('visitor_count').eq('site_key', 'zhaoran_map')
-                    .single().then(function(res) {
-                        if (!res.error && res.data) {
-                            var count = res.data.visitor_count || 0;
-                            self._updateDisplay(count);
-                            localStorage.setItem('visitorCount', count);
-                        }
-                    });
+                fetch(Discussion._apiUrl + '/site_stats?site_key=eq.zhaoran_map&select=visitor_count,last_updated', {
+                    headers: Discussion._headers()
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data && data[0]) {
+                        var count = data[0].visitor_count || 0;
+                        self._updateDisplay(count);
+                        localStorage.setItem('visitorCount', count);
+                    }
+                })
+                .catch(function(err) {
+                    console.error('获取统计失败:', err);
+                    var cached = parseInt(localStorage.getItem('visitorCount') || '0');
+                    self._updateDisplay(cached);
+                });
             },
 
+            // 本地回退（网络失败时用）
             _incrementLocal: function() {
                 var local = parseInt(localStorage.getItem('localVisitorCount') || '0') + 1;
                 localStorage.setItem('localVisitorCount', local);
                 this._updateDisplay(local);
+                localStorage.setItem(this.VISITOR_KEY, new Date().toISOString());
+                this._updateToday();
             },
 
             _updateDisplay: function(count) {
                 var el = document.getElementById('visitorNumber');
                 if (el) {
-                    var current = parseInt(el.textContent) || 0;
+                    var current = parseInt(el.textContent.replace(/[^\d]/g, '')) || 0;
                     Utils.animateNumber(el, current, count, 800);
                 }
             },
@@ -8356,12 +8367,25 @@
             _updateToday: function() {
                 var el = document.getElementById('visitorToday');
                 if (!el) return;
-                var last = localStorage.getItem(this.VISITOR_COOKIE_KEY);
-                var today = new Date().toDateString();
-                var visited = last && new Date(last).toDateString() === today;
-                el.textContent = visited ? '已访问' : '新访问';
-                el.style.color = visited ? '#4a9b8e' : 'var(--gold)';
-                if (!visited) localStorage.setItem(this.VISITOR_COOKIE_KEY, new Date().toISOString());
+                var lastVisit = localStorage.getItem(this.VISITOR_KEY);
+                var now = new Date();
+                var isToday = lastVisit && new Date(lastVisit).toDateString() === now.toDateString();
+
+                if (isToday) {
+                    var lastTime = new Date(lastVisit);
+                    var hoursAgo = Math.floor((now - lastTime) / 3600000);
+                    if (hoursAgo < 1) {
+                        el.textContent = '刚刚访问';
+                    } else if (hoursAgo < 24) {
+                        el.textContent = hoursAgo + '小时前';
+                    } else {
+                        el.textContent = '今日已访';
+                    }
+                    el.style.color = '#4a9b8e';
+                } else {
+                    el.textContent = '新访问';
+                    el.style.color = 'var(--gold)';
+                }
             }
         };
 
