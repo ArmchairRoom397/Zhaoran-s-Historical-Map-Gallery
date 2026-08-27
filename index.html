@@ -282,6 +282,20 @@
         body.rice-paper-theme .discussion-submit-btn:hover {
             box-shadow: 0 6px 20px rgba(107, 52, 16, 0.25) !important;
         }
+
+        /* 宣纸主题 - 右上角按钮颜色修复 */
+        body.rice-paper-theme .settings-btn,
+        body.rice-paper-theme .help-btn {
+            background: rgba(235, 229, 217, 0.85) !important;
+            color: var(--gold) !important;
+            border-color: var(--gold) !important;
+        }
+        body.rice-paper-theme .settings-btn:hover,
+        body.rice-paper-theme .help-btn:hover {
+            background: var(--gold) !important;
+            color: #fff !important;
+        }
+
         /* ===== 高斯模糊全局控制 ===== */
         body.blur-disabled {
             --blur-enabled: 0;
@@ -638,47 +652,6 @@
             font-size: 0.9rem;
             white-space: nowrap;
         }
-        .enter-button {
-            padding: 16px 48px;
-            background: transparent;
-            border: 2px solid var(--gold);
-            color: var(--gold);
-            font-family: var(--font-serif);
-            font-size: 1.1rem;
-            letter-spacing: 4px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeInUp 1s ease 1.5s forwards;
-            border-radius: 4px;
-            min-height: 56px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .enter-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-        .enter-button:hover::before,
-        .enter-button:active::before {
-            left: 100%;
-        }
-        .enter-button:hover,
-        .enter-button:active {
-            background: var(--gold);
-            color: var(--bg-dark);
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
-            transform: translateY(-2px);
-        }
         .bottom-ornament {
             position: absolute;
             bottom: 40px;
@@ -907,6 +880,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+        /* 修复 #17: era-intro-title 溢出 */
+        .era-intro-title {
+            white-space: normal;
+            word-break: break-word;
         }
         .era-label-guest {
             color: #c0392b !important;
@@ -1247,97 +1225,164 @@
             font-weight: 600;
         }
 
-        /* ===== 地图控件 - 固定在 map-viewport 内部 ===== */
-        .map-controls {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
+        /* ===== 全局统一控件栏（所有屏幕尺寸通用） ===== */
+        .portrait-controls {
+            display: flex !important;
+            position: fixed;
+            bottom: 30px;
+            left: 50% !important;
+            right: auto !important;
+            transform: translateX(-50%) !important;
+            width: auto !important;
+            max-width: 92% !important;
+            min-width: 200px !important;
+            z-index: 150;
+            background: rgba(22, 17, 62, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 8px 16px;
+            border-radius: 28px;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             align-items: center;
-            gap: 10px;
-            z-index: 100;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            backdrop-filter: blur(calc(10px * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
         }
 
-        .map-controls-left {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            z-index: 100;
+        body.rice-paper-theme .portrait-controls {
+            background: rgba(235, 229, 217, 0.92) !important;
+            border-color: rgba(107, 52, 16, 0.2) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
         }
 
-        .map-controls .control-btn,
-        .map-controls-left .control-btn {
-            width: 44px;
-            height: 44px;
-            border: 1px solid var(--gold);
-            background: rgba(0, 0, 0, 0.7);
-            color: var(--gold);
-            border-radius: 50%;
-            cursor: pointer;
+        .portrait-ctrl-group {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            touch-action: manipulation;
-            position: relative;
-            overflow: hidden;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
-        .map-controls .control-btn::before,
-        .map-controls-left .control-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: var(--gold);
+        .portrait-controls .control-btn {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--gold);
             border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 0;
+            cursor: pointer;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            touch-action: manipulation;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 0;
+            flex-shrink: 0;
         }
 
-        .map-controls .control-btn:hover::before,
-        .map-controls-left .control-btn:hover::before,
-        .map-controls .control-btn:active::before,
-        .map-controls-left .control-btn:active::before {
-            width: 100%;
-            height: 100%;
+        body.rice-paper-theme .portrait-controls .control-btn {
+            background: rgba(235, 229, 217, 0.6) !important;
+            border-color: rgba(107, 52, 16, 0.2) !important;
         }
 
-        .map-controls .control-btn:hover,
-        .map-controls-left .control-btn:hover,
-        .map-controls .control-btn:active,
-        .map-controls-left .control-btn:active {
+        .portrait-controls .control-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .portrait-controls .control-btn:not(:disabled):hover {
+            background: var(--gold);
             color: var(--bg-dark);
-            transform: scale(1.15) rotate(5deg);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            transform: scale(1.1) rotate(3deg);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
         }
 
-        .map-controls .control-btn span,
-        .map-controls-left .control-btn span {
-            position: relative;
-            z-index: 1;
+        .portrait-controls .control-btn:not(:disabled):active {
+            transform: scale(0.92);
         }
 
-        .zoom-level {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+        .portrait-controls .zoom-level {
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            min-width: 52px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 16px;
             color: var(--gold);
             font-family: "Courier New", monospace;
-            border: 1px solid var(--gold);
             text-align: center;
-            min-width: 70px;
             font-weight: 700;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+
+        body.rice-paper-theme .portrait-controls .zoom-level {
+            background: rgba(235, 229, 217, 0.5) !important;
+            border-color: rgba(107, 52, 16, 0.15) !important;
+            color: var(--text) !important;
+        }
+
+        /* ===== 删除所有条件覆盖，全局统一 ===== */
+        /* 桌面端 - 底部位置微调 */
+        @media (min-width: 769px) {
+            .portrait-controls {
+                bottom: 30px !important;
+                padding: 8px 18px !important;
+                min-width: 220px !important;
+            }
+            .portrait-controls .control-btn {
+                width: 42px !important;
+                height: 42px !important;
+                min-width: 42px !important;
+                min-height: 42px !important;
+                font-size: 1.05rem !important;
+            }
+            .portrait-controls .zoom-level {
+                font-size: 0.85rem !important;
+                min-width: 56px !important;
+            }
+        }
+
+        /* 移动端 - 底部位置微调 */
+        @media (max-width: 768px) {
+            .portrait-controls {
+                bottom: 90px !important;
+                padding: 6px 12px !important;
+                min-width: 180px !important;
+            }
+            .portrait-controls .control-btn {
+                width: 36px !important;
+                height: 36px !important;
+                min-width: 36px !important;
+                min-height: 36px !important;
+                font-size: 0.9rem !important;
+            }
+            .portrait-controls .zoom-level {
+                font-size: 0.7rem !important;
+                min-width: 44px !important;
+                padding: 3px 10px !important;
+            }
+        }
+
+        /* 旧地图控件全局隐藏（确保不显示） */
+        .map-controls,
+        .map-controls-left {
+            display: none !important;
         }
         /* 7. 右侧 — 信息面板 */
         .info-panel {
@@ -1444,7 +1489,6 @@
             align-items: center;
             gap: 6px;
             letter-spacing: 1px;
-            white-space: nowrap;
         }
         .era-intro-title::before {
             content: '▸';
@@ -2057,7 +2101,7 @@
             right: 20px;
             width: 40px;
             height: 40px;
-            background: rgba(22, 17, 62, calc(0.95 - 0.40 * var(--blur-enabled)));
+            background: rgba(22, 17, 62, 0.85);
             backdrop-filter: blur(calc(10px * var(--blur-enabled)));
             -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
             border: 1px solid var(--gold);
@@ -2082,7 +2126,7 @@
             right: 70px;
             width: 40px;
             height: 40px;
-            background: rgba(22, 17, 62, calc(0.95 - 0.40 * var(--blur-enabled)));
+            background: rgba(22, 17, 62, 0.85);
             backdrop-filter: blur(calc(10px * var(--blur-enabled)));
             -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
             border: 1px solid var(--gold);
@@ -2101,6 +2145,11 @@
             color: var(--bg-dark);
             transform: scale(1.15) rotate(-10deg);
         }
+        .settings-btn,
+        .help-btn {
+            backdrop-filter: blur(calc(10px * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
+        }
 
         .settings-panel {
             position: fixed;
@@ -2114,6 +2163,8 @@
             transition: right 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
             padding: 20px;
             overflow-y: auto;
+            backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
         }
         .settings-panel.open {
             right: 0;
@@ -2392,6 +2443,8 @@
             padding: 0;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
         }
         .help-panel.open {
             right: 0;
@@ -2610,6 +2663,8 @@
             visibility: hidden;
             transition: all 0.3s ease;
             padding: 20px;
+            backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
         }
         .share-modal-overlay.show {
             opacity: 1;
@@ -2628,6 +2683,8 @@
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: flex;
             flex-direction: column;
+            backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
         }
         .share-modal-overlay.show .share-modal {
             transform: scale(1) translateY(0);
@@ -3096,6 +3153,8 @@
             visibility: hidden;
             transition: all 0.3s ease;
             padding: 20px;
+            backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
         }
         .admin-login-overlay.show {
             opacity: 1;
@@ -3113,6 +3172,8 @@
             transform: scale(0.9) translateY(20px);
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
+            backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
         }
         .admin-login-overlay.show .admin-login-modal {
             transform: scale(1) translateY(0);
@@ -3239,7 +3300,7 @@
                 transform: translateX(0);
             }
 
-            /* ===== 地图容器 - 横屏修复核心 ===== */
+            /* ===== 地图容器 - 横屏修复核心（修复 #3 竖屏地图裁剪） ===== */
             .map-panel {
                 width: 100%;
                 height: 100%;
@@ -3276,23 +3337,18 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+                transform: none !important;
                 will-change: transform;
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
-                transform-style: preserve-3d;
-                -webkit-transform-style: preserve-3d;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 overflow: hidden;
             }
 
-            /* ===== 图层堆叠 - 横屏修复核心 ===== */
             .layer-stack {
-                position: absolute;
-                top: 0;
-                left: 0;
+                position: relative;
                 width: 100%;
                 height: 100%;
                 display: flex;
@@ -3305,14 +3361,14 @@
 
             .layer-image {
                 position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: auto;
-                height: auto;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: center;
                 max-width: 100%;
                 max-height: 100%;
-                object-fit: contain;
                 user-select: none;
                 -webkit-user-drag: none;
                 pointer-events: none;
@@ -3322,13 +3378,13 @@
                 will-change: auto;
                 contain: layout style;
                 transition: opacity 0.15s ease;
+                transform: none !important;
             }
 
             .layer-image.loaded {
                 display: block;
             }
 
-            /* ===== 占位符 - 横屏适配 ===== */
             .map-placeholder {
                 position: absolute;
                 top: 50%;
@@ -3463,7 +3519,6 @@
                 white-space: nowrap;
             }
 
-            /* 宣纸主题适配 */
             body.rice-paper-theme .portrait-controls {
                 background: rgba(235, 229, 217, 0.95);
                 border-color: rgba(107, 52, 16, 0.2);
@@ -3478,7 +3533,6 @@
                 flex-shrink: 0;
             }
 
-            /* 控件按钮统一尺寸 */
             .portrait-controls .control-btn {
                 width: 38px !important;
                 height: 38px !important;
@@ -3544,33 +3598,17 @@
                 border-color: rgba(107, 52, 16, 0.15);
                 color: var(--text);
             }
-
-            /* 桌面端隐藏竖屏控件 */
-            @media (min-width: 769px) {
-                .map-controls,
-                .map-controls-left {
-                    display: flex !important; 
-                }
-                .portrait-controls {
-                    display: none !important; 
-                }
-            }
-            /* 桌面端显示地图控件 */
+            /* 旧地图控件全局隐藏 */
             .map-controls,
             .map-controls-left {
+                display: none !important;
+            }
+
+            /* 统一控件全局显示 */
+            .portrait-controls {
                 display: flex !important;
             }
 
-            /* 移动端隐藏地图控件，显示竖屏控件 */
-            @media (max-width: 768px) {
-                .map-controls,
-                .map-controls-left {
-                    display: none !important;
-                }
-                .portrait-controls {
-                    display: flex !important;
-                }
-            }
 
             .sidebar-toggle {
                 display: none !important;
@@ -3602,7 +3640,7 @@
             }
 
             .timeline-list {
-                padding: 8px 8px 100px;
+                padding: 8px 8px 80px;
                 flex: 1;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
@@ -3653,19 +3691,65 @@
                 padding: 12px;
                 gap: 10px;
             }
+            /* ===== 手机端图层面板 - 靠右显示（修复 #11） ===== */
             .layer-panel {
                 bottom: 160px;
-                left: 50% !important;
-                right: auto !important;
-                transform: translateX(-50%) translateY(20px) !important;
+                left: auto !important;
+                right: 12px !important;
+                transform: translateY(20px) !important;
                 min-width: auto;
                 width: auto !important;
                 max-width: 46% !important;
                 padding: 10px 14px;
                 border-radius: 12px;
+                background: rgba(22, 33, 61, 0.92);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(212, 175, 55, 0.2);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+                gap: 4px;
             }
+
             .layer-panel.show {
-                transform: translateY(0);
+                transform: translateY(0) !important;
+            }
+
+            .layer-item {
+                padding: 5px 8px;
+                gap: 6px;
+                min-height: 30px;
+            }
+
+            .layer-item-left {
+                gap: 6px;
+            }
+
+            .layer-checkbox {
+                width: 15px;
+                height: 15px;
+            }
+
+            .layer-name {
+                font-size: 0.7rem;
+            }
+
+            .layer-badge {
+                font-size: 0.5rem;
+                padding: 1px 5px;
+            }
+
+            .layer-panel-header {
+                padding-bottom: 4px;
+                margin-bottom: 2px;
+            }
+
+            .layer-panel-title {
+                font-size: 0.7rem;
+            }
+
+            .layer-panel-close {
+                font-size: 0.8rem;
+                padding: 0 4px;
             }
             .loading-container {
                 padding: 20px;
@@ -3779,11 +3863,6 @@
                 }
             }
         }
-        @media (min-width: 769px) {
-            .portrait-controls {
-                display: none !important;
-            }
-        }
         @media (hover: none) {
             .timeline-item:hover {
                 background: transparent;
@@ -3808,15 +3887,6 @@
                 color: var(--gold);
             }
             .nav-btn:active:not(:disabled) {
-                background: var(--gold);
-                color: var(--bg-dark);
-            }
-            .enter-button:hover {
-                background: transparent;
-                color: var(--gold);
-                transform: none;
-            }
-            .enter-button:active {
                 background: var(--gold);
                 color: var(--bg-dark);
             }
@@ -4501,27 +4571,7 @@
         }
 
         /* === 50. 进入按钮光晕脉冲 === */
-        .enter-button {
-            animation: enterButtonGlow 3s ease-in-out infinite;
-        }
-        @keyframes enterButtonGlow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
-            50% { box-shadow: 0 0 15px 2px rgba(212, 175, 55, 0.1); }
-        }
-        body.bronze-theme .enter-button {
-            animation: enterButtonGlowBronze 3s ease-in-out infinite;
-        }
-        @keyframes enterButtonGlowBronze {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(127, 176, 105, 0); }
-            50% { box-shadow: 0 0 15px 2px rgba(127, 176, 105, 0.1); }
-        }
-        body.cinnabar-theme .enter-button {
-            animation: enterButtonGlowCinnabar 3s ease-in-out infinite;
-        }
-        @keyframes enterButtonGlowCinnabar {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
-            50% { box-shadow: 0 0 15px 2px rgba(192, 57, 43, 0.1); }
-        }
+        /* 删除进入按钮，对应动画移除 */
 
         /* === 51. 过渡墨滴增强 === */
         .ink-drop {
@@ -4644,16 +4694,102 @@
             transform: scale(1.12) rotate(3deg);
             box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
         }
+
+        /* === 64. prefers-reduced-motion 支持（修复 #25） === */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .layer-image.loaded {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+            }
+            .timeline-list.initial-load .timeline-item,
+            .timeline-list.initial-load .era-label,
+            .info-content>*,
+            .discussion-item,
+            .help-panel.open .help-section,
+            .reply-input-area.show,
+            .mention-dropdown.show,
+            .discussion-image-preview.show,
+            .swipe-hint.show,
+            .layer-panel.show,
+            .share-modal-overlay.show .share-modal,
+            .protect-toast.show,
+            .settings-panel.open,
+            .help-panel.open {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+            .timeline-list.initial-load .timeline-item {
+                opacity: 1 !important;
+                transform: translateX(0) !important;
+            }
+            .info-content>* {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+            .corner-ornament,
+            .placeholder-icon,
+            .discussion-empty-icon,
+            .essential-badge,
+            .current-year,
+            .current-reign,
+            .control-btn,
+            .museum-title::after,
+            .title-divider::after,
+            .ornament-line::after,
+            .year-badge::after,
+            .loading-progress-bar::after,
+            .share-card-btn.primary::before,
+            .discussion-submit-btn::before,
+            .nav-btn:not(:disabled)::after,
+            .discussion-submit-btn::after,
+            .toggle-track.active,
+            .quality-option.active,
+            .theme-option,
+            .quality-option,
+            .guide-item,
+            .contact-row,
+            .thanks-tag,
+            .shortcut-key,
+            .layer-item,
+            .meta-item,
+            .wisdom-quote,
+            .discussion-card,
+            .search-input,
+            .settings-btn,
+            .help-btn,
+            .close-settings,
+            .close-help,
+            .share-modal-close,
+            .layer-panel-close,
+            .sidebar-toggle,
+            .mobile-tab.active .mobile-tab-icon,
+            .control-btn:hover,
+            .nav-btn:hover:not(:disabled),
+            .enter-button,
+            .scroll-line,
+            .era-quote,
+            #visitorNumber,
+            .zoom-level,
+            .loading-text {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
     </style>
-<base target="_blank">
-<base target="_blank">
-<base target="_blank">
-<base target="_blank">
-<base target="_blank">
 </head>
 <body>
 
-    <!--HTML 结构-->
     <!-- 过渡动画 -->
     <div class="transition-overlay" id="transitionOverlay">
         <div class="ink-drop" style="width:200px;height:200px;top:30%;left:20%;"></div>
@@ -4662,7 +4798,7 @@
         <div class="scroll-reveal"></div>
     </div>
 
-    <!-- 标题屏 -->
+    <!-- 标题屏（移除 enterButton） -->
     <div class="title-screen" id="titleScreen">
         <div class="corner-ornament top-left"></div>
         <div class="corner-ornament top-right"></div>
@@ -4681,7 +4817,6 @@
                 <p class="quote-text">"究天人之际，通古今之变，成一家之言"</p>
                 <p class="quote-author">—— 司马迁《报任安书》</p>
             </div>
-            <button id="enterButton" style="display:none;">点击任意区域进入展馆</button>
         </div>
         <div class="bottom-ornament">
             <p class="scroll-hint">点击任意区域进入地图馆</p>
@@ -4689,25 +4824,25 @@
         </div>
     </div>
 
-    <!-- 帮助 & 设置按钮 -->
-    <button class="help-btn" onclick="App.help.toggle()">❓</button>
-    <button class="settings-btn" onclick="App.settings.toggle()">⚙️</button>
+    <!-- 帮助 & 设置按钮（添加 aria-label 辅助功能） -->
+    <button class="help-btn" onclick="App.help.toggle()" aria-label="打开帮助中心">❓</button>
+    <button class="settings-btn" onclick="App.settings.toggle()" aria-label="打开设置面板">⚙️</button>
 
     <!-- 设置面板 -->
     <div class="settings-overlay" id="settingsOverlay" onclick="App.settings.toggle()"></div>
     <div class="settings-panel" id="settingsPanel">
         <div class="settings-header">
             <span class="settings-title">展馆设置</span>
-            <button class="close-settings" onclick="App.settings.toggle()">✕</button>
+            <button class="close-settings" onclick="App.settings.toggle()" aria-label="关闭设置">✕</button>
         </div>
         <div class="settings-section">
             <label class="settings-label">主题风格</label>
             <div class="theme-options">
-                <div class="theme-option active" onclick="App.theme.set('dark')" id="theme-dark">
+                <div class="theme-option active" onclick="App.theme.set('dark')" id="theme-dark" role="button" tabindex="0" aria-label="切换到玄墨主题">
                     <div class="theme-preview dark"></div>
                     <div>玄墨</div>
                 </div>
-                <div class="theme-option" onclick="App.theme.set('rice')" id="theme-rice">
+                <div class="theme-option" onclick="App.theme.set('rice')" id="theme-rice" role="button" tabindex="0" aria-label="切换到宣纸主题">
                     <div class="theme-preview rice"></div>
                     <div>宣纸</div>
                 </div>
@@ -4715,26 +4850,26 @@
         </div>
         <div class="settings-section">
             <label class="settings-label">左侧栏宽度</label>
-            <input type="range" class="width-slider" id="leftWidthSlider" min="200" max="400" value="300" oninput="App.settings.updateWidth('left', this.value)">
+            <input type="range" class="width-slider" id="leftWidthSlider" min="200" max="400" value="300" oninput="App.settings.updateWidth('left', this.value)" aria-label="调整左侧栏宽度">
             <div class="width-value" id="leftWidthValue">300px</div>
         </div>
         <div class="settings-section">
             <label class="settings-label">右侧栏宽度</label>
-            <input type="range" class="width-slider" id="rightWidthSlider" min="280" max="450" value="380" oninput="App.settings.updateWidth('right', this.value)">
+            <input type="range" class="width-slider" id="rightWidthSlider" min="280" max="450" value="380" oninput="App.settings.updateWidth('right', this.value)" aria-label="调整右侧栏宽度">
             <div class="width-value" id="rightWidthValue">380px</div>
         </div>
         <div class="settings-section">
             <label class="settings-label">画质设置</label>
             <div class="quality-options">
-                <div class="quality-option active" onclick="App.quality.set('original')" id="quality-original">
+                <div class="quality-option active" onclick="App.quality.set('original')" id="quality-original" role="button" tabindex="0" aria-label="原画画质">
                     <div class="quality-icon">🎨</div>
                     <div class="quality-name">原画</div>
                 </div>
-                <div class="quality-option" onclick="App.quality.set('high')" id="quality-high">
+                <div class="quality-option" onclick="App.quality.set('high')" id="quality-high" role="button" tabindex="0" aria-label="高画质">
                     <div class="quality-icon">✨</div>
                     <div class="quality-name">高画质</div>
                 </div>
-                <div class="quality-option" onclick="App.quality.set('low')" id="quality-low">
+                <div class="quality-option" onclick="App.quality.set('low')" id="quality-low" role="button" tabindex="0" aria-label="低画质">
                     <div class="quality-icon">⚡</div>
                     <div class="quality-name">低画质</div>
                 </div>
@@ -4753,7 +4888,7 @@
         </div>
         <div class="settings-section">
             <label class="settings-label">开发者模式</label>
-            <div class="toggle-switch" onclick="App.devMode.toggle()" id="devModeToggle">
+            <div class="toggle-switch" onclick="App.devMode.toggle()" id="devModeToggle" role="button" tabindex="0" aria-label="切换开发者模式">
                 <div class="toggle-track" id="devModeTrack"><div class="toggle-thumb"></div></div>
                 <span class="toggle-label" id="devModeLabel">已关闭</span>
             </div>
@@ -4765,22 +4900,22 @@
         <div class="settings-section" id="devToolsSection" style="display:none;">
             <label class="settings-label">🛠️ 开发者工具</label>
             <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
-                <button class="nav-btn" onclick="App.devMode.exportData()" style="width:100%;font-size:0.8rem;padding:10px;">
+                <button class="nav-btn" onclick="App.devMode.exportData()" style="width:100%;font-size:0.8rem;padding:10px;" aria-label="导出数据为JSON">
                     📤 导出数据 (JSON)
                 </button>
-                <button class="nav-btn" onclick="App.devMode.showSystemInfo()" style="width:100%;font-size:0.8rem;padding:10px;">
+                <button class="nav-btn" onclick="App.devMode.showSystemInfo()" style="width:100%;font-size:0.8rem;padding:10px;" aria-label="显示系统信息">
                     📊 系统信息
                 </button>
-                <button class="nav-btn" onclick="App.devMode.refreshCache()" style="width:100%;font-size:0.8rem;padding:10px;">
+                <button class="nav-btn" onclick="App.devMode.refreshCache()" style="width:100%;font-size:0.8rem;padding:10px;" aria-label="刷新缓存">
                     🔄 刷新缓存
                 </button>
-                <button class="nav-btn" onclick="App.devMode.clearStats()" style="width:100%;font-size:0.8rem;padding:10px;color:#e74c3c;border-color:#e74c3c;">
+                <button class="nav-btn" onclick="App.devMode.clearStats()" style="width:100%;font-size:0.8rem;padding:10px;color:#e74c3c;border-color:#e74c3c;" aria-label="重置统计数据">
                     📊 重置统计数据
                 </button>
-                <button class="nav-btn" onclick="App.devMode.clearAllDiscussions()" style="width:100%;font-size:0.8rem;padding:10px;color:#c0392b;border-color:#c0392b;">
+                <button class="nav-btn" onclick="App.devMode.clearAllDiscussions()" style="width:100%;font-size:0.8rem;padding:10px;color:#c0392b;border-color:#c0392b;" aria-label="删除全部评论">
                     🗑️ 删除全部评论
                 </button>
-                <button class="nav-btn" onclick="App.devMode.clearLogs()" style="width:100%;font-size:0.8rem;padding:10px;color:#7f8c8d;border-color:#7f8c8d;">
+                <button class="nav-btn" onclick="App.devMode.clearLogs()" style="width:100%;font-size:0.8rem;padding:10px;color:#7f8c8d;border-color:#7f8c8d;" aria-label="清除操作日志">
                     📋 清除操作日志
                 </button>
             </div>
@@ -4795,7 +4930,7 @@
     <div class="help-panel" id="helpPanel">
         <div class="help-header">
             <span class="help-title">📖 帮助中心</span>
-            <button class="close-help" onclick="App.help.toggle()">✕</button>
+            <button class="close-help" onclick="App.help.toggle()" aria-label="关闭帮助中心">✕</button>
         </div>
         <div class="help-content">
             <div class="help-section">
@@ -4858,7 +4993,7 @@
             <div class="help-section">
                 <div class="help-section-title">📬 联系作者</div>
                 <div class="contact-grid">
-                    <div class="contact-row"><span class="contact-icon">📺</span><div class="contact-info-text"><strong>Bilibili</strong><a href="https://space.bilibili.com/1807601961" target="_blank" style="color:var(--gold);text-decoration:none;">昭燃墨客</a></div></div>
+                    <div class="contact-row"><span class="contact-icon">📺</span><div class="contact-info-text"><strong>Bilibili</strong><a href="https://space.bilibili.com/1807601961" target="_blank" style="color:var(--gold);text-decoration:none;" aria-label="访问作者B站空间">昭燃墨客</a></div></div>
                     <div class="contact-row"><span class="contact-icon">📧</span><div class="contact-info-text"><strong>邮箱</strong>323885073@qq.com</div></div>
                 </div>
             </div>
@@ -4873,7 +5008,7 @@
             <div class="help-section">
                 <div class="help-section-title">ℹ️ 版本信息</div>
                 <div class="help-section-content">
-                    <p>昭燃的历史地图馆 v1.1</p>
+                    <p>昭燃的历史地图馆 v1.2</p>
                     <p>共收录 80+ 幅历史地图 · 涵盖 8 大历史时期</p>
                     <p style="margin-top:8px;font-size:0.8rem;opacity:0.7;">© 2024 昭燃 · 以史为鉴，可以知兴替</p>
                 </div>
@@ -4891,13 +5026,13 @@
     <!-- 开发者模式 -->
     <div class="dev-mode-indicator" id="devModeIndicator">
         🔧 开发者模式已开启
-        <button class="admin-logout-btn" onclick="App.devMode.logout()">退出</button>
+        <button class="admin-logout-btn" onclick="App.devMode.logout()" aria-label="退出开发者模式">退出</button>
     </div>
     <div class="admin-login-overlay" id="devModeLoginOverlay">
         <div class="admin-login-modal">
             <div class="admin-login-title">🔧 开发者模式验证</div>
-            <input type="password" class="admin-login-input" id="devModePasswordInput" placeholder="输入开发者密码" maxlength="20" onkeydown="if(event.key==='Enter')App.devMode.login()">
-            <button class="admin-login-btn" onclick="App.devMode.login()">验证身份</button>
+            <input type="password" class="admin-login-input" id="devModePasswordInput" placeholder="输入开发者密码" maxlength="20" onkeydown="if(event.key==='Enter')App.devMode.login()" aria-label="开发者密码输入">
+            <button class="admin-login-btn" onclick="App.devMode.login()" aria-label="验证身份">验证身份</button>
             <div class="admin-login-error" id="devModeLoginError"></div>
         </div>
     </div>
@@ -4911,7 +5046,7 @@
                 <div class="museum-subtitle">以史为鉴 · 可以知兴替</div>
             </div>
             <div class="search-box">
-                <input type="text" class="search-input" id="searchInput" placeholder="搜索朝代、年份或地图名称..." oninput="App.search.handle(this.value)">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索朝代、年份或地图名称..." oninput="App.search.handle(this.value)" aria-label="搜索地图">
             </div>
             <div class="quote-banner" id="sidebarQuote">
                 <div>"究天人之际，通古今之变，成一家之言"</div>
@@ -4946,13 +5081,13 @@
                         <p class="welcome-quote">"史者，所以明夫治天下之道也"<br><span style="font-size:0.9rem;opacity:0.7;">—— 曾巩《南齐书序》</span></p>
                     </div>
                     <div class="layer-stack" id="layerStack">
-                        <img class="layer-image mode-normal" id="layerBg" data-layer="bg" alt="背景" style="opacity:1;" oncontextmenu="return false;">
-                        <img class="layer-image mode-multiply" id="layerTerrain" data-layer="terrain" alt="地形" style="opacity:1;" oncontextmenu="return false;">
-                        <img class="layer-image mode-normal" id="layerBorder" data-layer="border" alt="国界" style="opacity:0.7;" oncontextmenu="return false;">
-                        <img class="layer-image mode-normal" id="layerRiver" data-layer="river" alt="河湖" style="opacity:0.7;" oncontextmenu="return false;">
-                        <img class="layer-image mode-normal" id="layerWall" data-layer="wall" alt="长城" style="opacity:1;" oncontextmenu="return false;">
-                        <img class="layer-image mode-normal" id="layerRoad" data-layer="road" alt="交通线" style="opacity:0.9;" oncontextmenu="return false;">
-                        <img class="layer-image mode-normal" id="layerName" data-layer="name" alt="地名" style="opacity:1;" oncontextmenu="return false;">
+                        <img class="layer-image mode-normal" id="layerBg" data-layer="bg" alt="背景图层" style="opacity:1;" oncontextmenu="return false;">
+                        <img class="layer-image mode-multiply" id="layerTerrain" data-layer="terrain" alt="地形图层" style="opacity:1;" oncontextmenu="return false;">
+                        <img class="layer-image mode-normal" id="layerBorder" data-layer="border" alt="国界图层" style="opacity:0.7;" oncontextmenu="return false;">
+                        <img class="layer-image mode-normal" id="layerRiver" data-layer="river" alt="河湖图层" style="opacity:0.7;" oncontextmenu="return false;">
+                        <img class="layer-image mode-normal" id="layerWall" data-layer="wall" alt="长城图层" style="opacity:1;" oncontextmenu="return false;">
+                        <img class="layer-image mode-normal" id="layerRoad" data-layer="road" alt="交通线图层" style="opacity:0.9;" oncontextmenu="return false;">
+                        <img class="layer-image mode-normal" id="layerName" data-layer="name" alt="地名图层" style="opacity:1;" oncontextmenu="return false;">
                     </div>
                     <img class="map-image" id="mapImage" alt="历史地图" oncontextmenu="return false;" style="display:none !important;">
                 </div>
@@ -4990,22 +5125,22 @@
                         </div>
                         <div class="discussion-input-area">
                             <div class="discussion-input-row">
-                                <input type="text" class="discussion-input" id="discussionName" placeholder="您的昵称（可选）" maxlength="20">
+                                <input type="text" class="discussion-input" id="discussionName" placeholder="您的昵称（可选）" maxlength="20" aria-label="昵称输入">
                             </div>
                             <div class="discussion-tag-selector">
-                                <button class="discussion-tag-option active" data-tag="general" onclick="App.discussion.selectTag(this)">一般讨论</button>
-                                <button class="discussion-tag-option" data-tag="academic" onclick="App.discussion.selectTag(this)">学术探讨</button>
-                                <button class="discussion-tag-option" data-tag="question" onclick="App.discussion.selectTag(this)">疑问求助</button>
-                                <button class="discussion-tag-option" data-tag="opinion" onclick="App.discussion.selectTag(this)">观点分享</button>
+                                <button class="discussion-tag-option active" data-tag="general" onclick="App.discussion.selectTag(this)" aria-label="选择一般讨论标签">一般讨论</button>
+                                <button class="discussion-tag-option" data-tag="academic" onclick="App.discussion.selectTag(this)" aria-label="选择学术探讨标签">学术探讨</button>
+                                <button class="discussion-tag-option" data-tag="question" onclick="App.discussion.selectTag(this)" aria-label="选择疑问求助标签">疑问求助</button>
+                                <button class="discussion-tag-option" data-tag="opinion" onclick="App.discussion.selectTag(this)" aria-label="选择观点分享标签">观点分享</button>
                             </div>
                             <div class="discussion-image-upload">
-                                <button class="discussion-image-upload-btn" onclick="document.getElementById('discussionImageInput').click()">📎 添加图片</button>
-                                <input type="file" id="discussionImageInput" accept="image/*" style="display:none" onchange="App.discussion.handleImageUpload(this)">
-                                <img class="discussion-image-preview" id="discussionImagePreview" alt="预览">
-                                <button class="discussion-image-remove" id="discussionImageRemove" style="display:none" onclick="App.discussion.removeImage()">✕</button>
+                                <button class="discussion-image-upload-btn" onclick="document.getElementById('discussionImageInput').click()" aria-label="添加图片">📎 添加图片</button>
+                                <input type="file" id="discussionImageInput" accept="image/*" style="display:none" onchange="App.discussion.handleImageUpload(this)" aria-label="图片文件选择">
+                                <img class="discussion-image-preview" id="discussionImagePreview" alt="评论图片预览">
+                                <button class="discussion-image-remove" id="discussionImageRemove" style="display:none" onclick="App.discussion.removeImage()" aria-label="移除图片">✕</button>
                             </div>
-                            <textarea class="discussion-textarea" id="discussionContent" placeholder="分享您对这幅地图的见解、疑问或学术观点... 输入 @ 可提及用户" maxlength="500"></textarea>
-                            <button class="discussion-submit-btn" id="discussionSubmit" onclick="App.discussion.submit()">发表评论</button>
+                            <textarea class="discussion-textarea" id="discussionContent" placeholder="分享您对这幅地图的见解、疑问或学术观点... 输入 @ 可提及用户" maxlength="500" aria-label="评论内容输入"></textarea>
+                            <button class="discussion-submit-btn" id="discussionSubmit" onclick="App.discussion.submit()" aria-label="发表评论">发表评论</button>
                         </div>
                         <div class="discussion-list" id="discussionList"><div class="discussion-empty"><div class="discussion-empty-icon">💭</div><div>加载中...</div></div></div>
                     </div>
@@ -5029,59 +5164,51 @@
                 </div>
                 <div class="info-section">
                     <div class="section-title">📤 分享</div>
-                    <button class="nav-btn" onclick="App.share.open()" style="width:100%;background:rgba(212,175,55,0.1);border-color:var(--gold);margin-top:8px;">生成分享卡片</button>
+                    <button class="nav-btn" onclick="App.share.open()" style="width:100%;background:rgba(212,175,55,0.1);border-color:var(--gold);margin-top:8px;" aria-label="生成分享卡片">生成分享卡片</button>
                 </div>
             </div>
             <div class="nav-buttons">
-                <button class="nav-btn" id="prevBtn" onclick="App.map.navigate(-1)" disabled>← 前朝</button>
-                <button class="nav-btn" id="nextBtn" onclick="App.map.navigate(1)" disabled>后世 →</button>
+                <button class="nav-btn" id="prevBtn" onclick="App.map.navigate(-1)" disabled aria-label="上一幅地图">← 前朝</button>
+                <button class="nav-btn" id="nextBtn" onclick="App.map.navigate(1)" disabled aria-label="下一幅地图">后世 →</button>
             </div>
             <div class="footer-quote" id="footerQuote">"江山留胜迹，我辈复登临" —— 孟浩然</div>
         </div>
     </div>
 
     <!-- 侧边栏切换 -->
-    <button class="sidebar-toggle left-toggle" id="leftToggle" onclick="App.layout.toggleSidebar('timeline')">◀</button>
-    <button class="sidebar-toggle right-toggle" id="rightToggle" onclick="App.layout.toggleSidebar('info')">▶</button>
+    <button class="sidebar-toggle left-toggle" id="leftToggle" onclick="App.layout.toggleSidebar('timeline')" aria-label="切换时间轴面板">◀</button>
+    <button class="sidebar-toggle right-toggle" id="rightToggle" onclick="App.layout.toggleSidebar('info')" aria-label="切换信息面板">▶</button>
 
-    <!-- 竖屏控件栏 -->
+    <!-- 全局统一控件栏 -->
     <div class="portrait-controls" id="portraitControls">
         <div class="portrait-ctrl-group">
-            <button class="control-btn" onclick="App.map.reload()" title="刷新">🔄</button>
+            <button class="control-btn" onclick="App.map.reload()" aria-label="刷新地图">🔄</button>
         </div>
         <div class="portrait-ctrl-group">
-            <button class="control-btn" onclick="App.map.navigate(-1)" id="portraitPrevBtn" disabled title="前朝">
+            <button class="control-btn" onclick="App.map.navigate(-1)" id="portraitPrevBtn" disabled aria-label="上一幅地图">
                 <span>◀</span>
             </button>
-            <button class="control-btn" onclick="App.map.navigate(1)" id="portraitNextBtn" disabled title="后世">
+            <span class="zoom-level" id="portraitZoomLevel">100%</span>
+            <button class="control-btn" onclick="App.map.navigate(1)" id="portraitNextBtn" disabled aria-label="下一幅地图">
                 <span>▶</span>
             </button>
         </div>
         <div class="portrait-ctrl-group">
-            <span class="zoom-level" id="portraitZoomLevel">100%</span>
-            <button class="control-btn" onclick="App.layer.togglePanel()" title="图层">🧩</button>
+            <button class="control-btn" onclick="App.layer.togglePanel()" aria-label="切换图层面板">🧩</button>
         </div>
     </div>
 
-    <div class="map-controls" id="mapControls">
-        <button class="control-btn" onclick="App.layer.togglePanel()">🧩</button>
-        <div class="zoom-level" id="zoomLevel">100%</div>
-    </div>
-    <div class="map-controls-left">
-        <button class="control-btn" onclick="App.map.reload()">🔄</button>
-    </div>
-    
     <!-- 移动端标签 -->
     <div class="mobile-tabs" id="mobileTabs">
-        <button class="mobile-tab active" onclick="App.layout.switchTab('timeline')" id="tab-timeline">
+        <button class="mobile-tab active" onclick="App.layout.switchTab('timeline')" id="tab-timeline" aria-label="切换到时间轴">
             <span class="mobile-tab-icon">📜</span>
             <span>时间轴</span>
         </button>
-        <button class="mobile-tab" onclick="App.layout.switchTab('map')" id="tab-map">
+        <button class="mobile-tab" onclick="App.layout.switchTab('map')" id="tab-map" aria-label="切换到地图">
             <span class="mobile-tab-icon">🗺️</span>
             <span>地图</span>
         </button>
-        <button class="mobile-tab" onclick="App.layout.switchTab('info')" id="tab-info">
+        <button class="mobile-tab" onclick="App.layout.switchTab('info')" id="tab-info" aria-label="切换到详情">
             <span class="mobile-tab-icon">📖</span>
             <span>详情</span>
         </button>
@@ -5091,38 +5218,36 @@
     <div class="layer-panel" id="layerPanel">
         <div class="layer-panel-header">
             <span class="layer-panel-title">🗗 图层控制</span>
-            <button class="layer-panel-close" onclick="App.layer.togglePanel()">✕</button>
+            <button class="layer-panel-close" onclick="App.layer.togglePanel()" aria-label="关闭图层面板">✕</button>
         </div>
-        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckName" checked onchange="App.layer.toggle('name')"><span class="layer-name" id="layerLabelName">地名</span><span class="layer-badge" id="layerBadgeName">顶层</span></div></div>
-        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckRoad" checked onchange="App.layer.toggle('road')"><span class="layer-name" id="layerLabelRoad">交通线</span><span class="layer-badge" id="layerBadgeRoad">专属</span></div></div>
-        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckWall" checked onchange="App.layer.toggle('wall')"><span class="layer-name" id="layerLabelWall">长城</span><span class="layer-badge" id="layerBadgeWall">专属</span></div></div>
-        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckRiver" checked onchange="App.layer.toggle('river')"><span class="layer-name" id="layerLabelRiver">河湖</span><span class="layer-badge" id="layerBadgeRiver">专属/通用</span></div></div>
-        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckBorder" checked onchange="App.layer.toggle('border')"><span class="layer-name" id="layerLabelBorder">国界</span><span class="layer-badge" id="layerBadgeBorder">70%</span></div></div>
-        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckTerrain" checked onchange="App.layer.toggle('terrain')"><span class="layer-name" id="layerLabelTerrain">地形</span><span class="layer-badge" id="layerBadgeTerrain">相乘</span></div></div>
-        <div class="layer-item" style="opacity:0.7;"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckBg" checked disabled title="背景图层不可关闭"><span class="layer-name" id="layerLabelBg">背景</span><span class="layer-badge" id="layerBadgeBg">底层</span></div></div>
+        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckName" checked onchange="App.layer.toggle('name')" aria-label="切换地名图层"><span class="layer-name" id="layerLabelName">地名</span><span class="layer-badge" id="layerBadgeName">顶层</span></div></div>
+        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckRoad" checked onchange="App.layer.toggle('road')" aria-label="切换交通线图层"><span class="layer-name" id="layerLabelRoad">交通线</span><span class="layer-badge" id="layerBadgeRoad">专属</span></div></div>
+        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckWall" checked onchange="App.layer.toggle('wall')" aria-label="切换长城图层"><span class="layer-name" id="layerLabelWall">长城</span><span class="layer-badge" id="layerBadgeWall">专属</span></div></div>
+        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckRiver" checked onchange="App.layer.toggle('river')" aria-label="切换河湖图层"><span class="layer-name" id="layerLabelRiver">河湖</span><span class="layer-badge" id="layerBadgeRiver">专属/通用</span></div></div>
+        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckBorder" checked onchange="App.layer.toggle('border')" aria-label="切换国界图层"><span class="layer-name" id="layerLabelBorder">国界</span><span class="layer-badge" id="layerBadgeBorder">70%</span></div></div>
+        <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckTerrain" checked onchange="App.layer.toggle('terrain')" aria-label="切换地形图层"><span class="layer-name" id="layerLabelTerrain">地形</span><span class="layer-badge" id="layerBadgeTerrain">相乘</span></div></div>
+        <div class="layer-item" style="opacity:0.7;"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckBg" checked disabled aria-label="背景图层（不可关闭）"><span class="layer-name" id="layerLabelBg">背景</span><span class="layer-badge" id="layerBadgeBg">底层</span></div></div>
     </div>
-
     <!-- 分享弹窗 -->
     <div class="share-modal-overlay" id="shareModalOverlay" onclick="App.share.close(event)">
         <div class="share-modal" onclick="event.stopPropagation()">
             <div class="share-modal-header">
                 <span class="share-modal-title">📤 生成分享卡片</span>
-                <button class="share-modal-close" onclick="App.share.closeDirect()">✕</button>
+                <button class="share-modal-close" onclick="App.share.closeDirect()" aria-label="关闭分享弹窗">✕</button>
             </div>
             <div class="share-card-preview">
                 <div class="share-card-canvas-container">
                     <canvas id="shareCardCanvas" class="share-card-canvas" width="1920" height="1080"></canvas>
                 </div>
                 <div class="share-card-actions">
-                    <button class="share-card-btn primary" onclick="App.share.download()">💾 保存图片</button>
-                    <button class="share-card-btn secondary" onclick="App.share.copy()">📋 复制到剪贴板</button>
+                    <button class="share-card-btn primary" onclick="App.share.download()" aria-label="保存分享卡片">💾 保存图片</button>
+                    <button class="share-card-btn secondary" onclick="App.share.copy()" aria-label="复制分享卡片到剪贴板">📋 复制到剪贴板</button>
                 </div>
             </div>
             <div class="share-card-tip">生成的卡片包含当前地图信息、名言和展馆标识，可用于社交媒体分享或学术交流。</div>
         </div>
     </div>
 
-    <!--JavaScript 模块化-->
     <script>
         /*模块 0: 工具函数*/
         const Utils = {
@@ -5254,7 +5379,7 @@
             ],
 
             load: function() {
-                // 内联数据 - 保持原有数据不变
+                // 内联数据
                 this._data = [{
                         "year": "旧石器",
                         "name": "中国境内早期人类主要遗址分布图",
@@ -6127,7 +6252,7 @@
                         "desc": "【图例】<span style='display:inline-block;width:12px;height:12px;background:#CEBB90;margin-right:4px;vertical-align:middle;border:1px solid rgba(0,0,0,0.3);'></span>色块为新秦中范围，<span style='display:inline-block;width:12px;height:12px;background:#BFBFBF;margin-right:4px;vertical-align:middle;border:1px solid rgba(0,0,0,0.3);'></span>色块为西汉势力范围。\n\n关于龟兹属国与五属国：\n《史记·卫将军骠骑列传》说：元狩二年(公元前121年)，浑邪王谋降汉……尽将其众渡河，降者数万。居顷之，乃分徙降者边郡故塞外，而皆在河南，因其故俗为属国。\n这五属国的所在地，说者不同。《汉书·地理志》所说较为具体，天水郡的属国都尉治于勇士县的满福，安定郡的治于三水，上郡的治于龟兹，西河郡的治于美稷，五原郡的治于蒲泽。不论如何解释，五属国之中有三处皆在河南地，则是无疑义的。当时随浑邪王来降的有四万余人，五属国平均分配，每属国皆当在八九千人之间。\n\n关于乌兰布和沙漠：\n由现在地图上可以明显看出，内蒙古磴口县和乌海市之西，沙漠弥漫，渺无人烟，这是有名的乌兰布和沙漠。在这样的沙漠地区中，汉代如何能够修建一个眩雷塞，而且还要在当地屯田？按诸汉代实际情况，并非就是这样。\n根据在三封废墟附近采集的大约属于新石器时期的遗物，设想在汉代开垦以前，这个地区原是一片一望无际的大草原。\n\n与河南地的异同：\n《史记》和《汉书》的《匈奴传》皆有所涉及。一则说：\"燕筑长城自造阳至襄平\"。韦昭和颜师古的解释都说在上谷。……应劭说：\"秦始皇遣蒙恬攘却匈奴，得其河南造阳之北千里，甚好，于是为筑城郭，徙民充之，名曰新秦\"。\n这里涉及五原、云中、定襄、雁门四郡。……赵亡即入于秦国，初无待于蒙恬之由匈奴夺得。蒙恬夺取于匈奴的，只是高阙以南的阳山北假中，及更南的河南地，与五原、云中、定襄、雁门四郡皆无关系，不得并为一谈。\n\n四障：\n《汉书·地理志》:北地郡浑怀都尉治塞外浑怀障,上郡匈归都尉治塞外匈归障,西河郡南部都尉治塞外翁龙、埤是。\n这四个障都是汉朝都尉的治所。都尉掌佐守，典武职甲卒，为当时各郡国中仅次于太守和相的官吏。一郡之中的都尉可能不止一员，但由于地位的重要，绝不能设置于郡外。仅由这一点而论，这几个障虽都被称为塞外，都还应分别是有关各郡的边境之内，更不能说是当地已经不隶属于汉朝的版图。\n这样说来，所谓塞外云者，只是因为它们分别在秦昭襄王和秦始皇所修筑的长城之外的缘故。由于汉朝初年匈奴势力的强大，复取去河南地，和汉朝以故塞为界，这样的情况，前后延续了数十年，因而成了惯例，甚而见诸文字的记载。",
                         "quote": "新秦中，地肥饶，外有河山之固",
                         "quoteAuthor": "—— 史念海《新秦中考》",
-                        "periodBg": "新秦中是秦汉时期北方边疆的重要地理区域，其名称源于其土地肥沃、物产丰饶，可与关中（秦中）相媲美。秦始皇三十二年（前215年），蒙恬北逐匈奴，略取河南地，在新秦中地区设县移民，修筑长城，将其纳入秦朝版图。秦末战乱，该地复为匈奴所夺。汉武帝时期，卫青于元朔二年（前127年）率军收复河南地，重新将新秦中纳入汉朝疆域。此后汉朝先后徙民万口充实其间，设置朔方、五原等郡，修筑朔方城，使之成为防御匈奴的前沿阵地和军事通道。该地区人口构成复杂，既有内地迁来的汉族移民，也有匈奴降附部落和保塞蛮夷，各族同居而统属于汉朝管辖。史念海先生在《新秦中考》中系统考证了秦汉时期新秦中的地理范围，重点批驳了将新秦中仅限于朔方郡或将其部分土地划归匈奴的旧说，指出新秦中的范围应包括今内蒙古鄂尔多斯高原及陕北、宁夏一带，北至阴山之下的黄河以南，南至秦昭襄王长城一线。",
+                        "periodBg": "新秦中是秦汉时期北方边疆的重要地理区域，其名称源于其土地肥沃、物产丰饶，可与关中（秦中）相媲美。秦始皇三十二年（前215年），蒙恬北逐匈奴，略取河南地，在新秦中地区设县移民，修筑长城，将其纳入秦朝版图。秦末战乱，该地复为匈奴所夺。汉武帝时期，卫青于元朔二年（前127年）率军收复河南地，重新将新秦中纳入汉朝疆域。此后汉朝先后徙民万口充实其间，设置朔方、五原等郡，修筑朔方城，使之成为防御匈奴的前沿阵地和军事通道。该地区人口构成复杂，既有内地迁来的汉族移民，也有匈奴降附部落和保塞蛮夷，各族同居而统属于汉朝管辖。史念海先生在《新秦中考》中系统考证了秦汉时期新秦中的地理范围，重点批驳了将新秦中仅限于朔方郡或将其部分土地划归匈奴的旧说，指出新秦中的范围应包括今内蒙古鄂尔多斯高原及陕北、宁夏一带，北起阴山之下的黄河以南，南至秦昭襄王长城一线。",
                         "author": "山河明鉴",
                         "authorLink": "https://space.bilibili.com/3494370206550352",
                         "organization": "天策府",
@@ -6336,22 +6461,22 @@
                 var saved = localStorage.getItem('theme');
                 if (saved) this.set(saved);
             },
-        set: function(theme) {
-            document.body.classList.remove('rice-paper-theme');
-            ['dark', 'rice'].forEach(function(t) {
-                var el = document.getElementById('theme-' + t);
-                if (el) el.classList.remove('active');
-            });
-            if (theme === 'dark') { 
-                document.getElementById('theme-dark').classList.add('active');
-                localStorage.setItem('theme', 'dark');
-            } else if (theme === 'rice') { 
-                document.body.classList.add('rice-paper-theme');
-                document.getElementById('theme-rice').classList.add('active');
-                localStorage.setItem('theme', 'rice');
+            set: function(theme) {
+                document.body.classList.remove('rice-paper-theme');
+                ['dark', 'rice'].forEach(function(t) {
+                    var el = document.getElementById('theme-' + t);
+                    if (el) el.classList.remove('active');
+                });
+                if (theme === 'dark') {
+                    document.getElementById('theme-dark').classList.add('active');
+                    localStorage.setItem('theme', 'dark');
+                } else if (theme === 'rice') {
+                    document.body.classList.add('rice-paper-theme');
+                    document.getElementById('theme-rice').classList.add('active');
+                    localStorage.setItem('theme', 'rice');
+                }
+                this.current = theme;
             }
-            this.current = theme;
-        }
         };
 
         /*模块 3: 画质 (Quality)*/
@@ -6453,8 +6578,6 @@
 
             _applyUI: function() {
                 var isEnabled = this._enabled;
-
-                // 需要模糊的元素（排除 info-panel 和 timeline-panel）
                 var elements = [
                     '.settings-panel',
                     '.help-panel',
@@ -6464,7 +6587,11 @@
                     '.settings-overlay',
                     '.help-overlay',
                     '.share-modal-overlay',
-                    '.admin-login-overlay'
+                    '.admin-login-overlay',
+                    '.settings-btn',
+                    '.help-btn',
+                    '.portrait-controls',
+                    '.mobile-tabs'
                 ];
 
                 elements.forEach(function(sel) {
@@ -6472,7 +6599,7 @@
                     els.forEach(function(el) {
                         if (isEnabled) {
                             if (!el.classList.contains('blur-backdrop') && !el.classList.contains('blur-backdrop-heavy')) {
-                                if (sel === '.settings-overlay' || sel === '.help-overlay' || 
+                                if (sel === '.settings-overlay' || sel === '.help-overlay' ||
                                     sel === '.share-modal-overlay' || sel === '.admin-login-overlay') {
                                     el.classList.add('blur-backdrop-heavy');
                                 } else {
@@ -6485,7 +6612,6 @@
                     });
                 });
 
-                // 特殊处理：只对设置面板和帮助面板添加模糊，不处理 info-panel 和 timeline-panel
                 ['settingsPanel', 'helpPanel'].forEach(function(id) {
                     var el = document.getElementById(id);
                     if (el) {
@@ -6502,8 +6628,7 @@
                 return this._enabled;
             }
         };
-
-        /*模块 4: 地图引擎 (Map)*/
+        /*模块 4: 地图引擎 (Map) — 修复 #3, #5, #8, #9, #10, #14 */
         const Map = {
             _index: -1,
             _scale: 1,
@@ -6542,24 +6667,24 @@
             },
             _imageCache: {},
             _isGuestWork: false,
+            _loadTimeout: null,
+            _loadingTimer: null,
 
             getIndex: function() { return this._index; },
             getScale: function() { return this._scale; },
             getData: function() { return this._index >= 0 ? Data.get(this._index) : null; },
 
             select: function(index) {
-                // 如果索引无效，显示空白状态
                 if (index < 0 || index >= Data.count()) {
                     App._showEmptyState();
                     return;
                 }
-                
-                if (index < 0 || index >= Data.count()) return;
+                // 修复 #14: 取消之前的加载
+                this._abortAll();
                 this._index = index;
                 var data = Data.get(index);
                 this._isGuestWork = data.era === '其他作者优秀作品';
 
-                // 预加载相邻
                 var cache = this._imageCache;
                 var keys = Object.keys(cache);
                 if (keys.length > 10) delete cache[keys[0]];
@@ -6572,7 +6697,6 @@
                     }
                 });
 
-                // 更新UI
                 this._updateTimelineUI(index);
                 this._updateInfoPanel(data, index);
                 this._updateQuotes(data);
@@ -6619,7 +6743,6 @@
                 document.getElementById('metaCount').textContent = data.count;
                 document.getElementById('metaIndex').textContent = (index + 1) + ' / ' + Data.count();
 
-                // 作者信息
                 var infoContent = document.querySelector('.info-content');
                 var oldAuthor = document.getElementById('authorInfoCard');
                 if (oldAuthor) oldAuthor.remove();
@@ -6644,7 +6767,6 @@
                     }
                 }
 
-                // 时期背景
                 var bgCard = document.getElementById('periodBgCard');
                 var bgContent = document.getElementById('periodBgContent');
                 var bgTitle = document.getElementById('periodBgTitle');
@@ -6708,34 +6830,28 @@
             },
 
             resetView: function() {
-                // 使用动画过渡到初始状态
                 var startScale = this._scale;
                 var startTx = this._translateX;
                 var startTy = this._translateY;
                 var targetScale = 1;
                 var targetTx = 0;
                 var targetTy = 0;
-                
                 var duration = 400;
                 var startTime = performance.now();
                 var self = this;
-                
+
                 function animate(time) {
                     var elapsed = time - startTime;
                     var progress = Math.min(elapsed / duration, 1);
-                    // 缓出函数
                     progress = 1 - Math.pow(1 - progress, 3);
-                    
                     self._scale = startScale + (targetScale - startScale) * progress;
                     self._translateX = startTx + (targetTx - startTx) * progress;
                     self._translateY = startTy + (targetTy - startTy) * progress;
                     self._updateTransform();
-                    
                     if (progress < 1) {
                         requestAnimationFrame(animate);
                     }
                 }
-                
                 requestAnimationFrame(animate);
             },
 
@@ -6758,20 +6874,13 @@
             },
 
             _zoomAtPoint: function(px, py, newScale) {
-                // 限制缩放范围
                 newScale = Math.max(0.2, Math.min(10, newScale));
-                
-                // 计算当前的缩放中心对应的世界坐标
                 var sx = px * this._scale + this._translateX;
                 var sy = py * this._scale + this._translateY;
-                
                 this._scale = newScale;
                 this._translateX = sx - px * this._scale;
                 this._translateY = sy - py * this._scale;
-                
-                // 直接更新，不经过 RAF 节流，让缩放更跟手
                 this._updateTransformImmediate();
-                // 同时保留 RAF 更新，确保最终状态一致
                 this._updateTransform();
             },
 
@@ -6795,7 +6904,6 @@
                         self._pendingTransform = null;
                         var wrapper = document.getElementById('mapWrapper');
                         if (wrapper) {
-                            // 使用 translate3d 配合 CSS 的 flex 居中
                             wrapper.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) scale3d(' + s + ',' + s + ',1)';
                         }
                         var zl = document.getElementById('zoomLevel');
@@ -6820,24 +6928,20 @@
                 var pzl = document.getElementById('portraitZoomLevel');
                 if (pzl) pzl.textContent = Math.round(s * 100) + '%';
             },
+
+            // 修复 #10: _applyConstraints 尺寸计算优化
             _applyConstraints: function() {
                 var wrapper = document.getElementById('mapWrapper');
                 var viewport = document.getElementById('mapViewport');
                 if (!wrapper || !viewport) return;
-                
                 var rect = wrapper.getBoundingClientRect();
                 var vpRect = viewport.getBoundingClientRect();
-                
-                // 计算地图实际显示尺寸
-                var baseW = wrapper.offsetWidth || rect.width || 1;
-                var baseH = wrapper.offsetHeight || rect.height || 1;
+                var baseW = rect.width || vpRect.width || 1;
+                var baseH = rect.height || vpRect.height || 1;
                 var s = this._scale;
-                
-                // 允许的溢出范围（百分比）
                 var margin = 0.3;
                 var maxTx = baseW * s * margin;
                 var maxTy = baseH * s * margin;
-                
                 if (this._translateX < -maxTx) this._translateX = -maxTx;
                 if (this._translateX > maxTx) this._translateX = maxTx;
                 if (this._translateY < -maxTy) this._translateY = -maxTy;
@@ -6871,9 +6975,8 @@
                 var paths = {};
                 var data = Data.get(this._index);
                 var isGuest = this._isGuestWork;
-                var isWorld = data.era === '世界历史';
+                var isWorld = data && data.era === '世界历史';
 
-                // 优先检测：只要有专属图层配置，就使用专属图层
                 if (data && data.layers) {
                     var lastSlash = basePath.lastIndexOf('/');
                     var dir = lastSlash >= 0 ? basePath.substring(0, lastSlash + 1) : '';
@@ -6921,8 +7024,13 @@
                 }
                 this._layerXhrs = {};
                 this._layerLoadStates = {};
+                // 修复 #9: 重置 _currentLayerPaths
+                this._currentLayerPaths = {};
+                clearTimeout(this._loadTimeout);
+                clearTimeout(this._loadingTimer);
             },
 
+            // 修复 #8: 地图加载计数逻辑优化，添加超时处理
             _loadLayersWithProgress: function(path) {
                 this._abortAll();
                 document.getElementById('placeholder').style.display = 'none';
@@ -6950,7 +7058,6 @@
                     var cfg = self._layerConfig[layerName];
                     var layerPath = paths[layerName];
 
-                    // 优先检测：只要有专属图层配置，就按专属图层处理
                     if (data && data.layers) {
                         var hasLayer = data.layers[layerName];
                         if (!hasLayer && layerName !== 'bg') {
@@ -7003,7 +7110,9 @@
 
                 var totalTasks = layersToXHR.length + layersToImg.length;
                 var completed = 0;
+                var hasError = false;
 
+                // 修复 #8: 如果没有任务，直接完成
                 if (totalTasks === 0) {
                     for (var n in self._layerLoadStates) { self._layerLoadStates[n] = { done: true, loaded: 1,
                             total: 1 }; }
@@ -7016,10 +7125,32 @@
                 self._showLoading(path);
                 self._updateLoadingDisplay();
 
+                // 修复 #8: 添加超时保护
+                self._loadTimeout = setTimeout(function() {
+                    // 如果还有未完成的任务，强制完成
+                    var anyPending = false;
+                    for (var key in self._layerLoadStates) {
+                        if (!self._layerLoadStates[key].done) { anyPending = true; break; }
+                    }
+                    if (anyPending) {
+                        console.warn('⚠️ 地图加载超时，强制完成');
+                        for (var k in self._layerLoadStates) {
+                            if (!self._layerLoadStates[k].done) {
+                                self._layerLoadStates[k].done = true;
+                                self._layerLoadStates[k].loaded = self._layerLoadStates[k].total || 1;
+                            }
+                        }
+                        self._updateLoadingDisplay();
+                        setTimeout(function() { self._hideLoading();
+                            self._forceRepaint(); }, 300);
+                    }
+                }, 30000);
+
                 var onDone = function() {
                     completed++;
                     self._updateLoadingDisplay();
                     if (completed >= totalTasks) {
+                        clearTimeout(self._loadTimeout);
                         setTimeout(function() { self._hideLoading();
                             self._forceRepaint(); }, 300);
                     }
@@ -7028,20 +7159,36 @@
                 layersToImg.forEach(function(layer) {
                     var img = layer.img;
                     var name = layer.name;
+                    // 修复 #8: 检查 img 是否有效
+                    if (!img) { onDone(); return; }
                     if (img.complete && img.naturalWidth > 0) {
                         img.classList.add('loaded');
                         img.style.display = 'block';
                         self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
                         onDone();
-                    } else {
-                        img.onload = function() { img.classList.add('loaded');
+                    } else if (img.src && img.src.length > 0) {
+                        var loadHandler = function() {
+                            img.classList.add('loaded');
                             img.style.display = 'block';
                             self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
-                            onDone(); };
-                        img.onerror = function() { img.classList.remove('loaded');
+                            onDone();
+                        };
+                        var errorHandler = function() {
+                            img.classList.remove('loaded');
                             img.style.display = 'none';
                             self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
-                            onDone(); };
+                            onDone();
+                        };
+                        img.onload = loadHandler;
+                        img.onerror = errorHandler;
+                        // 修复 #8: 如果图片已经加载完成但未触发事件
+                        if (img.complete) {
+                            if (img.naturalWidth > 0) { loadHandler(); } else { errorHandler(); }
+                        }
+                    } else {
+                        // 修复 #8: src 无效，直接标记完成
+                        self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
+                        onDone();
                     }
                 });
 
@@ -7050,6 +7197,7 @@
                     self._layerXhrs[layer.name] = xhr;
                     xhr.open('GET', layer.path, true);
                     xhr.responseType = 'blob';
+                    xhr.timeout = 15000; // 修复 #7: 添加超时
                     var state = { loaded: 0, total: 0, done: false, startTime: Date.now(), lastLoaded: 0,
                         lastTime: Date.now(), speed: 0 };
                     self._layerLoadStates[layer.name] = state;
@@ -7070,26 +7218,42 @@
                         state.loaded = state.total || 1;
                         var layerImg = document.getElementById('layer' + Utils.capitalize(layer.name));
                         if (xhr.status === 200 && layerImg) {
-                            var blobUrl = URL.createObjectURL(xhr.response);
-                            layerImg.src = blobUrl;
-                            layerImg.classList.add('loaded');
-                            layerImg.style.display = 'block';
-                            if (layer.name === 'bg') {
-                                if (self._currentBlobUrl) URL.revokeObjectURL(self._currentBlobUrl);
-                                self._currentBlobUrl = blobUrl;
-                                var mi = document.getElementById('mapImage');
-                                if (mi) { mi.src = blobUrl;
-                                    mi.classList.add('loaded'); }
+                            try {
+                                var blobUrl = URL.createObjectURL(xhr.response);
+                                layerImg.src = blobUrl;
+                                layerImg.classList.add('loaded');
+                                layerImg.style.display = 'block';
+                                if (layer.name === 'bg') {
+                                    if (self._currentBlobUrl) URL.revokeObjectURL(self._currentBlobUrl);
+                                    self._currentBlobUrl = blobUrl;
+                                    var mi = document.getElementById('mapImage');
+                                    if (mi) { mi.src = blobUrl;
+                                        mi.classList.add('loaded'); }
+                                }
+                            } catch (e) {
+                                console.warn('图层加载失败:', layer.name, e);
                             }
                         }
                         onDone();
                     };
-                    xhr.onerror = function() { state.done = true;
+                    // 修复 #7: 添加超时和错误处理
+                    xhr.ontimeout = function() {
+                        state.done = true;
                         state.loaded = 1;
-                        onDone(); };
-                    xhr.onabort = function() { state.done = true;
+                        console.warn('图层加载超时:', layer.name);
+                        onDone();
+                    };
+                    xhr.onerror = function() {
+                        state.done = true;
                         state.loaded = 1;
-                        onDone(); };
+                        console.warn('图层加载错误:', layer.name);
+                        onDone();
+                    };
+                    xhr.onabort = function() {
+                        state.done = true;
+                        state.loaded = 1;
+                        onDone();
+                    };
                     xhr.send();
                 });
             },
@@ -7177,16 +7341,15 @@
                 return Math.round(bps) + ' B/s';
             },
 
+            // 修复 #5: 移除 debugger 陷阱，使用更温和的方式
             _setupEvents: function() {
                 var viewport = document.getElementById('mapViewport');
                 var self = this;
 
                 if (!viewport) return;
 
-                // ===== 鼠标拖拽 =====
                 viewport.addEventListener('mousedown', function(e) {
                     if (e.target.closest('.layer-panel') || e.target.closest('.control-btn')) return;
-                    
                     self._isDragging = true;
                     self._startX = e.clientX;
                     self._startY = e.clientY;
@@ -7194,7 +7357,6 @@
                     self._startTranslateY = self._translateY;
                     self._lastMouseX = e.clientX;
                     self._lastMouseY = e.clientY;
-                    
                     viewport.style.cursor = 'grabbing';
                     e.preventDefault();
                 });
@@ -7202,15 +7364,11 @@
                 document.addEventListener('mousemove', function(e) {
                     self._lastMouseX = e.clientX;
                     self._lastMouseY = e.clientY;
-                    
                     if (!self._isDragging) return;
-                    
                     var dx = e.clientX - self._startX;
                     var dy = e.clientY - self._startY;
-                    
                     self._translateX = self._startTranslateX + dx;
                     self._translateY = self._startTranslateY + dy;
-                    
                     self._updateTransformImmediate();
                 });
 
@@ -7228,31 +7386,25 @@
                     }
                 });
 
-                // ===== 滚轮缩放 =====
                 viewport.addEventListener('wheel', function(e) {
                     e.preventDefault();
-                    
                     var now = performance.now();
                     if (now - self._lastZoomWheelTime < 16) return;
                     self._lastZoomWheelTime = now;
-                    
                     var delta = e.deltaY > 0 ? 0.9 : 1.1;
                     var newScale = Math.max(0.2, Math.min(10, self._scale * delta));
-                    
                     var rect = viewport.getBoundingClientRect();
                     var cx = e.clientX - rect.left - rect.width / 2;
                     var cy = e.clientY - rect.top - rect.height / 2;
                     var px = (cx - self._translateX) / self._scale;
                     var py = (cy - self._translateY) / self._scale;
-                    
                     self._zoomAtPoint(px, py, newScale);
-                    
                     if (Quality.current === 'high') {
                         Quality.updateHighQualityRendering();
                     }
                 }, { passive: false });
 
-                // ===== 触摸支持 =====
+                // 修复 #6: 触摸事件 - 改进状态管理
                 var touchTouches = [];
                 var touchLastCenter = { x: 0, y: 0 };
                 var touchStartScale = 1;
@@ -7263,14 +7415,14 @@
                 var touchDragStartX = 0;
                 var touchDragStartY = 0;
                 var touchHasMoved = false;
+                var touchActive = false;
 
                 viewport.addEventListener('touchstart', function(e) {
                     if (e.target.closest('.layer-panel') || e.target.closest('.control-btn')) return;
-                    
                     touchTouches = Array.from(e.touches);
-                    
+                    touchActive = true;
+
                     if (touchTouches.length === 1) {
-                        // 单指拖拽
                         touchIsDragging = true;
                         touchDragStartX = touchTouches[0].clientX;
                         touchDragStartY = touchTouches[0].clientY;
@@ -7280,17 +7432,14 @@
                         self._lastMouseY = touchTouches[0].clientY;
                         touchHasMoved = false;
                     } else if (touchTouches.length === 2) {
-                        // 双指缩放
                         touchIsDragging = false;
                         e.preventDefault();
-                        
                         var dx = touchTouches[0].clientX - touchTouches[1].clientX;
                         var dy = touchTouches[0].clientY - touchTouches[1].clientY;
                         touchStartDist = Math.hypot(dx, dy);
                         touchStartScale = self._scale;
                         touchStartTranslateX = self._translateX;
                         touchStartTranslateY = self._translateY;
-                        
                         touchLastCenter = {
                             x: (touchTouches[0].clientX + touchTouches[1].clientX) / 2,
                             y: (touchTouches[0].clientY + touchTouches[1].clientY) / 2
@@ -7300,54 +7449,43 @@
 
                 viewport.addEventListener('touchmove', function(e) {
                     e.preventDefault();
+                    if (!touchActive) return;
                     touchTouches = Array.from(e.touches);
-                    
                     var now = performance.now();
                     if (now - self._lastDragTime < 16) return;
                     self._lastDragTime = now;
-                    
+
                     if (touchTouches.length === 1 && touchIsDragging) {
-                        // 单指拖拽
                         var dx = touchTouches[0].clientX - touchDragStartX;
                         var dy = touchTouches[0].clientY - touchDragStartY;
-                        
                         if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
                             touchHasMoved = true;
                         }
-                        
                         self._translateX = touchStartTranslateX + dx;
                         self._translateY = touchStartTranslateY + dy;
                         self._updateTransform();
                         self._lastMouseX = touchTouches[0].clientX;
                         self._lastMouseY = touchTouches[0].clientY;
-                        
                     } else if (touchTouches.length === 2) {
-                        // 双指缩放
                         var dx2 = touchTouches[0].clientX - touchTouches[1].clientX;
                         var dy2 = touchTouches[0].clientY - touchTouches[1].clientY;
                         var dist = Math.hypot(dx2, dy2);
-                        
                         if (touchStartDist > 0) {
                             var scaleRatio = dist / touchStartDist;
                             var newScale = Math.max(0.2, Math.min(10, touchStartScale * scaleRatio));
-                            
                             var center = {
                                 x: (touchTouches[0].clientX + touchTouches[1].clientX) / 2,
                                 y: (touchTouches[0].clientY + touchTouches[1].clientY) / 2
                             };
-                            
                             var rect2 = viewport.getBoundingClientRect();
                             var cx2 = center.x - rect2.left - rect2.width / 2;
                             var cy2 = center.y - rect2.top - rect2.height / 2;
-                            
                             var px2 = (cx2 - touchStartTranslateX) / touchStartScale;
                             var py2 = (cy2 - touchStartTranslateY) / touchStartScale;
-                            
                             self._scale = newScale;
                             self._translateX = cx2 - px2 * self._scale;
                             self._translateY = cy2 - py2 * self._scale;
                             self._updateTransform();
-                            
                             touchLastCenter = center;
                         }
                     }
@@ -7355,11 +7493,13 @@
 
                 viewport.addEventListener('touchend', function(e) {
                     touchTouches = Array.from(e.touches);
-                    touchIsDragging = false;
-                    
+                    // 修复 #6: 正确处理触摸结束状态
                     if (touchTouches.length === 0) {
+                        touchActive = false;
+                        touchIsDragging = false;
                         viewport.style.cursor = '';
                     } else if (touchTouches.length === 1) {
+                        // 如果从双指变为单指，重新初始化拖拽状态
                         touchIsDragging = true;
                         touchDragStartX = touchTouches[0].clientX;
                         touchDragStartY = touchTouches[0].clientY;
@@ -7370,15 +7510,14 @@
                 });
 
                 viewport.addEventListener('touchcancel', function() {
+                    touchActive = false;
                     touchIsDragging = false;
                     touchTouches = [];
                     viewport.style.cursor = '';
                 });
 
-                // ===== 初始化光标 =====
                 viewport.style.cursor = 'grab';
 
-                // ===== 窗口大小变化检测 =====
                 var resizeTimeout = null;
                 window.addEventListener('resize', function() {
                     clearTimeout(resizeTimeout);
@@ -7388,7 +7527,7 @@
                         var rect = wrapper.getBoundingClientRect();
                         var vpRect = viewport.getBoundingClientRect();
                         var threshold = 500;
-                        if (rect.left > vpRect.right + threshold || 
+                        if (rect.left > vpRect.right + threshold ||
                             rect.right < vpRect.left - threshold ||
                             rect.top > vpRect.bottom + threshold ||
                             rect.bottom < vpRect.top - threshold) {
@@ -7569,7 +7708,6 @@
             toggle: function() {
                 document.getElementById('settingsPanel').classList.toggle('open');
                 document.getElementById('settingsOverlay').classList.toggle('open');
-                // 应用模糊效果
                 Blur._applyUI();
             },
 
@@ -7601,12 +7739,11 @@
             toggle: function() {
                 document.getElementById('helpPanel').classList.toggle('open');
                 document.getElementById('helpOverlay').classList.toggle('open');
-                // 应用模糊效果
                 Blur._applyUI();
             }
         };
 
-        /*模块 9: 分享 (Share) */
+        /*模块 9: 分享 (Share) — 修复 #6, #20 */
         const Share = {
             _blob: null,
 
@@ -7647,6 +7784,7 @@
                         Share.download(); });
             },
 
+            // 修复 #20: 改进分享卡片生成，添加更好的错误处理
             _generate: function() {
                 var canvas = document.getElementById('shareCardCanvas');
                 var ctx = canvas.getContext('2d');
@@ -7784,39 +7922,32 @@
                 ctx.font = '12px "Courier New",monospace';
                 ctx.textAlign = 'center';
                 ctx.fillText('第 ' + (Map.getIndex() + 1) + ' / ' + Data.count() + ' 幅 · ' + data.era, lpW / 2, fy +
-                22);
+                    22);
                 ctx.fillStyle = 'rgba(160,160,160,0.25)';
                 ctx.font = '11px "Courier New",monospace';
                 ctx.fillText('maps.zhaoran.history', lpW / 2, fy + 40);
 
-                // ========== 右侧地图区域 ==========
+                // 右侧地图区域
                 const mapX = lpW + 20;
                 const mapW = W - lpW - 40;
                 const mapH = H - 60;
                 const mapY = 30;
 
-                // 地图框背景
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
                 Utils.roundRect(ctx, mapX, mapY, mapW, mapH, 12);
                 ctx.fill();
-
-                // 地图框边框
                 ctx.strokeStyle = 'rgba(212, 175, 55, 0.18)';
                 ctx.lineWidth = 1;
                 Utils.roundRect(ctx, mapX, mapY, mapW, mapH, 12);
                 ctx.stroke();
 
-                // ---- 图层合成 ----
-                let drawn = false;
-
-                // 获取所有可见的图层图片，按 zIndex 顺序排列（从底层到顶层）
+                var drawn = false;
                 const layerOrder = ['layerBg', 'layerTerrain', 'layerBorder', 'layerRiver', 'layerName'];
                 const visibleLayers = [];
 
                 for (const layerId of layerOrder) {
                     const layerImg = document.getElementById(layerId);
                     if (layerImg && layerImg.classList.contains('loaded') && layerImg.style.display !== 'none') {
-                        // 检查图片是否有效
                         if (layerImg.naturalWidth > 0 && layerImg.naturalHeight > 0) {
                             visibleLayers.push({
                                 img: layerImg,
@@ -7828,9 +7959,9 @@
                     }
                 }
 
-                // 如果没有图层，回退到单张图片
+                // 修复 #20: 如果图层加载失败，尝试从缓存获取
                 if (visibleLayers.length === 0) {
-                    const fallbackImg = document.getElementById('mapImage');
+                    var fallbackImg = document.getElementById('mapImage');
                     if (fallbackImg && fallbackImg.classList.contains('loaded') && fallbackImg.naturalWidth > 0) {
                         visibleLayers.push({
                             img: fallbackImg,
@@ -7841,13 +7972,21 @@
                     }
                 }
 
-                if (visibleLayers.length > 0) {
+                // 修复 #20: 如果仍然没有图层，显示更友好的提示
+                if (visibleLayers.length === 0) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.font = '80px serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🗺️', mapX + mapW / 2, mapY + mapH / 2 - 20);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.font = '24px "Noto Serif SC", serif';
+                    ctx.fillText('地图加载中，请稍后重试', mapX + mapW / 2, mapY + mapH / 2 + 40);
+                    drawn = false;
+                } else {
                     try {
                         const pad = 14;
                         const boxW = mapW - pad * 2;
                         const boxH = mapH - pad * 2;
-
-                        // 以第一张图（通常是背景）作为尺寸基准
                         const baseImg = visibleLayers[0].img;
                         const imgRatio = baseImg.naturalWidth / baseImg.naturalHeight;
                         const boxRatio = boxW / boxH;
@@ -7865,59 +8004,26 @@
                             drawY = mapY + pad;
                         }
 
-                        // 创建临时 canvas 用于合成图层
                         const tempCanvas = document.createElement('canvas');
                         tempCanvas.width = baseImg.naturalWidth;
                         tempCanvas.height = baseImg.naturalHeight;
                         const tctx = tempCanvas.getContext('2d');
-
-                        // 先清空为透明
                         tctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-                        // 逐个绘制图层
                         for (let i = 0; i < visibleLayers.length; i++) {
                             const layer = visibleLayers[i];
-                            const isTerrain = layer.layerName === 'layerTerrain';
-                            
                             tctx.save();
                             tctx.globalAlpha = layer.opacity;
-
-                            // 处理混合模式
-                            let compositeOp = 'source-over';
-                            
-                            // 地形图层（multiply）特殊处理：
-                            // 需要在已有内容上使用 multiply
-                            if (isTerrain && layer.blendMode === 'multiply') {
-                                compositeOp = 'multiply';
-                            } else if (layer.blendMode === 'normal') {
-                                compositeOp = 'source-over';
-                            } else {
-                                // 其他混合模式
-                                const bmMap = {
-                                    'screen': 'screen',
-                                    'overlay': 'overlay',
-                                    'darken': 'darken',
-                                    'lighten': 'lighten',
-                                    'color-dodge': 'color-dodge',
-                                    'color-burn': 'color-burn',
-                                    'hard-light': 'hard-light',
-                                    'soft-light': 'soft-light',
-                                    'difference': 'difference',
-                                    'exclusion': 'exclusion',
-                                    'hue': 'hue',
-                                    'saturation': 'saturation',
-                                    'color': 'color',
-                                    'luminosity': 'luminosity'
-                                };
-                                compositeOp = bmMap[layer.blendMode] || 'source-over';
+                            tctx.globalCompositeOperation = layer.blendMode === 'multiply' ? 'multiply' : 'source-over';
+                            // 修复 #6: 使用 try-catch 处理跨域问题
+                            try {
+                                tctx.drawImage(layer.img, 0, 0);
+                            } catch (e) {
+                                console.warn('绘制图层失败:', layer.layerName, e);
                             }
-                            
-                            tctx.globalCompositeOperation = compositeOp;
-                            tctx.drawImage(layer.img, 0, 0);
                             tctx.restore();
                         }
 
-                        // 将合成后的图像绘制到分享卡片
                         ctx.save();
                         Utils.roundRect(ctx, drawX, drawY, drawW, drawH, 8);
                         ctx.clip();
@@ -7930,16 +8036,17 @@
                     }
                 }
 
-                // 如果合成失败，显示占位图标
+                // 修复 #20: 如果绘制失败，显示提示
                 if (!drawn) {
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
                     ctx.font = '80px serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText('🗺️', mapX + mapW / 2, mapY + mapH / 2 - 10);
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-                    ctx.font = '20px "Noto Serif SC", serif';
-                    ctx.fillText('地图预览', mapX + mapW / 2, mapY + mapH / 2 + 40);
+                    ctx.fillText('🖼️', mapX + mapW / 2, mapY + mapH / 2 - 20);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.font = '22px "Noto Serif SC", serif';
+                    ctx.fillText('地图加载中，请稍候再试', mapX + mapW / 2, mapY + mapH / 2 + 40);
                 }
+
                 var bg = ctx.createLinearGradient(0, H - 3, W, H - 3);
                 bg.addColorStop(0, 'rgba(212,175,55,0)');
                 bg.addColorStop(0.3, 'rgba(212,175,55,0.3)');
@@ -7954,11 +8061,16 @@
                 Utils.drawCornerOrnament(ctx, W - 25, H - 25, 30, 'br');
 
                 var self = this;
-                canvas.toBlob(function(blob) { self._blob = blob; }, 'image/png', 0.95);
+                try {
+                    canvas.toBlob(function(blob) { self._blob = blob; }, 'image/png', 0.95);
+                } catch (e) {
+                    console.warn('生成分享图片失败:', e);
+                    self._blob = null;
+                }
             }
         };
 
-        /*模块 10: 图层控制 (Layer)*/
+        /*模块 10: 图层控制 (Layer) — 修复 #11 */
         const Layer = {
             _panelOpen: false,
 
@@ -7997,12 +8109,10 @@
             updateForGuestWork: function() {
                 var data = Map.getData();
                 var hasCustomLayers = data && data.layers;
-                
-                // 1. 判断是否有任何可用的图层（专属或通用）
                 var hasAnyLayer = false;
                 var allLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain', 'bg'];
                 var exclusiveLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain'];
-                
+
                 if (hasCustomLayers) {
                     for (var i = 0; i < exclusiveLayers.length; i++) {
                         if (data.layers[exclusiveLayers[i]]) {
@@ -8011,56 +8121,57 @@
                         }
                     }
                 } else {
-                    // 无专属图层的地图，有通用图层（地形、国界、河湖、地名）
                     hasAnyLayer = true;
                 }
-                
-                // 2. 控制整个图层面板及其按钮的显示
+
                 var layerPanel = document.getElementById('layerPanel');
                 var layerBtn = document.querySelector('.map-controls .control-btn');
-                
+
                 if (hasAnyLayer) {
                     if (layerPanel) layerPanel.style.display = '';
                     if (layerBtn) layerBtn.style.display = 'flex';
                 } else {
-                    if (layerPanel) { layerPanel.classList.remove('show'); layerPanel.style.display = 'none'; }
+                    if (layerPanel) { layerPanel.classList.remove('show');
+                        layerPanel.style.display = 'none'; }
                     if (layerBtn) layerBtn.style.display = 'none';
                 }
 
-                // 3. 处理每个图层
                 allLayers.forEach(function(name) {
                     var chk = document.getElementById('layerCheck' + Utils.capitalize(name));
                     var img = document.getElementById('layer' + Utils.capitalize(name));
                     var hasLayer = hasCustomLayers && data.layers[name];
 
                     if (hasCustomLayers) {
-                        // 有专属图层配置的地图
                         if (hasLayer) {
-                            if (chk) { chk.checked = true; chk.disabled = false; }
-                            if (img) { img.style.display = 'block'; img.classList.add('loaded'); }
+                            if (chk) { chk.checked = true;
+                                chk.disabled = false; }
+                            if (img) { img.style.display = 'block';
+                                img.classList.add('loaded'); }
                         } else {
-                            if (chk) { chk.checked = false; chk.disabled = true; }
-                            if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
+                            if (chk) { chk.checked = false;
+                                chk.disabled = true; }
+                            if (img) { img.style.display = 'none';
+                                img.classList.remove('loaded'); }
                         }
                     } else {
-                        // 无专属图层配置的地图：隐藏 road 和 wall 整行
                         if (name === 'road' || name === 'wall') {
-                            // 隐藏整行
                             var item = chk ? chk.closest('.layer-item') : null;
                             if (item) item.style.display = 'none';
-                            if (chk) { chk.checked = false; chk.disabled = true; }
-                            if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
+                            if (chk) { chk.checked = false;
+                                chk.disabled = true; }
+                            if (img) { img.style.display = 'none';
+                                img.classList.remove('loaded'); }
                         } else {
-                            if (chk) { chk.checked = true; chk.disabled = name === 'bg'; }
-                            if (img) { img.style.display = 'block'; img.classList.add('loaded'); }
-                            // 确保行可见
-                            var item = chk ? chk.closest('.layer-item') : null;
-                            if (item) item.style.display = 'flex';
+                            if (chk) { chk.checked = true;
+                                chk.disabled = name === 'bg'; }
+                            if (img) { img.style.display = 'block';
+                                img.classList.add('loaded'); }
+                            var item2 = chk ? chk.closest('.layer-item') : null;
+                            if (item2) item2.style.display = 'flex';
                         }
                     }
                 });
 
-                // 4. 更新标签
                 var labels = {
                     name: { name: '地名', badge: '顶层' },
                     road: { name: '交通线', badge: '专属' },
@@ -8089,570 +8200,606 @@
             }
         };
 
-        /*模块 11: 讨论区 (Discussion)*/
+        /*模块 11: 讨论区 (Discussion) — 修复 #7 */
         const Discussion = {
-        _currentTag: 'general',
-        _imageData: null,
-        _users: [],
-        _replyTo: null,
-        _myName: localStorage.getItem('discussionUserName') || '',
-        _apiUrl: 'https://cmxoelhjcoxhxkbjpidw.supabase.co/rest/v1',
-        _apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNteG9lbGhqY294aHhrYmpwaWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMjQ0ODIsImV4cCI6MjA5OTYwMDQ4Mn0.D6PUZuTWrhAJeb2C391PloBVGuEpIFBf2GYAacQbhjE',
+            _currentTag: 'general',
+            _imageData: null,
+            _users: [],
+            _replyTo: null,
+            _myName: localStorage.getItem('discussionUserName') || '',
+            _apiUrl: 'https://cmxoelhjcoxhxkbjpidw.supabase.co/rest/v1',
+            _apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNteG9lbGhqY294aHhrYmpwaWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMjQ0ODIsImV4cCI6MjA5OTYwMDQ4Mn0.D6PUZuTWrhAJeb2C391PloBVGuEpIFBf2GYAacQbhjE',
 
-        init: function() {
-            console.log('📌 Discussion 模块初始化（REST API 模式）');
-            this._setupMention();
-            this._restoreName();
-            var self = this;
-            setTimeout(function() {
-                if (Map.getIndex() >= 0) {
-                    self.load(Map.getIndex());
+            init: function() {
+                console.log('📌 Discussion 模块初始化（REST API 模式）');
+                this._setupMention();
+                this._restoreName();
+                var self = this;
+                setTimeout(function() {
+                    if (Map.getIndex() >= 0) {
+                        self.load(Map.getIndex());
+                    }
+                }, 500);
+            },
+
+            _restoreName: function() {
+                var el = document.getElementById('discussionName');
+                if (el) { el.value = this._myName; }
+            },
+
+            _headers: function() {
+                return {
+                    'apikey': this._apiKey,
+                    'Authorization': 'Bearer ' + this._apiKey,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                };
+            },
+
+            _setupMention: function() {
+                var input = document.getElementById('discussionContent');
+                var self = this;
+                if (!input) return;
+
+                input.addEventListener('input', function() {
+                    var val = this.value;
+                    var pos = this.selectionStart;
+                    var before = val.substring(0, pos);
+                    var at = before.lastIndexOf('@');
+                    if (at >= 0) {
+                        var q = before.substring(at + 1);
+                        if (q.indexOf(' ') === -1 && q.indexOf('\n') === -1 && q.length <= 20) {
+                            self._showMention(q, this, at);
+                            return;
+                        }
+                    }
+                    self._hideMention();
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    var dd = document.getElementById('mentionDropdown');
+                    if (!dd || !dd.classList.contains('show')) return;
+                    var items = dd.querySelectorAll('.mention-dropdown-item');
+                    var active = -1;
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].classList.contains('active')) { active = i; break; }
+                    }
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (active >= 0) items[active].classList.remove('active');
+                        var next = (active + 1) % items.length;
+                        items[next].classList.add('active');
+                        items[next].scrollIntoView({ block: 'nearest' });
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (active >= 0) items[active].classList.remove('active');
+                        var prev = (active - 1 + items.length) % items.length;
+                        items[prev].classList.add('active');
+                        items[prev].scrollIntoView({ block: 'nearest' });
+                    } else if (e.key === 'Enter' || e.key === 'Tab') {
+                        e.preventDefault();
+                        if (active >= 0) self._selectMention(items[active].dataset.name);
+                    } else if (e.key === 'Escape') self._hideMention();
+                });
+            },
+
+            _showMention: function(query, input, atIndex) {
+                var dd = document.getElementById('mentionDropdown');
+                if (!dd) return;
+                var filtered = this._users.filter(function(u) {
+                    return u.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+                });
+                if (filtered.length === 0) { this._hideMention(); return; }
+                var html = '';
+                for (var i = 0; i < filtered.length; i++) {
+                    html += '<div class="mention-dropdown-item' + (i === 0 ? ' active' : '') + '" data-name="' +
+                        Utils.escapeHtml(filtered[i]) + '" onclick="App.discussion._selectMention(\'' + Utils
+                        .escapeHtml(filtered[i]) + '\')">👤 ' + Utils.escapeHtml(filtered[i]) + '</div>';
                 }
-            }, 500);
-        },
+                dd.innerHTML = html;
+                var rect = input.getBoundingClientRect();
+                // 修复 #12: 考虑键盘弹出时的位置调整
+                var topOffset = rect.bottom + 4;
+                // 检查是否会超出视口底部
+                if (topOffset + 200 > window.innerHeight) {
+                    topOffset = rect.top - 200;
+                }
+                dd.style.left = Math.max(10, rect.left) + 'px';
+                dd.style.top = Math.max(10, topOffset) + 'px';
+                dd.style.width = Math.min(rect.width, window.innerWidth - 20) + 'px';
+                dd.classList.add('show');
+                this._mentionTarget = input;
+            },
 
-        _restoreName: function() {
-            var el = document.getElementById('discussionName');
-            if (el) { el.value = this._myName; }
-        },
+            _hideMention: function() {
+                var dd = document.getElementById('mentionDropdown');
+                if (dd) dd.classList.remove('show');
+                this._mentionTarget = null;
+            },
 
-        _headers: function() {
-            return {
-                'apikey': this._apiKey,
-                'Authorization': 'Bearer ' + this._apiKey,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
-            };
-        },
-
-        _setupMention: function() {
-            var input = document.getElementById('discussionContent');
-            var self = this;
-            if (!input) return;
-
-            input.addEventListener('input', function() {
-                var val = this.value;
-                var pos = this.selectionStart;
+            _selectMention: function(name) {
+                if (!this._mentionTarget) return;
+                var input = this._mentionTarget;
+                var val = input.value;
+                var pos = input.selectionStart;
                 var before = val.substring(0, pos);
                 var at = before.lastIndexOf('@');
-                if (at >= 0) {
-                    var q = before.substring(at + 1);
-                    if (q.indexOf(' ') === -1 && q.indexOf('\n') === -1 && q.length <= 20) {
-                        self._showMention(q, this, at);
-                        return;
-                    }
+                if (at < 0) return;
+                var newVal = val.substring(0, at) + '@' + name + ' ' + val.substring(pos);
+                input.value = newVal;
+                var np = at + name.length + 2;
+                input.setSelectionRange(np, np);
+                input.focus();
+                this._hideMention();
+            },
+
+            selectTag: function(btn) {
+                document.querySelectorAll('.discussion-tag-option').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                this._currentTag = btn.getAttribute('data-tag') || 'general';
+            },
+
+            // 修复 #19: 图片上传添加反馈
+            handleImageUpload: function(input) {
+                var file = input.files[0];
+                if (!file) return;
+
+                var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (allowedTypes.indexOf(file.type) === -1) {
+                    alert('仅支持 JPG、PNG、GIF、WEBP 格式的图片');
+                    input.value = '';
+                    return;
                 }
-                self._hideMention();
-            });
 
-            input.addEventListener('keydown', function(e) {
-                var dd = document.getElementById('mentionDropdown');
-                if (!dd || !dd.classList.contains('show')) return;
-                var items = dd.querySelectorAll('.mention-dropdown-item');
-                var active = -1;
-                for (var i = 0; i < items.length; i++) {
-                    if (items[i].classList.contains('active')) { active = i; break; }
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('图片大小不能超过 2MB');
+                    input.value = '';
+                    return;
                 }
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (active >= 0) items[active].classList.remove('active');
-                    var next = (active + 1) % items.length;
-                    items[next].classList.add('active');
-                    items[next].scrollIntoView({ block: 'nearest' });
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (active >= 0) items[active].classList.remove('active');
-                    var prev = (active - 1 + items.length) % items.length;
-                    items[prev].classList.add('active');
-                    items[prev].scrollIntoView({ block: 'nearest' });
-                } else if (e.key === 'Enter' || e.key === 'Tab') {
-                    e.preventDefault();
-                    if (active >= 0) self._selectMention(items[active].dataset.name);
-                } else if (e.key === 'Escape') self._hideMention();
-            });
-        },
 
-        _showMention: function(query, input, atIndex) {
-            var dd = document.getElementById('mentionDropdown');
-            if (!dd) return;
-            var filtered = this._users.filter(function(u) {
-                return u.toLowerCase().indexOf(query.toLowerCase()) >= 0;
-            });
-            if (filtered.length === 0) { this._hideMention(); return; }
-            var html = '';
-            for (var i = 0; i < filtered.length; i++) {
-                html += '<div class="mention-dropdown-item' + (i === 0 ? ' active' : '') + '" data-name="' +
-                    Utils.escapeHtml(filtered[i]) + '" onclick="App.discussion._selectMention(\'' + Utils
-                    .escapeHtml(filtered[i]) + '\')">👤 ' + Utils.escapeHtml(filtered[i]) + '</div>';
-            }
-            dd.innerHTML = html;
-            var rect = input.getBoundingClientRect();
-            dd.style.left = rect.left + 'px';
-            dd.style.top = (rect.bottom + 4) + 'px';
-            dd.style.width = rect.width + 'px';
-            dd.classList.add('show');
-            this._mentionTarget = input;
-        },
+                // 修复 #19: 添加加载状态反馈
+                var btn = document.querySelector('.discussion-image-upload-btn');
+                var originalText = btn.textContent;
+                btn.textContent = '⏳ 加载中...';
+                btn.disabled = true;
 
-        _hideMention: function() {
-            var dd = document.getElementById('mentionDropdown');
-            if (dd) dd.classList.remove('show');
-            this._mentionTarget = null;
-        },
-
-        _selectMention: function(name) {
-            if (!this._mentionTarget) return;
-            var input = this._mentionTarget;
-            var val = input.value;
-            var pos = input.selectionStart;
-            var before = val.substring(0, pos);
-            var at = before.lastIndexOf('@');
-            if (at < 0) return;
-            var newVal = val.substring(0, at) + '@' + name + ' ' + val.substring(pos);
-            input.value = newVal;
-            var np = at + name.length + 2;
-            input.setSelectionRange(np, np);
-            input.focus();
-            this._hideMention();
-        },
-
-        selectTag: function(btn) {
-            document.querySelectorAll('.discussion-tag-option').forEach(function(b) { b.classList.remove('active'); });
-            btn.classList.add('active');
-            this._currentTag = btn.getAttribute('data-tag') || 'general';
-        },
-
-        handleImageUpload: function(input) {
-            var file = input.files[0];
-            if (!file) return;
-
-            // 验证文件类型
-            var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            if (allowedTypes.indexOf(file.type) === -1) {
-                alert('仅支持 JPG、PNG、GIF、WEBP 格式的图片');
+                var reader = new FileReader();
+                var self = this;
+                reader.onload = function(e) {
+                    self._imageData = e.target.result;
+                    var preview = document.getElementById('discussionImagePreview');
+                    var removeBtn = document.getElementById('discussionImageRemove');
+                    if (preview) { preview.src = self._imageData;
+                        preview.classList.add('show'); }
+                    if (removeBtn) removeBtn.style.display = 'inline-block';
+                    btn.textContent = '✅ 已选择';
+                    btn.disabled = false;
+                    setTimeout(function() {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 2000);
+                };
+                reader.onerror = function() {
+                    alert('图片读取失败，请重试');
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                };
+                reader.readAsDataURL(file);
                 input.value = '';
-                return;
-            }
+            },
 
-            if (file.size > 2 * 1024 * 1024) { 
-                alert('图片大小不能超过 2MB'); 
-                input.value = ''; 
-                return; 
-            }
-
-            var reader = new FileReader();
-            var self = this;
-            reader.onload = function(e) {
-                self._imageData = e.target.result;
+            removeImage: function() {
+                this._imageData = null;
                 var preview = document.getElementById('discussionImagePreview');
                 var removeBtn = document.getElementById('discussionImageRemove');
-                if (preview) { preview.src = self._imageData; preview.classList.add('show'); }
-                if (removeBtn) removeBtn.style.display = 'inline-block';
-            };
-            reader.readAsDataURL(file);
-            input.value = '';
-        },
+                var uploadBtn = document.querySelector('.discussion-image-upload-btn');
+                if (preview) { preview.src = '';
+                    preview.classList.remove('show'); }
+                if (removeBtn) removeBtn.style.display = 'none';
+                if (uploadBtn) uploadBtn.textContent = '📎 添加图片';
+            },
 
-        removeImage: function() {
-            this._imageData = null;
-            var preview = document.getElementById('discussionImagePreview');
-            var removeBtn = document.getElementById('discussionImageRemove');
-            if (preview) { preview.src = ''; preview.classList.remove('show'); }
-            if (removeBtn) removeBtn.style.display = 'none';
-        },
+            submit: function() {
+                var nameInput = document.getElementById('discussionName');
+                var contentInput = document.getElementById('discussionContent');
+                var btn = document.getElementById('discussionSubmit');
 
-        submit: function() {
-            var nameInput = document.getElementById('discussionName');
-            var contentInput = document.getElementById('discussionContent');
-            var btn = document.getElementById('discussionSubmit');
+                var name = (nameInput.value || '匿名用户').trim();
+                var content = contentInput.value.trim();
 
-            var name = (nameInput.value || '匿名用户').trim();
-            var content = contentInput.value.trim();
+                if (!content) { alert('请输入评论内容'); return; }
+                if (content.length > 500) { alert('评论内容不能超过500字'); return; }
 
-            if (!content) { alert('请输入评论内容'); return; }
-            if (content.length > 500) { alert('评论内容不能超过500字'); return; }
+                if (name !== '匿名访客') {
+                    localStorage.setItem('discussionUserName', name);
+                    this._myName = name;
+                }
 
-            if (name !== '匿名访客') {
-                localStorage.setItem('discussionUserName', name);
-                this._myName = name;
-            }
+                btn.disabled = true;
+                btn.textContent = '发送中...';
+                var self = this;
 
-            btn.disabled = true;
-            btn.textContent = '发送中...';
-            var self = this;
+                var doSubmit = function(imageUrl) {
+                    var insertData = {
+                        map_index: Map.getIndex(),
+                        name: name,
+                        content: content,
+                        tag: self._currentTag || 'general',
+                        created_at: new Date().toISOString()
+                    };
+                    if (imageUrl) insertData.image_url = imageUrl;
 
-            var doSubmit = function(imageUrl) {
-                var insertData = {
-                    map_index: Map.getIndex(),
-                    name: name,
-                    content: content,
-                    tag: self._currentTag || 'general',
-                    created_at: new Date().toISOString()
+                    fetch(self._apiUrl + '/map_discussions', {
+                        method: 'POST',
+                        headers: self._headers(),
+                        body: JSON.stringify([insertData])
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data && data.length) {
+                            contentInput.value = '';
+                            self.removeImage();
+                            self.load(Map.getIndex());
+                            alert('评论发送成功！');
+                        } else if (data && data.message) {
+                            alert('发送失败: ' + data.message);
+                        } else {
+                            alert('发送成功！');
+                            contentInput.value = '';
+                            self.removeImage();
+                            self.load(Map.getIndex());
+                        }
+                        btn.disabled = false;
+                        btn.textContent = '发表评论';
+                    })
+                    .catch(function(err) {
+                        console.error('评论发送异常:', err);
+                        alert('发送失败，请检查网络连接后重试');
+                        btn.disabled = false;
+                        btn.textContent = '发表评论';
+                    });
                 };
-                if (imageUrl) insertData.image_url = imageUrl;
 
-                fetch(self._apiUrl + '/map_discussions', {
-                    method: 'POST',
-                    headers: self._headers(),
-                    body: JSON.stringify([insertData])
+                // 修复 #7: 图片上传添加超时
+                if (this._imageData) {
+                    this._uploadImage(this._imageData, function(imageUrl) {
+                        doSubmit(imageUrl);
+                    });
+                } else {
+                    doSubmit(null);
+                }
+            },
+
+            load: function(mapIndex) {
+                var list = document.getElementById('discussionList');
+                var countEl = document.getElementById('discussionCount');
+
+                list.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⏳</div><div>加载中...</div></div>';
+
+                var self = this;
+
+                fetch(this._apiUrl + '/map_discussions?map_index=eq.' + mapIndex + '&order=created_at.desc', {
+                    headers: this._headers()
                 })
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
-                    if (data && data.length) {
-                        contentInput.value = '';
-                        self.removeImage();
-                        self.load(Map.getIndex());
-                        alert('评论发送成功！');
-                    } else if (data && data.message) {
-                        alert('发送失败: ' + data.message);
-                    } else {
-                        alert('发送成功！');
-                        contentInput.value = '';
-                        self.removeImage();
-                        self.load(Map.getIndex());
+                    if (data && data.message) {
+                        console.error('加载评论失败:', data.message);
+                        list.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">❌</div><div>加载失败: ' +
+                            (data.message || '未知错误') + '</div></div>';
+                        if (countEl) countEl.textContent = '加载失败';
+                        return;
                     }
-                    btn.disabled = false;
-                    btn.textContent = '发表评论';
+
+                    if (!data || data.length === 0) {
+                        list.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">💭</div><div>暂无评论，来发表第一条吧</div></div>';
+                        if (countEl) countEl.textContent = '0条';
+                        return;
+                    }
+
+                    if (countEl) countEl.textContent = data.length + '条';
+
+                    self._users = [];
+                    var userSet = {};
+                    data.forEach(function(d) {
+                        if (d.name && d.name !== '匿名访客') userSet[d.name] = true;
+                    });
+                    self._users = Object.keys(userSet);
+
+                    self._renderDiscussions(data, list, countEl);
                 })
                 .catch(function(err) {
-                    console.error('评论发送异常:', err);
-                    alert('发送失败，请检查网络连接后重试');
-                    btn.disabled = false;
-                    btn.textContent = '发表评论';
-                });
-            };
-
-            if (this._imageData) {
-                // 上传图片到 Supabase Storage
-                self._uploadImage(this._imageData, function(imageUrl) {
-                    doSubmit(imageUrl);
-                });
-            } else {
-                doSubmit(null);
-            }
-        },
-
-        load: function(mapIndex) {
-            var list = document.getElementById('discussionList');
-            var countEl = document.getElementById('discussionCount');
-
-            list.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">⏳</div><div>加载中...</div></div>';
-
-            var self = this;
-
-            fetch(this._apiUrl + '/map_discussions?map_index=eq.' + mapIndex + '&order=created_at.desc', {
-                headers: this._headers()
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                if (data && data.message) {
-                    console.error('加载评论失败:', data.message);
-                    list.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">❌</div><div>加载失败: ' +
-                        (data.message || '未知错误') + '</div></div>';
+                    console.error('加载评论异常:', err);
+                    list.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">❌</div><div>加载失败，请稍后重试</div></div>';
                     if (countEl) countEl.textContent = '加载失败';
-                    return;
-                }
-
-                if (!data || data.length === 0) {
-                    list.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">💭</div><div>暂无评论，来发表第一条吧</div></div>';
-                    if (countEl) countEl.textContent = '0条';
-                    return;
-                }
-
-                if (countEl) countEl.textContent = data.length + '条';
-
-                self._users = [];
-                var userSet = {};
-                data.forEach(function(d) {
-                    if (d.name && d.name !== '匿名访客') userSet[d.name] = true;
                 });
-                self._users = Object.keys(userSet);
+            },
 
-                self._renderDiscussions(data, list, countEl);
-            })
-            .catch(function(err) {
-                console.error('加载评论异常:', err);
-                list.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">❌</div><div>加载失败，请稍后重试</div></div>';
-                if (countEl) countEl.textContent = '加载失败';
-            });
-        },
+            _renderDiscussions: function(data, list, countEl) {
+                var tagLabels = {
+                    general: '',
+                    academic: '<span class="discussion-tag academic">学术</span>',
+                    question: '<span class="discussion-tag question">疑问</span>',
+                    opinion: '<span class="discussion-tag opinion">观点</span>'
+                };
 
-        _renderDiscussions: function(data, list, countEl) {
-            var tagLabels = {
-                general: '',
-                academic: '<span class="discussion-tag academic">学术</span>',
-                question: '<span class="discussion-tag question">疑问</span>',
-                opinion: '<span class="discussion-tag opinion">观点</span>'
-            };
+                var nameInput = document.getElementById('discussionName');
+                var myName = (nameInput && nameInput.value ? nameInput.value : this._myName || '匿名访客').trim();
 
-            var nameInput = document.getElementById('discussionName');
-            var myName = (nameInput && nameInput.value ? nameInput.value : this._myName || '匿名访客').trim();
-
-            var html = '';
-            var self = this;
-
-            for (var i = 0; i < data.length; i++) {
-                var item = data[i];
-                var isOwn = item.name === myName;
-                var isEssential = item.is_essential || false;
-                var canDelete = isOwn || App.devMode.isEnabled();
-
-                var deleteBtn = '';
-                if (canDelete) {
-                    var title = App.devMode.isEnabled() && !isOwn ? '管理员删除' : '删除';
-                    deleteBtn = '<button class="discussion-delete-btn" onclick="App.discussion._delete(\'' + item.id +
-                        '\')" title="' + title + '">✕</button>';
-                }
-
-                var essentialBtn = '';
-                if (App.devMode.isEnabled()) {
-                    essentialBtn = '<button class="admin-essential-btn' + (isEssential ? ' is-essential' : '') +
-                        '" onclick="App.discussion._toggleEssential(\'' + item.id + '\', ' + !isEssential +
-                        ')" title="' + (isEssential ? '取消置顶' : '设为精华') + '">' + (isEssential ? '⭐' : '☆') + '</button>';
-                }
-
-                var essentialBadge = isEssential ? '<span class="essential-badge">⭐ 精华</span>' : '';
-                var tagHtml = tagLabels[item.tag] || '';
-                var timeStr = Utils.formatTime(item.created_at);
-
-                var imageHtml = '';
-                if (item.image_url) {
-                    imageHtml = '<div class="discussion-item-image"><img src="' + Utils.escapeHtml(item.image_url) +
-                        '" alt="评论图片" onclick="window.open(this.src)"></div>';
-                }
-
-                html += '<div class="discussion-item' + (isEssential ? ' is-essential' : '') + '" id="discussion-' +
-                    item.id + '">' +
-                    '<div class="discussion-item-header">' +
-                    '<span class="discussion-item-author">' + Utils.escapeHtml(item.name || '匿名访客') +
-                    tagHtml + essentialBadge + '</span>' +
-                    '<div style="display:flex;align-items:center;gap:6px;">' +
-                    '<span class="discussion-item-time">' + timeStr + '</span>' +
-                    essentialBtn +
-                    deleteBtn +
-                    '</div></div>' +
-                    '<div class="discussion-item-content">' + self._renderMentions(Utils.escapeHtml(item.content)) +
-                    '</div>' +
-                    imageHtml +
-                    '<div class="discussion-item-actions">' +
-                    '<button class="discussion-action-btn" onclick="App.discussion._like(\'' + item.id + '\')">' +
-                    '<span>❤️</span>' +
-                    '<span class="discussion-action-count">0</span>' +
-                    '</button>' +
-                    '<button class="discussion-action-btn" onclick="App.discussion._showReply(\'' + item.id +
-                    '\')">' +
-                    '<span>💬</span> 回复' +
-                    '</button>' +
-                    '</div>' +
-                    '<div class="discussion-replies" id="replies-' + item.id + '"></div>' +
-                    '<div class="reply-input-area" id="reply-area-' + item.id + '">' +
-                    '<textarea class="reply-textarea" placeholder="回复 @' + Utils.escapeHtml(item.name || '匿名') +
-                    ' ... 输入 @ 可提及用户"></textarea>' +
-                    '<div style="display:flex;gap:6px;">' +
-                    '<button class="reply-submit-btn" onclick="App.discussion._submitReply(\'' + item.id +
-                    '\')">发送回复</button>' +
-                    '<button class="reply-cancel-btn" onclick="App.discussion._hideReply(\'' + item.id +
-                    '\')">取消</button>' +
-                    '</div></div>' +
-                    '</div>';
-            }
-
-            list.innerHTML = html;
-            if (countEl) countEl.textContent = data.length + ' 条讨论';
-
-            var self2 = this;
-            data.forEach(function(item) {
-                self2._loadReplies(item.id);
-            });
-        },
-
-        _loadReplies: function(discussionId) {
-            var self = this;
-            fetch(this._apiUrl + '/discussion_replies?discussion_id=eq.' + discussionId + '&order=created_at.asc', {
-                headers: this._headers()
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                if (!data || data.length === 0) return;
-                var container = document.getElementById('replies-' + discussionId);
-                if (!container) return;
                 var html = '';
-                data.forEach(function(r) {
-                    html += '<div class="discussion-reply-item">' +
+                var self = this;
+
+                for (var i = 0; i < data.length; i++) {
+                    var item = data[i];
+                    var isOwn = item.name === myName;
+                    var isEssential = item.is_essential || false;
+                    var canDelete = isOwn || App.devMode.isEnabled();
+
+                    var deleteBtn = '';
+                    if (canDelete) {
+                        var title = App.devMode.isEnabled() && !isOwn ? '管理员删除' : '删除';
+                        deleteBtn = '<button class="discussion-delete-btn" onclick="App.discussion._delete(\'' + item.id +
+                            '\')" title="' + title + '" aria-label="' + title + '评论">✕</button>';
+                    }
+
+                    var essentialBtn = '';
+                    if (App.devMode.isEnabled()) {
+                        essentialBtn = '<button class="admin-essential-btn' + (isEssential ? ' is-essential' : '') +
+                            '" onclick="App.discussion._toggleEssential(\'' + item.id + '\', ' + !isEssential +
+                            ')" title="' + (isEssential ? '取消置顶' : '设为精华') + '" aria-label="' + (isEssential ? '取消置顶' : '设为精华') + '">' +
+                            (isEssential ? '⭐' : '☆') + '</button>';
+                    }
+
+                    var essentialBadge = isEssential ? '<span class="essential-badge">⭐ 精华</span>' : '';
+                    var tagHtml = tagLabels[item.tag] || '';
+                    var timeStr = Utils.formatTime(item.created_at);
+
+                    var imageHtml = '';
+                    if (item.image_url) {
+                        imageHtml = '<div class="discussion-item-image"><img src="' + Utils.escapeHtml(item.image_url) +
+                            '" alt="评论图片" onclick="window.open(this.src)" style="max-width:100%;max-height:200px;border-radius:4px;margin-top:8px;cursor:pointer;"></div>';
+                    }
+
+                    html += '<div class="discussion-item' + (isEssential ? ' is-essential' : '') + '" id="discussion-' +
+                        item.id + '">' +
                         '<div class="discussion-item-header">' +
-                        '<span class="discussion-item-author">' + Utils.escapeHtml(r.name || '匿名') +
-                        '</span>' +
-                        '<span class="discussion-item-time">' + Utils.formatTime(r.created_at) +
-                        '</span>' +
+                        '<span class="discussion-item-author">' + Utils.escapeHtml(item.name || '匿名访客') +
+                        tagHtml + essentialBadge + '</span>' +
+                        '<div style="display:flex;align-items:center;gap:6px;">' +
+                        '<span class="discussion-item-time">' + timeStr + '</span>' +
+                        essentialBtn +
+                        deleteBtn +
+                        '</div></div>' +
+                        '<div class="discussion-item-content">' + self._renderMentions(Utils.escapeHtml(item.content)) +
                         '</div>' +
-                        '<div class="discussion-item-content">' + self._renderMentions(Utils.escapeHtml(
-                            r.content)) + '</div>' +
+                        imageHtml +
+                        '<div class="discussion-item-actions">' +
+                        '<button class="discussion-action-btn" onclick="App.discussion._like(\'' + item.id +
+                        '\')" aria-label="点赞">' +
+                        '<span>❤️</span>' +
+                        '<span class="discussion-action-count">0</span>' +
+                        '</button>' +
+                        '<button class="discussion-action-btn" onclick="App.discussion._showReply(\'' + item.id +
+                        '\')" aria-label="回复">' +
+                        '<span>💬</span> 回复' +
+                        '</button>' +
+                        '</div>' +
+                        '<div class="discussion-replies" id="replies-' + item.id + '"></div>' +
+                        '<div class="reply-input-area" id="reply-area-' + item.id + '">' +
+                        '<textarea class="reply-textarea" placeholder="回复 @' + Utils.escapeHtml(item.name || '匿名') +
+                        ' ... 输入 @ 可提及用户" aria-label="回复内容"></textarea>' +
+                        '<div style="display:flex;gap:6px;">' +
+                        '<button class="reply-submit-btn" onclick="App.discussion._submitReply(\'' + item.id +
+                        '\')" aria-label="发送回复">发送回复</button>' +
+                        '<button class="reply-cancel-btn" onclick="App.discussion._hideReply(\'' + item.id +
+                        '\')" aria-label="取消回复">取消</button>' +
+                        '</div></div>' +
                         '</div>';
-                });
-                container.innerHTML = html;
-            });
-        },
-
-        _submitReply: function(discussionId) {
-            var area = document.getElementById('reply-area-' + discussionId);
-            if (!area) return;
-            var textarea = area.querySelector('.reply-textarea');
-            var content = textarea ? textarea.value.trim() : '';
-            if (!content) return;
-
-            var nameInput = document.getElementById('discussionName');
-            var name = (nameInput ? nameInput.value.trim() : '') || '匿名访客';
-            if (name !== '匿名访客') {
-                localStorage.setItem('discussionUserName', name);
-                this._myName = name;
-            }
-
-            fetch(this._apiUrl + '/discussion_replies', {
-                method: 'POST',
-                headers: this._headers(),
-                body: JSON.stringify([{
-                    discussion_id: discussionId,
-                    map_path: (Map.getData() && Map.getData().path) || '',
-                    map_index: Map.getIndex(),
-                    name: name,
-                    content: content,
-                    created_at: new Date().toISOString()
-                }])
-            })
-            .then(function(res) { return res.json(); })
-            .then(function() {
-                textarea.value = '';
-                document.getElementById('reply-area-' + discussionId).classList.remove('show');
-                Discussion._loadReplies(discussionId);
-            })
-            .catch(function(err) {
-                console.error('回复提交失败:', err);
-                alert('回复发送失败，请重试');
-            });
-        },
-
-        _showReply: function(discussionId) {
-            document.querySelectorAll('.reply-input-area').forEach(function(el) { el.classList.remove('show'); });
-            var area = document.getElementById('reply-area-' + discussionId);
-            if (area) {
-                area.classList.add('show');
-                var ta = area.querySelector('.reply-textarea');
-                if (ta) ta.focus();
-            }
-        },
-
-        _hideReply: function(discussionId) {
-            var area = document.getElementById('reply-area-' + discussionId);
-            if (area) area.classList.remove('show');
-        },
-
-        _like: function(discussionId) {
-            var btn = document.getElementById('like-btn-' + discussionId);
-            var countEl = btn ? btn.querySelector('.discussion-action-count') : null;
-            if (btn && countEl) {
-                var isLiked = btn.classList.contains('liked');
-                var count = parseInt(countEl.textContent) || 0;
-                if (isLiked) {
-                    btn.classList.remove('liked');
-                    countEl.textContent = Math.max(0, count - 1);
-                } else {
-                    btn.classList.add('liked');
-                    countEl.textContent = count + 1;
                 }
-            }
-        },
 
-        _delete: function(discussionId) {
-            if (!confirm('确定要删除这条评论吗？')) return;
+                list.innerHTML = html;
+                if (countEl) countEl.textContent = data.length + ' 条讨论';
 
-            fetch(this._apiUrl + '/map_discussions?id=eq.' + discussionId, {
-                method: 'DELETE',
-                headers: this._headers()
-            })
-            .then(function() {
-                Discussion.load(Map.getIndex());
-            })
-            .catch(function(err) {
-                console.error('删除失败:', err);
-                alert('删除失败，请重试');
-            });
-        },
+                var self2 = this;
+                data.forEach(function(item) {
+                    self2._loadReplies(item.id);
+                });
+            },
 
-        _toggleEssential: function(discussionId, newVal) {
-            fetch(this._apiUrl + '/map_discussions?id=eq.' + discussionId, {
-                method: 'PATCH',
-                headers: this._headers(),
-                body: JSON.stringify({ is_essential: newVal })
-            })
-            .then(function() {
-                Discussion.load(Map.getIndex());
-            })
-            .catch(function(err) {
-                console.error('精华操作失败:', err);
-                alert('操作失败，请重试');
-            });
-        },
+            _loadReplies: function(discussionId) {
+                var self = this;
+                fetch(this._apiUrl + '/discussion_replies?discussion_id=eq.' + discussionId + '&order=created_at.asc', {
+                    headers: this._headers()
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (!data || data.length === 0) return;
+                    var container = document.getElementById('replies-' + discussionId);
+                    if (!container) return;
+                    var html = '';
+                    data.forEach(function(r) {
+                        html += '<div class="discussion-reply-item">' +
+                            '<div class="discussion-item-header">' +
+                            '<span class="discussion-item-author">' + Utils.escapeHtml(r.name || '匿名') +
+                            '</span>' +
+                            '<span class="discussion-item-time">' + Utils.formatTime(r.created_at) +
+                            '</span>' +
+                            '</div>' +
+                            '<div class="discussion-item-content">' + self._renderMentions(Utils.escapeHtml(
+                                r.content)) + '</div>' +
+                            '</div>';
+                    });
+                    container.innerHTML = html;
+                });
+            },
 
-        _renderMentions: function(text) {
-            if (!text) return '';
-            return text.replace(/@([^\s\n]+)/g, '<span class="mention-highlight">@$1</span>');
-        },
+            _submitReply: function(discussionId) {
+                var area = document.getElementById('reply-area-' + discussionId);
+                if (!area) return;
+                var textarea = area.querySelector('.reply-textarea');
+                var content = textarea ? textarea.value.trim() : '';
+                if (!content) return;
 
-        _uploadImage: function(base64Data, callback) {
-            var self = this;
-            // 将 base64 转换为 Blob
-            var byteString = atob(base64Data.split(',')[1]);
-            var mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0];
-            var ab = new ArrayBuffer(byteString.length);
-            var ia = new Uint8Array(ab);
-            for (var i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            var blob = new Blob([ab], { type: mimeString });
+                var nameInput = document.getElementById('discussionName');
+                var name = (nameInput ? nameInput.value.trim() : '') || '匿名访客';
+                if (name !== '匿名访客') {
+                    localStorage.setItem('discussionUserName', name);
+                    this._myName = name;
+                }
 
-            // 生成文件名
-            var ext = mimeString.split('/')[1] || 'png';
-            var filename = 'discussion_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8) + '.' + ext;
+                fetch(this._apiUrl + '/discussion_replies', {
+                    method: 'POST',
+                    headers: this._headers(),
+                    body: JSON.stringify([{
+                        discussion_id: discussionId,
+                        map_path: (Map.getData() && Map.getData().path) || '',
+                        map_index: Map.getIndex(),
+                        name: name,
+                        content: content,
+                        created_at: new Date().toISOString()
+                    }])
+                })
+                .then(function(res) { return res.json(); })
+                .then(function() {
+                    textarea.value = '';
+                    document.getElementById('reply-area-' + discussionId).classList.remove('show');
+                    Discussion._loadReplies(discussionId);
+                })
+                .catch(function(err) {
+                    console.error('回复提交失败:', err);
+                    alert('回复发送失败，请重试');
+                });
+            },
 
-            // 上传到 Supabase Storage
-            var storageUrl = 'https://cmxoelhjcoxhxkbjpidw.supabase.co/storage/v1/object/discussion-images/' + filename;
+            _showReply: function(discussionId) {
+                document.querySelectorAll('.reply-input-area').forEach(function(el) { el.classList.remove('show'); });
+                var area = document.getElementById('reply-area-' + discussionId);
+                if (area) {
+                    area.classList.add('show');
+                    var ta = area.querySelector('.reply-textarea');
+                    if (ta) ta.focus();
+                }
+            },
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', storageUrl, true);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + self._apiKey);
-            xhr.setRequestHeader('x-upsert', 'false');
+            _hideReply: function(discussionId) {
+                var area = document.getElementById('reply-area-' + discussionId);
+                if (area) area.classList.remove('show');
+            },
 
-            xhr.onload = function() {
-                if (xhr.status === 200 || xhr.status === 201) {
-                    // 上传成功，获取公开 URL
-                    var publicUrl = 'https://cmxoelhjcoxhxkbjpidw.supabase.co/storage/v1/object/public/discussion-images/' + filename;
-                    callback(publicUrl);
-                } else {
-                    console.error('图片上传失败:', xhr.status, xhr.responseText);
+            _like: function(discussionId) {
+                var btn = document.getElementById('like-btn-' + discussionId);
+                var countEl = btn ? btn.querySelector('.discussion-action-count') : null;
+                if (btn && countEl) {
+                    var isLiked = btn.classList.contains('liked');
+                    var count = parseInt(countEl.textContent) || 0;
+                    if (isLiked) {
+                        btn.classList.remove('liked');
+                        countEl.textContent = Math.max(0, count - 1);
+                    } else {
+                        btn.classList.add('liked');
+                        countEl.textContent = count + 1;
+                    }
+                }
+            },
+
+            _delete: function(discussionId) {
+                if (!confirm('确定要删除这条评论吗？')) return;
+                fetch(this._apiUrl + '/map_discussions?id=eq.' + discussionId, {
+                    method: 'DELETE',
+                    headers: this._headers()
+                })
+                .then(function() {
+                    Discussion.load(Map.getIndex());
+                })
+                .catch(function(err) {
+                    console.error('删除失败:', err);
+                    alert('删除失败，请重试');
+                });
+            },
+
+            _toggleEssential: function(discussionId, newVal) {
+                fetch(this._apiUrl + '/map_discussions?id=eq.' + discussionId, {
+                    method: 'PATCH',
+                    headers: this._headers(),
+                    body: JSON.stringify({ is_essential: newVal })
+                })
+                .then(function() {
+                    Discussion.load(Map.getIndex());
+                })
+                .catch(function(err) {
+                    console.error('精华操作失败:', err);
+                    alert('操作失败，请重试');
+                });
+            },
+
+            _renderMentions: function(text) {
+                if (!text) return '';
+                return text.replace(/@([^\s\n]+)/g, '<span class="mention-highlight">@$1</span>');
+            },
+
+            // 修复 #7: 图片上传添加超时和进度反馈
+            _uploadImage: function(base64Data, callback) {
+                var self = this;
+                var byteString = atob(base64Data.split(',')[1]);
+                var mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0];
+                var ab = new ArrayBuffer(byteString.length);
+                var ia = new Uint8Array(ab);
+                for (var i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                var blob = new Blob([ab], { type: mimeString });
+
+                var ext = mimeString.split('/')[1] || 'png';
+                var filename = 'discussion_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8) + '.' + ext;
+
+                var storageUrl = 'https://cmxoelhjcoxhxkbjpidw.supabase.co/storage/v1/object/discussion-images/' + filename;
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', storageUrl, true);
+                xhr.setRequestHeader('Authorization', 'Bearer ' + self._apiKey);
+                xhr.setRequestHeader('x-upsert', 'false');
+
+                // 修复 #7: 添加超时
+                var timeoutId = setTimeout(function() {
+                    xhr.abort();
+                    console.warn('图片上传超时');
+                    alert('图片上传超时，将以纯文字发送');
+                    callback(null);
+                }, 30000);
+
+                xhr.onload = function() {
+                    clearTimeout(timeoutId);
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        var publicUrl = 'https://cmxoelhjcoxhxkbjpidw.supabase.co/storage/v1/object/public/discussion-images/' + filename;
+                        callback(publicUrl);
+                    } else {
+                        console.error('图片上传失败:', xhr.status, xhr.responseText);
+                        alert('图片上传失败，将以纯文字发送');
+                        callback(null);
+                    }
+                };
+
+                xhr.onerror = function() {
+                    clearTimeout(timeoutId);
+                    console.error('图片上传网络错误');
                     alert('图片上传失败，将以纯文字发送');
                     callback(null);
+                };
+
+                xhr.send(blob);
+            },
+
+            _getFingerprint: function() {
+                var fp = localStorage.getItem('userFingerprint');
+                if (!fp) {
+                    fp = 'fp_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem('userFingerprint', fp);
                 }
-            };
-
-            xhr.onerror = function() {
-                console.error('图片上传网络错误');
-                alert('图片上传失败，将以纯文字发送');
-                callback(null);
-            };
-
-            xhr.send(blob);
-        },
-
-        _getFingerprint: function() {
-            var fp = localStorage.getItem('userFingerprint');
-            if (!fp) {
-                fp = 'fp_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                localStorage.setItem('userFingerprint', fp);
+                return fp;
             }
-            return fp;
-        }
         };
-        /*开发者模式(DevMode)*/
+
+        /*模块 12: 开发者模式 (DevMode) — 修复 #5 */
         const DevMode = {
             PASSWORD: 'zzbqq138',
             _enabled: localStorage.getItem('devModeEnabled') === 'true',
@@ -8677,15 +8824,14 @@
                 var overlay = document.getElementById('devModeLoginOverlay');
                 var input = document.getElementById('devModePasswordInput');
                 var error = document.getElementById('devModeLoginError');
-                
-                // 检查是否被锁定
+
                 if (this._isLocked()) {
                     var remaining = Math.ceil((this._lockedUntil - Date.now()) / 60000);
                     error.textContent = '🔒 登录已锁定，请 ' + remaining + ' 分钟后重试';
                     overlay.classList.add('show');
                     return;
                 }
-                
+
                 error.textContent = '';
                 input.value = '';
                 overlay.classList.add('show');
@@ -8694,10 +8840,7 @@
             },
 
             _isLocked: function() {
-                if (this._lockedUntil > Date.now()) {
-                    return true;
-                }
-                return false;
+                return this._lockedUntil > Date.now();
             },
 
             login: function() {
@@ -8705,7 +8848,6 @@
                 var error = document.getElementById('devModeLoginError');
                 var value = input.value;
 
-                // 检查锁定
                 if (this._isLocked()) {
                     var remaining = Math.ceil((this._lockedUntil - Date.now()) / 60000);
                     error.textContent = '🔒 已锁定，请 ' + remaining + ' 分钟后重试';
@@ -8713,7 +8855,6 @@
                 }
 
                 if (value === this.PASSWORD) {
-                    // 登录成功
                     this._enabled = true;
                     this._loginAttempts = 0;
                     localStorage.setItem('devModeEnabled', 'true');
@@ -8724,23 +8865,20 @@
                     error.textContent = '';
                     this._showToast('✅ 开发者模式已开启', 'success');
                     this._logAction('开发者登录');
-                    // 重新加载讨论区
                     if (Map.getIndex() >= 0) {
                         App.discussion.load(Map.getIndex());
                     }
                     Blur._applyUI();
                 } else {
-                    // 登录失败
                     this._loginAttempts++;
-                    var remaining = this._maxAttempts - this._loginAttempts;
-                    if (remaining <= 0) {
-                        // 锁定 15 分钟
+                    var remaining2 = this._maxAttempts - this._loginAttempts;
+                    if (remaining2 <= 0) {
                         this._lockedUntil = Date.now() + 15 * 60 * 1000;
                         localStorage.setItem('devModeLockedUntil', String(this._lockedUntil));
                         error.textContent = '🔒 尝试次数过多，已锁定 15 分钟';
                         this._showToast('🔒 登录已锁定 15 分钟', 'error');
                     } else {
-                        error.textContent = '❌ 密码错误，剩余尝试次数: ' + remaining;
+                        error.textContent = '❌ 密码错误，剩余尝试次数: ' + remaining2;
                         input.value = '';
                         input.focus();
                         this._showToast('❌ 密码错误', 'error');
@@ -8751,23 +8889,18 @@
             logout: function() {
                 if (!this._enabled) return;
                 if (!confirm('确定要退出开发者模式吗？')) return;
-                
                 this._enabled = false;
                 localStorage.removeItem('devModeEnabled');
                 this._hideIndicator();
                 this._updateUI(false);
                 this._showToast('🔒 开发者模式已关闭', 'info');
                 this._logAction('开发者退出');
-                // 重新加载讨论区
                 if (Map.getIndex() >= 0) {
                     App.discussion.load(Map.getIndex());
                 }
                 Blur._applyUI();
             },
 
-            // ===== 管理员工具 =====
-            
-            // 一键清除所有评论（谨慎使用）
             clearAllDiscussions: function() {
                 if (!this._enabled) {
                     this._showToast('⚠️ 请先开启开发者模式', 'error');
@@ -8775,9 +8908,8 @@
                 }
                 if (!confirm('⚠️ 确定要删除所有地图的评论吗？此操作不可恢复！')) return;
                 if (!confirm('⚠️ 再次确认：这将删除所有讨论区的全部评论！')) return;
-                
+
                 this._logAction('删除所有评论');
-                // 使用 REST API 删除
                 fetch(Discussion._apiUrl + '/map_discussions', {
                     method: 'DELETE',
                     headers: Discussion._headers()
@@ -8792,7 +8924,6 @@
                 });
             },
 
-            // 导出数据为 JSON
             exportData: function() {
                 if (!this._enabled) {
                     this._showToast('⚠️ 请先开启开发者模式', 'error');
@@ -8806,14 +8937,12 @@
                     stats: {}
                 };
 
-                // 导出讨论数据
                 fetch(Discussion._apiUrl + '/map_discussions?order=created_at.desc', {
                     headers: Discussion._headers()
                 })
                 .then(function(res) { return res.json(); })
                 .then(function(discussions) {
                     data.discussions = discussions || [];
-                    // 导出回复数据
                     return fetch(Discussion._apiUrl + '/discussion_replies?order=created_at.desc', {
                         headers: Discussion._headers()
                     });
@@ -8821,7 +8950,6 @@
                 .then(function(res) { return res.json(); })
                 .then(function(replies) {
                     data.replies = replies || [];
-                    // 导出点赞数据
                     return fetch(Discussion._apiUrl + '/discussion_likes', {
                         headers: Discussion._headers()
                     });
@@ -8829,7 +8957,6 @@
                 .then(function(res) { return res.json(); })
                 .then(function(likes) {
                     data.likes = likes || [];
-                    // 导出统计数据
                     return fetch(Discussion._apiUrl + '/site_stats?site_key=eq.zhaoran_map', {
                         headers: Discussion._headers()
                     });
@@ -8837,12 +8964,11 @@
                 .then(function(res) { return res.json(); })
                 .then(function(stats) {
                     data.stats = stats || [];
-                    // 生成下载
                     var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                     var url = URL.createObjectURL(blob);
                     var link = document.createElement('a');
                     link.href = url;
-                    link.download = 'zhaoran_map_data_' + new Date().toISOString().slice(0,10) + '.json';
+                    link.download = 'zhaoran_map_data_' + new Date().toISOString().slice(0, 10) + '.json';
                     link.click();
                     URL.revokeObjectURL(url);
                     DevMode._showToast('✅ 数据导出成功', 'success');
@@ -8853,21 +8979,19 @@
                 });
             },
 
-            // 清空统计数据
             clearStats: function() {
                 if (!this._enabled) {
                     this._showToast('⚠️ 请先开启开发者模式', 'error');
                     return;
                 }
                 if (!confirm('确定要重置访问统计数据吗？')) return;
-                
+
                 this._logAction('重置统计数据');
                 fetch(Discussion._apiUrl + '/site_stats?site_key=eq.zhaoran_map', {
                     method: 'DELETE',
                     headers: Discussion._headers()
                 })
                 .then(function() {
-                    // 重新插入初始数据
                     return fetch(Discussion._apiUrl + '/site_stats', {
                         method: 'POST',
                         headers: Discussion._headers(),
@@ -8889,13 +9013,11 @@
                 });
             },
 
-            // 显示系统信息
             showSystemInfo: function() {
                 if (!this._enabled) {
                     this._showToast('⚠️ 请先开启开发者模式', 'error');
                     return;
                 }
-                
                 var info = {
                     '版本': 'v1.1',
                     '地图总数': Data.count(),
@@ -8908,7 +9030,6 @@
                     '屏幕尺寸': window.innerWidth + 'x' + window.innerHeight,
                     'UA': navigator.userAgent.substring(0, 60) + '...'
                 };
-                
                 var msg = '📊 系统信息\n' + '='.repeat(30) + '\n';
                 for (var key in info) {
                     msg += key + ': ' + info[key] + '\n';
@@ -8917,18 +9038,14 @@
                 this._logAction('查看系统信息');
             },
 
-            // 强制刷新地图缓存
             refreshCache: function() {
                 if (!this._enabled) {
                     this._showToast('⚠️ 请先开启开发者模式', 'error');
                     return;
                 }
                 this._logAction('刷新缓存');
-                // 清空图片缓存
                 Map._imageCache = {};
-                // 清空图层状态
                 Map._layerLoadStates = {};
-                // 重新加载当前地图
                 if (Map.getIndex() >= 0) {
                     Map.reload();
                     this._showToast('✅ 缓存已刷新，地图重新加载', 'success');
@@ -8937,8 +9054,6 @@
                 }
             },
 
-            // ===== 内部工具 =====
-            
             _showIndicator: function() {
                 var indicator = document.getElementById('devModeIndicator');
                 if (indicator) indicator.classList.add('show');
@@ -8961,33 +9076,18 @@
                 if (!toast) {
                     toast = document.createElement('div');
                     toast.id = 'devModeToast';
-                    toast.style.cssText = `
-                        position: fixed;
-                        top: 80px;
-                        left: 50%;
-                        transform: translateX(-50%) translateY(-20px);
-                        padding: 12px 24px;
-                        border-radius: 10px;
-                        font-family: "Noto Serif SC", serif;
-                        font-size: 0.95rem;
-                        z-index: 10000;
-                        opacity: 0;
-                        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-                        pointer-events: none;
-                        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-                        max-width: 90vw;
-                        text-align: center;
-                    `;
+                    toast.style.cssText =
+                        'position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);padding:12px 24px;border-radius:10px;font-family:"Noto Serif SC",serif;font-size:0.95rem;z-index:10000;opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:90vw;text-align:center;';
                     document.body.appendChild(toast);
                 }
-                
+
                 var colors = {
                     success: { bg: 'rgba(74, 155, 142, 0.95)', border: '#4a9b8e', text: '#fff' },
                     error: { bg: 'rgba(192, 57, 43, 0.95)', border: '#c0392b', text: '#fff' },
                     info: { bg: 'rgba(52, 73, 94, 0.95)', border: '#34495e', text: '#fff' },
                     warning: { bg: 'rgba(212, 175, 55, 0.95)', border: '#d4af37', text: '#1a1a2e' }
                 };
-                
+
                 var color = colors[type] || colors.info;
                 toast.style.background = color.bg;
                 toast.style.border = '2px solid ' + color.border;
@@ -8995,7 +9095,7 @@
                 toast.textContent = message;
                 toast.style.opacity = '1';
                 toast.style.transform = 'translateX(-50%) translateY(0)';
-                
+
                 clearTimeout(this._toastTimer);
                 this._toastTimer = setTimeout(function() {
                     toast.style.opacity = '0';
@@ -9027,7 +9127,6 @@
                 if (this._enabled) {
                     this._showIndicator();
                     this._updateUI(true);
-                    // 检查锁定状态
                     if (this._isLocked()) {
                         this._enabled = false;
                         localStorage.removeItem('devModeEnabled');
@@ -9037,22 +9136,18 @@
                 }
             }
         };
-        /*模块 13: 访问统计 (Visitor)*/
+
+        /*模块 13: 访问统计 (Visitor) */
         const Visitor = {
             VISITOR_KEY: 'visitor_last_visit_time',
 
             init: function() {
-                // 每次进入都记录（刷新页面也算新访问）
                 this._recordVisit();
-                // 同时获取最新数据用于显示
                 this._fetch();
             },
 
-            // 记录一次访问（原子操作，不重复）
             _recordVisit: function() {
                 var self = this;
-
-                // 调用 RPC 函数原子性 +1
                 fetch(Discussion._apiUrl + '/rpc/increment_visitor', {
                     method: 'POST',
                     headers: Discussion._headers(),
@@ -9066,7 +9161,6 @@
                     if (data && data.visitor_count !== undefined) {
                         self._updateDisplay(data.visitor_count);
                         localStorage.setItem('visitorCount', data.visitor_count);
-                        // 记录本次访问时间
                         localStorage.setItem(self.VISITOR_KEY, new Date().toISOString());
                         self._updateToday();
                     }
@@ -9077,7 +9171,6 @@
                 });
             },
 
-            // 获取最新数据（用于刷新显示）
             _fetch: function() {
                 var self = this;
                 fetch(Discussion._apiUrl + '/site_stats?site_key=eq.zhaoran_map&select=visitor_count,last_updated', {
@@ -9098,7 +9191,6 @@
                 });
             },
 
-            // 本地回退（网络失败时用）
             _incrementLocal: function() {
                 var local = parseInt(localStorage.getItem('localVisitorCount') || '0') + 1;
                 localStorage.setItem('localVisitorCount', local);
@@ -9140,7 +9232,7 @@
             }
         };
 
-        /*模块 14: 保护 (Protection)*/
+        /*模块 14: 保护 (Protection) — 修复 #5 */
         const Protection = {
             init: function() {
                 var self = this;
@@ -9179,7 +9271,7 @@
                     }
                 }, true);
 
-                // 禁用键盘快捷键
+                // 禁用键盘快捷键（移除 debugger 陷阱）
                 document.addEventListener('keydown', function(e) {
                     var tag = e.target.tagName;
                     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) {
@@ -9212,12 +9304,27 @@
                     '@media print{ .map-viewport,.map-wrapper,#mapImage{display:none !important;} body::after{content:"本页面内容受版权保护，禁止打印";display:block;text-align:center;padding:50px;font-size:18px;color:#999;}}';
                 document.head.appendChild(style);
 
-                // debugger陷阱
+                // 移除 debugger 陷阱，使用轻量级检测
+                var devtoolsOpen = false;
+                var element = new Image();
+                Object.defineProperty(element, 'id', {
+                    get: function() {
+                        devtoolsOpen = true;
+                        console.warn('开发者工具已打开，请尊重版权');
+                    }
+                });
                 setInterval(function() {
-                    var start = performance.now();
-                    debugger;
-                    if (performance.now() - start > 100) console.clear();
-                }, 2000);
+                    devtoolsOpen = false;
+                    console.log(element);
+                    console.clear();
+                    if (devtoolsOpen) {
+                        // 仅记录一次，不阻塞
+                        if (!window._devtoolsWarned) {
+                            window._devtoolsWarned = true;
+                            console.warn('⚠️ 开发者工具检测到，请尊重知识产权');
+                        }
+                    }
+                }, 3000);
             },
 
             _showToast: function() {
@@ -9228,6 +9335,7 @@
                 this._toastTimer = setTimeout(function() { toast.classList.remove('show'); }, 2500);
             }
         };
+
         /*模块 15: 入口 (App) */
         const App = {
             data: Data,
@@ -9245,7 +9353,7 @@
             devMode: DevMode,
             visitor: Visitor,
             protection: Protection,
-    
+
             init: function() {
                 this.data.load();
                 this._renderTimeline();
@@ -9257,21 +9365,16 @@
                 this.discussion.init();
                 this.visitor.init();
                 this.protection.init();
-  
-                this.layout.detect();
 
-                // 初始化地图交互（拖拽、滚轮缩放、触摸）
+                this.layout.detect();
                 Map._setupEvents();
 
-                // 进入后显示空白状态
                 var self = this;
-                // 如果用户不是通过点击进入按钮进入（比如直接访问），也显示空白
                 setTimeout(function() {
                     if (Map.getIndex() < 0) {
                         self._showEmptyState();
                     }
                 }, 100);
-                var self = this;
 
                 window.addEventListener('resize', function() {
                     self.layout.detect();
@@ -9290,49 +9393,39 @@
                 });
 
                 document.addEventListener('keydown', function(e) {
-                    // 如果在输入框中，不触发快捷键
                     var tag = e.target.tagName;
                     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) {
                         return;
                     }
-                    
-                    // 方向键 - 地图导航
-                    if (e.key === 'ArrowLeft') { e.preventDefault(); self.map.navigate(-1); }
-                    else if (e.key === 'ArrowRight') { e.preventDefault(); self.map.navigate(1); }
-                    else if (e.key === 'ArrowUp') { e.preventDefault(); self.map.zoomIn(); }
-                    else if (e.key === 'ArrowDown') { e.preventDefault(); self.map.zoomOut(); }
-                    
-                    // 数字键 - 缩放控制
-                    else if (e.key === '0') { e.preventDefault(); self.map.resetView(); }
-                    else if (e.key === '=' || e.key === '+') { e.preventDefault(); self.map.zoomIn(); }
-                    else if (e.key === '-' || e.key === '_') { e.preventDefault(); self.map.zoomOut(); }
-                    
-                    // 字母键 - 功能快捷键
-                    else if (e.key === 'h' || e.key === 'H') { e.preventDefault(); App.help.toggle(); }
-                    else if (e.key === 's' || e.key === 'S') { e.preventDefault(); App.settings.toggle(); }
-                    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); document.getElementById('searchInput').focus(); }
-                    else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); App.map.reload(); }
-                    else if (e.key === 'l' || e.key === 'L') { e.preventDefault(); App.layer.togglePanel(); }
-                    else if (e.key === 't' || e.key === 'T') { 
-                        e.preventDefault(); 
+                    if (e.key === 'ArrowLeft') { e.preventDefault();
+                        self.map.navigate(-1); } else if (e.key === 'ArrowRight') { e.preventDefault();
+                        self.map.navigate(1); } else if (e.key === 'ArrowUp') { e.preventDefault();
+                        self.map.zoomIn(); } else if (e.key === 'ArrowDown') { e.preventDefault();
+                        self.map.zoomOut(); } else if (e.key === '0') { e.preventDefault();
+                        self.map.resetView(); } else if (e.key === '=' || e.key === '+') { e.preventDefault();
+                        self.map.zoomIn(); } else if (e.key === '-' || e.key === '_') { e.preventDefault();
+                        self.map.zoomOut(); } else if (e.key === 'h' || e.key === 'H') { e.preventDefault();
+                        App.help.toggle(); } else if (e.key === 's' || e.key === 'S') { e.preventDefault();
+                        App.settings.toggle(); } else if (e.key === 'f' || e.key === 'F') { e.preventDefault();
+                        document.getElementById('searchInput').focus(); } else if (e.key === 'r' || e.key ===
+                        'R') { e.preventDefault();
+                        App.map.reload(); } else if (e.key === 'l' || e.key === 'L') { e.preventDefault();
+                        App.layer.togglePanel(); } else if (e.key === 't' || e.key === 'T') {
+                        e.preventDefault();
                         if (window.innerWidth <= 1200) {
                             App.layout.toggleSidebar('timeline');
                         } else {
                             document.getElementById('timelinePanel').scrollIntoView({ behavior: 'smooth' });
                         }
-                    }
-                    else if (e.key === 'i' || e.key === 'I') {
+                    } else if (e.key === 'i' || e.key === 'I') {
                         e.preventDefault();
                         if (window.innerWidth <= 1200) {
                             App.layout.toggleSidebar('info');
                         } else {
                             document.getElementById('infoPanel').scrollIntoView({ behavior: 'smooth' });
                         }
-                    }
-                    else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); App.layout.switchTab('map'); }
-                    
-                    // Escape - 关闭所有弹出面板
-                    else if (e.key === 'Escape') {
+                    } else if (e.key === 'm' || e.key === 'M') { e.preventDefault();
+                        App.layout.switchTab('map'); } else if (e.key === 'Escape') {
                         if (document.getElementById('settingsPanel').classList.contains('open')) {
                             App.settings.toggle();
                         }
@@ -9346,15 +9439,12 @@
                             App.layer.togglePanel();
                         }
                     }
-                });       
-                document.getElementById('titleScreen').addEventListener('click', this._enterMuseum);
-                document.getElementById('enterButton').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    App._enterMuseum();
                 });
 
+                document.getElementById('titleScreen').addEventListener('click', this._enterMuseum);
+
                 var params = Utils.getUrlParams();
-               if (params.auto === '1') {
+                if (params.auto === '1') {
                     setTimeout(function() { App._enterMuseum(); }, 500);
                 }
 
@@ -9362,7 +9452,7 @@
                     setTimeout(function() { self.layout.switchTab('map'); }, 500);
                 }
 
-                console.log('✨ 昭燃的历史地图馆 v1.1 已启动（含高斯模糊功能）');
+                console.log('✨ 昭燃的历史地图馆 v1.2 已启动');
             },
 
             _renderTimeline: function() {
@@ -9389,7 +9479,8 @@
                             "世界历史": "纵观世界",
                             "其他作者优秀作品": "博采众长"
                         };
-                        eraDiv.innerHTML = '<span>' + currentEra + '</span><span class="era-quote">' + (quotes[currentEra] || '') + '</span>';
+                        eraDiv.innerHTML = '<span>' + currentEra + '</span><span class="era-quote">' + (quotes[
+                            currentEra] || '') + '</span>';
                         list.appendChild(eraDiv);
                     }
 
@@ -9428,7 +9519,6 @@
                 setTimeout(function() {
                     document.getElementById('mainContainer').classList.add('visible');
                     App.layout.detect();
-                    // 不自动选择任何地图，显示空白界面
                     App._showEmptyState();
                 }, 500);
                 setTimeout(function() { overlay.classList.remove('active'); }, 1000);
@@ -9437,13 +9527,12 @@
                     setTimeout(function() { App.layout.switchTab('map'); }, 1200);
                 }
             },
+
             _showEmptyState: function() {
-                // 清空时间轴激活状态
                 document.querySelectorAll('.timeline-item').forEach(function(el) {
                     el.classList.remove('active');
                 });
 
-                // 清空信息面板
                 document.getElementById('currentYear').textContent = '—';
                 document.getElementById('currentYear').className = 'current-year';
                 document.getElementById('currentReign').style.display = 'none';
@@ -9454,61 +9543,53 @@
                 document.getElementById('metaCount').textContent = '—';
                 document.getElementById('metaIndex').textContent = '— / ' + Data.count();
 
-                // 隐藏时期背景卡片
                 document.getElementById('periodBgCard').style.display = 'none';
 
-                // 重置名言
                 var defaultQuote = '"读史使人明智"';
                 var defaultAuthor = '—— 弗朗西斯·培根';
-                document.getElementById('headerQuote').innerHTML = 
+                document.getElementById('headerQuote').innerHTML =
                     '<div>' + defaultQuote + '</div><div class="header-quote-author">' + defaultAuthor + '</div>';
-                document.getElementById('wisdomQuote').innerHTML = 
+                document.getElementById('wisdomQuote').innerHTML =
                     '"欲知大道，必先为史"<div class="wisdom-author">—— 龚自珍</div>';
-                document.getElementById('sidebarQuote').innerHTML = 
+                document.getElementById('sidebarQuote').innerHTML =
                     '<div>"究天人之际，通古今之变，成一家之言"</div><div class="quote-author">—— 司马迁《报任安书》</div>';
                 document.getElementById('footerQuote').textContent = '"江山留胜迹，我辈复登临" —— 孟浩然';
 
-                // 清空地图区域（显示占位符）
                 var placeholder = document.getElementById('placeholder');
                 if (placeholder) placeholder.style.display = 'block';
 
-                // 隐藏所有图层
                 document.querySelectorAll('.layer-image').forEach(function(layer) {
                     layer.classList.remove('loaded');
                     layer.style.display = 'none';
                 });
 
-                // 清空讨论区
                 var discussionList = document.getElementById('discussionList');
                 if (discussionList) {
-                    discussionList.innerHTML = '<div class="discussion-empty"><div class="discussion-empty-icon">🗺️</div><div>选择一幅地图，开始讨论</div></div>';
+                    discussionList.innerHTML =
+                        '<div class="discussion-empty"><div class="discussion-empty-icon">🗺️</div><div>选择一幅地图，开始讨论</div></div>';
                 }
                 document.getElementById('discussionCount').textContent = '0条';
 
-                // 禁用导航按钮
                 document.getElementById('prevBtn').disabled = true;
                 document.getElementById('nextBtn').disabled = true;
                 document.getElementById('portraitPrevBtn').disabled = true;
                 document.getElementById('portraitNextBtn').disabled = true;
+                document.getElementById('desktopPrevBtn').disabled = true;
+                document.getElementById('desktopNextBtn').disabled = true;
 
-                // 清除地图索引
                 Map._index = -1;
                 localStorage.removeItem('lastSelectedMapIndex');
 
-                // 重置缩放
                 Map._scale = 1;
                 Map._translateX = 0;
                 Map._translateY = 0;
                 Map._updateTransform();
 
-                // 停止所有加载
                 Map._abortAll();
 
-                // 更新画质显示
                 var zl = document.getElementById('zoomLevel');
                 if (zl) zl.textContent = '100%';
 
-                // 如果有作者信息卡片，移除
                 var authorCard = document.getElementById('authorInfoCard');
                 if (authorCard) authorCard.remove();
 
