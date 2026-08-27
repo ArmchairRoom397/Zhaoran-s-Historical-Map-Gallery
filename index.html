@@ -4072,6 +4072,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -7520,7 +7521,21 @@
         handleImageUpload: function(input) {
             var file = input.files[0];
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) { alert('图片大小不能超过 2MB'); input.value = ''; return; }
+
+            // 验证文件类型
+            var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (allowedTypes.indexOf(file.type) === -1) {
+                alert('仅支持 JPG、PNG、GIF、WEBP 格式的图片');
+                input.value = '';
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) { 
+                alert('图片大小不能超过 2MB'); 
+                input.value = ''; 
+                return; 
+            }
+
             var reader = new FileReader();
             var self = this;
             reader.onload = function(e) {
@@ -7604,8 +7619,10 @@
             };
 
             if (this._imageData) {
-                alert('图片上传暂不支持，将以纯文字发送');
-                doSubmit(null);
+                // 上传图片到 Supabase Storage
+                self._uploadImage(this._imageData, function(imageUrl) {
+                    doSubmit(imageUrl);
+                });
             } else {
                 doSubmit(null);
             }
@@ -7875,6 +7892,51 @@
         _renderMentions: function(text) {
             if (!text) return '';
             return text.replace(/@([^\s\n]+)/g, '<span class="mention-highlight">@$1</span>');
+        },
+
+        _uploadImage: function(base64Data, callback) {
+            var self = this;
+            // 将 base64 转换为 Blob
+            var byteString = atob(base64Data.split(',')[1]);
+            var mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0];
+            var ab = new ArrayBuffer(byteString.length);
+            var ia = new Uint8Array(ab);
+            for (var i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            var blob = new Blob([ab], { type: mimeString });
+
+            // 生成文件名
+            var ext = mimeString.split('/')[1] || 'png';
+            var filename = 'discussion_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8) + '.' + ext;
+
+            // 上传到 Supabase Storage
+            var storageUrl = 'https://cmxoelhjcoxhxkbjpidw.supabase.co/storage/v1/object/discussion-images/' + filename;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', storageUrl, true);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + self._apiKey);
+            xhr.setRequestHeader('x-upsert', 'false');
+
+            xhr.onload = function() {
+                if (xhr.status === 200 || xhr.status === 201) {
+                    // 上传成功，获取公开 URL
+                    var publicUrl = 'https://cmxoelhjcoxhxkbjpidw.supabase.co/storage/v1/object/public/discussion-images/' + filename;
+                    callback(publicUrl);
+                } else {
+                    console.error('图片上传失败:', xhr.status, xhr.responseText);
+                    alert('图片上传失败，将以纯文字发送');
+                    callback(null);
+                }
+            };
+
+            xhr.onerror = function() {
+                console.error('图片上传网络错误');
+                alert('图片上传失败，将以纯文字发送');
+                callback(null);
+            };
+
+            xhr.send(blob);
         },
 
         _getFingerprint: function() {
