@@ -4071,6 +4071,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -6216,23 +6217,13 @@
                 var isGuest = this._isGuestWork;
                 var isWorld = data.era === '世界历史';
 
-                if (isGuest && data.layers) {
+                // 优先检测：只要有专属图层配置，就使用专属图层
+                if (data && data.layers) {
                     var lastSlash = basePath.lastIndexOf('/');
                     var dir = lastSlash >= 0 ? basePath.substring(0, lastSlash + 1) : '';
                     for (var key in data.layers) {
                         if (data.layers[key] && data.layers[key].file) {
                             paths[key] = dir + data.layers[key].file;
-                        }
-                    }
-                    return paths;
-                }
-
-                if (isWorld && data.layers) {
-                    var ls = basePath.lastIndexOf('/');
-                    var d = ls >= 0 ? basePath.substring(0, ls + 1) : '';
-                    for (var k in data.layers) {
-                        if (data.layers[k] && data.layers[k].file) {
-                            paths[k] = d + data.layers[k].file;
                         }
                     }
                     return paths;
@@ -6303,8 +6294,9 @@
                     var cfg = self._layerConfig[layerName];
                     var layerPath = paths[layerName];
 
-                    if (isGuest) {
-                        var hasLayer = data && data.layers && data.layers[layerName];
+                    // 优先检测：只要有专属图层配置，就按专属图层处理
+                    if (data && data.layers) {
+                        var hasLayer = data.layers[layerName];
                         if (!hasLayer && layerName !== 'bg') {
                             var skipImg = document.getElementById('layer' + Utils.capitalize(layerName));
                             if (skipImg) { skipImg.style.display = 'none';
@@ -7328,15 +7320,16 @@
 
             updateForGuestWork: function() {
                 var data = Map.getData();
-                var isGuest = data && data.era === '其他作者优秀作品';
+                // 优先检测：只要有专属图层配置，就按专属图层处理
+                var hasCustomLayers = data && data.layers;
                 var all = ['name', 'river', 'border', 'terrain', 'bg'];
 
                 all.forEach(function(name) {
                     var chk = document.getElementById('layerCheck' + Utils.capitalize(name));
                     var img = document.getElementById('layer' + Utils.capitalize(name));
-                    var hasLayer = data && data.layers && data.layers[name];
+                    var hasLayer = hasCustomLayers && data.layers[name];
 
-                    if (isGuest) {
+                    if (hasCustomLayers) {
                         if (hasLayer) {
                             if (chk) { chk.checked = true;
                                 chk.disabled = false; }
@@ -7364,7 +7357,7 @@
                     terrain: { name: '地形', badge: '相乘' },
                     bg: { name: '背景', badge: '底层' }
                 };
-                if (isGuest && data && data.layers) {
+                if (hasCustomLayers) {
                     for (var n in labels) {
                         var has = data.layers[n];
                         var le = document.getElementById('layerLabel' + Utils.capitalize(n));
