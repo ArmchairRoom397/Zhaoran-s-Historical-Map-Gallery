@@ -49,39 +49,239 @@
             --gold-light: #8b4513;
             --text: #1a1408;
             --text-muted: #4a3c2a;
-            --border: rgba(107, 52, 16, 0.25);
+            --border: rgba(112, 90, 76, 0.25);
             --ink: #1a1408;
             --header-text: #4a3c2a;
         }
-        body.bronze-theme {
-            --bg-dark: #1a2f2a;
-            --bg-panel: #0f2420;
-            --bg-hover: #1a3d35;
-            --accent: #4a9b8e;
-            --accent-light: #6bc4b5;
-            --gold: #7fb069;
-            --gold-light: #ffffff;
-            --text: #ffd800;
-            --text-muted: #ffffff;
-            --border: rgba(127, 176, 105, 0.15);
-            --ink: #1a3d35;
-            --header-text: #fff000;
-        }
-        body.cinnabar-theme {
-            --bg-dark: #1a0f0f;
-            --bg-panel: #2a1515;
-            --bg-hover: #3d2020;
-            --accent: #c0392b;
-            --accent-light: #e74c3c;
-            --gold: #c0392b;
-            --gold-light: #e74c3c;
-            --text: #ffffff;
-            --text-muted: #ffffff;
-            --border: rgba(192, 57, 43, 0.2);
-            --ink: #3d2020;
-            --header-text: #fff000;
+        body.rice-paper-theme .timeline-item {
+            background: transparent !important;
+            border-left-color: transparent !important;
         }
 
+        body.rice-paper-theme .timeline-item:hover {
+            background: rgba(107, 52, 16, 0.08) !important;
+            border-left-color: var(--gold) !important;
+        }
+
+        body.rice-paper-theme .timeline-item.active {
+            background: rgba(107, 52, 16, 0.10) !important;
+            border-left-color: var(--gold) !important;
+        }
+
+        body.rice-paper-theme .timeline-item .year-badge {
+            background: rgba(107, 52, 16, 0.10) !important;
+            border-color: rgba(107, 52, 16, 0.20) !important;
+            color: var(--text) !important;
+        }
+
+        body.rice-paper-theme .timeline-item.active .year-badge {
+            background: var(--gold) !important;
+            color: #fff !important;
+        }
+
+        body.rice-paper-theme .timeline-item .reign-badge {
+            background: rgba(107, 52, 16, 0.06) !important;
+            border-color: rgba(107, 52, 16, 0.15) !important;
+            color: var(--gold) !important;
+        }
+
+        body.rice-paper-theme .era-label {
+            background: rgba(107, 52, 16, 0.06) !important;
+            border-left-color: var(--gold) !important;
+            color: var(--gold) !important;
+        }
+
+        body.rice-paper-theme .info-content {
+            background: transparent !important;
+        }
+
+        body.rice-paper-theme .era-intro-card {
+            background: rgba(107, 52, 16, 0.05) !important;
+            border-color: rgba(107, 52, 16, 0.15) !important;
+        }
+
+        body.rice-paper-theme .discussion-card {
+            background: rgba(107, 52, 16, 0.04) !important;
+            border-color: rgba(107, 52, 16, 0.12) !important;
+        }
+
+        body.rice-paper-theme .discussion-item {
+            background: rgba(107, 52, 16, 0.04) !important;
+        }
+
+        body.rice-paper-theme .quality-explanations {
+            background: rgba(107, 52, 16, 0.05) !important;
+            border-color: rgba(107, 52, 16, 0.12) !important;
+        }
+
+        body.rice-paper-theme .search-input {
+            background: rgba(107, 52, 16, 0.06) !important;
+        }
+
+        body.rice-paper-theme .quote-banner {
+            background: rgba(107, 52, 16, 0.05) !important;
+        }
+
+        body.rice-paper-theme .discussion-input,
+        body.rice-paper-theme .discussion-textarea,
+        body.rice-paper-theme .reply-textarea {
+            background: rgba(107, 52, 16, 0.06) !important;
+        }
+
+        body.rice-paper-theme .nav-buttons {
+            background: rgba(107, 52, 16, 0.04) !important;
+            border-top-color: rgba(107, 52, 16, 0.12) !important;
+        }
+
+        body.rice-paper-theme .footer-quote {
+            background: rgba(107, 52, 16, 0.04) !important;
+            border-top-color: rgba(107, 52, 16, 0.10) !important;
+        }
+
+        body.rice-paper-theme .wisdom-quote {
+            background: rgba(107, 52, 16, 0.05) !important;
+        }
+
+        body.rice-paper-theme .meta-item {
+            border-bottom-color: rgba(107, 52, 16, 0.10) !important;
+        }
+
+        body.rice-paper-theme .discussion-header {
+            border-bottom-color: rgba(107, 52, 16, 0.10) !important;
+        }
+
+        body.rice-paper-theme .discussion-item-actions {
+            border-top-color: rgba(107, 52, 16, 0.08) !important;
+        }
+
+        body.rice-paper-theme .discussion-replies {
+            border-left-color: rgba(107, 52, 16, 0.10) !important;
+        }
+
+        body.rice-paper-theme .discussion-reply-item {
+            background: rgba(107, 52, 16, 0.03) !important;
+            border-left-color: rgba(107, 52, 16, 0.12) !important;
+        }
+
+        body.rice-paper-theme .layer-panel {
+            background: rgba(235, 229, 217, 0.92) !important;
+            border-color: rgba(107, 52, 16, 0.15) !important;
+        }
+
+        body.rice-paper-theme .layer-item:hover {
+            background: rgba(107, 52, 16, 0.06) !important;
+        }
+
+        body.rice-paper-theme .help-section {
+            background: rgba(107, 52, 16, 0.04) !important;
+            border-color: rgba(107, 52, 16, 0.10) !important;
+        }
+
+        body.rice-paper-theme .guide-item {
+            background: rgba(107, 52, 16, 0.03) !important;
+            border-color: rgba(107, 52, 16, 0.08) !important;
+        }
+
+        body.rice-paper-theme .contact-row {
+            background: rgba(107, 52, 16, 0.03) !important;
+            border-color: rgba(107, 52, 16, 0.08) !important;
+        }
+
+        body.rice-paper-theme .theme-option {
+            border-color: rgba(107, 52, 16, 0.12) !important;
+        }
+
+        body.rice-paper-theme .theme-option.active {
+            background: rgba(107, 52, 16, 0.06) !important;
+        }
+
+        body.rice-paper-theme .quality-option {
+            border-color: rgba(107, 52, 16, 0.12) !important;
+        }
+
+        body.rice-paper-theme .quality-option.active {
+            background: rgba(107, 52, 16, 0.06) !important;
+        }
+
+        body.rice-paper-theme .mention-dropdown {
+            background: var(--bg-panel) !important;
+            border-color: rgba(107, 52, 16, 0.15) !important;
+        }
+
+        body.rice-paper-theme .mention-dropdown-item:hover {
+            background: rgba(107, 52, 16, 0.06) !important;
+        }
+
+        body.rice-paper-theme .settings-panel {
+            background: var(--bg-panel) !important;
+        }
+
+        body.rice-paper-theme .help-panel {
+            background: var(--bg-panel) !important;
+        }
+
+        body.rice-paper-theme .museum-header {
+            background: rgba(107, 52, 16, 0.05) !important;
+            border-bottom-color: rgba(107, 52, 16, 0.15) !important;
+        }
+
+        body.rice-paper-theme .info-header {
+            background: rgba(107, 52, 16, 0.04) !important;
+            border-bottom-color: rgba(107, 52, 16, 0.10) !important;
+        }
+
+        body.rice-paper-theme .info-header::after {
+            background: rgba(107, 52, 16, 0.15) !important;
+        }
+        body.rice-paper-theme .map-header {
+            background: linear-gradient(180deg, rgba(107, 52, 16, 0.15) 0%, transparent 100%) !important;
+        }
+
+        body.rice-paper-theme .header-quote {
+            color: var(--text) !important;
+            text-shadow: 0 2px 4px rgba(235, 229, 217, 0.8) !important;
+        }
+
+        body.rice-paper-theme .header-quote-author {
+            color: var(--text-muted) !important;
+        }
+
+        body.rice-paper-theme .discussion-image-upload-btn {
+            background: rgba(107, 52, 16, 0.06) !important;
+            border-color: rgba(107, 52, 16, 0.15) !important;
+            color: var(--text-muted) !important;
+        }
+
+        body.rice-paper-theme .discussion-image-upload-btn:hover {
+            background: rgba(107, 52, 16, 0.10) !important;
+            border-color: var(--gold) !important;
+            color: var(--gold) !important;
+        }
+
+        body.rice-paper-theme .discussion-tag-option {
+            border-color: rgba(107, 52, 16, 0.15) !important;
+            color: var(--text-muted) !important;
+        }
+
+        body.rice-paper-theme .discussion-tag-option:hover {
+            border-color: var(--gold) !important;
+            color: var(--gold) !important;
+        }
+
+        body.rice-paper-theme .discussion-tag-option.active {
+            background: var(--gold) !important;
+            color: #fff !important;
+            border-color: var(--gold) !important;
+        }
+
+        body.rice-paper-theme .discussion-submit-btn {
+            background: var(--gold) !important;
+            color: #fff !important;
+        }
+
+        body.rice-paper-theme .discussion-submit-btn:hover {
+            box-shadow: 0 6px 20px rgba(107, 52, 16, 0.25) !important;
+        }
         /* ===== 高斯模糊全局控制 ===== */
         body.blur-disabled {
             --blur-enabled: 0;
@@ -140,12 +340,6 @@
         body.rice-paper-theme .transition-overlay::before {
             background: #e8e0d0;
         }
-        body.bronze-theme .transition-overlay::before {
-            background: #0a1a15;
-        }
-        body.cinnabar-theme .transition-overlay::before {
-            background: #1a0a0a;
-        }
         .transition-overlay.active::before {
             opacity: 1;
         }
@@ -156,12 +350,6 @@
             background: radial-gradient(circle, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 30%, transparent 70%);
             transform: scale(0);
             opacity: 0;
-        }
-        body.bronze-theme .ink-drop {
-            background: radial-gradient(circle, rgba(74, 155, 142, 0.6) 0%, rgba(74, 155, 142, 0.3) 30%, transparent 70%);
-        }
-        body.cinnabar-theme .ink-drop {
-            background: radial-gradient(circle, rgba(192, 57, 43, 0.6) 0%, rgba(192, 57, 43, 0.3) 30%, transparent 70%);
         }
         .transition-overlay.active .ink-drop {
             animation: inkSpread 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -1059,7 +1247,7 @@
             font-weight: 600;
         }
 
-        /* ===== 地图控件 ===== */
+        /* ===== 地图控件 - 固定在 map-viewport 内部 ===== */
         .map-controls {
             position: absolute;
             bottom: 20px;
@@ -1070,6 +1258,7 @@
             gap: 10px;
             z-index: 100;
         }
+
         .map-controls-left {
             position: absolute;
             bottom: 20px;
@@ -1080,7 +1269,9 @@
             gap: 10px;
             z-index: 100;
         }
-        .control-btn {
+
+        .map-controls .control-btn,
+        .map-controls-left .control-btn {
             width: 44px;
             height: 44px;
             border: 1px solid var(--gold);
@@ -1097,7 +1288,9 @@
             position: relative;
             overflow: hidden;
         }
-        .control-btn::before {
+
+        .map-controls .control-btn::before,
+        .map-controls-left .control-btn::before {
             content: '';
             position: absolute;
             top: 50%;
@@ -1110,21 +1303,30 @@
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 0;
         }
-        .control-btn:hover::before,
-        .control-btn:active::before {
+
+        .map-controls .control-btn:hover::before,
+        .map-controls-left .control-btn:hover::before,
+        .map-controls .control-btn:active::before,
+        .map-controls-left .control-btn:active::before {
             width: 100%;
             height: 100%;
         }
-        .control-btn:hover,
-        .control-btn:active {
+
+        .map-controls .control-btn:hover,
+        .map-controls-left .control-btn:hover,
+        .map-controls .control-btn:active,
+        .map-controls-left .control-btn:active {
             color: var(--bg-dark);
             transform: scale(1.15) rotate(5deg);
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
         }
-        .control-btn span {
+
+        .map-controls .control-btn span,
+        .map-controls-left .control-btn span {
             position: relative;
             z-index: 1;
         }
+
         .zoom-level {
             background: rgba(0, 0, 0, 0.8);
             padding: 10px 16px;
@@ -1137,7 +1339,6 @@
             min-width: 70px;
             font-weight: 700;
         }
-
         /* 7. 右侧 — 信息面板 */
         .info-panel {
             background: var(--bg-panel);
@@ -1856,7 +2057,9 @@
             right: 20px;
             width: 40px;
             height: 40px;
-            background: var(--bg-panel);
+            background: rgba(22, 17, 62, calc(0.95 - 0.40 * var(--blur-enabled)));
+            backdrop-filter: blur(calc(10px * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
             border: 1px solid var(--gold);
             border-radius: 50%;
             color: var(--gold);
@@ -1879,7 +2082,9 @@
             right: 70px;
             width: 40px;
             height: 40px;
-            background: var(--bg-panel);
+            background: rgba(22, 17, 62, calc(0.95 - 0.40 * var(--blur-enabled)));
+            backdrop-filter: blur(calc(10px * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
             border: 1px solid var(--gold);
             border-radius: 50%;
             color: var(--gold);
@@ -1996,12 +2201,6 @@
         }
         .theme-preview.rice {
             background: linear-gradient(135deg, #f5f0e8, #ebe5d9);
-        }
-        .theme-preview.bronze {
-            background: linear-gradient(135deg, #1a2f2a, #0f2420);
-        }
-        .theme-preview.cinnabar {
-            background: linear-gradient(135deg, #1a0f0f, #2a1515);
         }
 
         .width-slider {
@@ -2672,7 +2871,9 @@
             border-radius: 20px;
             font-size: 0.9rem;
             cursor: pointer;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(calc(10px * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
+            background: rgba(22, 17, 62, calc(0.95 - 0.40 * var(--blur-enabled)));
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -2749,7 +2950,7 @@
             bottom: 140px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            background: rgba(22, 33, 61, calc(0.75 - 0.55 * var(--blur-enabled)));
+            background: rgba(22, 33, 61, calc(0.85 - 0.55 * var(--blur-enabled)));
             border: 1px solid var(--gold);
             border-radius: 12px;
             padding: 12px 16px;
@@ -3000,106 +3201,421 @@
             }
         }
 
+        /* ===== 修改：移动端标签栏 - 悬浮式 ===== */
         @media (max-width: 768px) {
             .container {
                 display: flex;
                 flex-direction: column;
-                padding-bottom: 60px;
+                padding-bottom: 0;
+                height: 100vh;
+                height: 100dvh;
             }
-            .mobile-tabs {
-                display: flex;
-            }
-            .portrait-nav {
-                display: flex;
-            }
+
             .timeline-panel,
             .info-panel {
-                position: absolute;
+                position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
-                bottom: 60px;
+                bottom: 0;
                 width: 100%;
-                height: calc(100% - 60px);
-                z-index: 10;
+                height: 100%;
+                height: 100dvh;
+                z-index: 50;
                 transform: translateX(-100%);
-                transition: transform 0.3s ease;
+                transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
                 background: var(--bg-panel);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: env(safe-area-inset-bottom);
             }
+
             .info-panel {
                 transform: translateX(100%);
             }
+
             .timeline-panel.active,
             .info-panel.active {
                 transform: translateX(0);
             }
+
+            /* ===== 地图容器 - 横屏修复核心 ===== */
             .map-panel {
                 width: 100%;
                 height: 100%;
+                height: 100dvh;
                 z-index: 1;
+                position: relative;
+                overflow: hidden;
+                background: var(--bg-dark);
+                transition: background 0.5s ease;
             }
+
+            .map-viewport {
+                width: 100%;
+                height: 100%;
+                position: relative;
+                overflow: hidden;
+                touch-action: none;
+                cursor: grab;
+                background: radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 50%, rgba(233, 69, 96, 0.03) 0%, transparent 50%),
+                    linear-gradient(45deg, transparent 48%, rgba(255, 255, 255, 0.02) 50%, transparent 52%),
+                    linear-gradient(-45deg, transparent 48%, rgba(255, 255, 255, 0.02) 50%, transparent 52%);
+                background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                contain: layout style paint;
+            }
+
             .map-wrapper {
-                width: 95vw;
-                height: 75vh;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+                will-change: transform;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+                transform-style: preserve-3d;
+                -webkit-transform-style: preserve-3d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
             }
-            .map-controls {
-                bottom: 80px;
-                right: 12px;
+
+            /* ===== 图层堆叠 - 横屏修复核心 ===== */
+            .layer-stack {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                pointer-events: none;
+                contain: layout style paint;
+                overflow: hidden;
             }
+
+            .layer-image {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: auto;
+                height: auto;
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                user-select: none;
+                -webkit-user-drag: none;
+                pointer-events: none;
+                image-rendering: crisp-edges;
+                display: none;
+                backface-visibility: hidden;
+                will-change: auto;
+                contain: layout style;
+                transition: opacity 0.15s ease;
+            }
+
+            .layer-image.loaded {
+                display: block;
+            }
+
+            /* ===== 占位符 - 横屏适配 ===== */
+            .map-placeholder {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                color: var(--text-muted);
+                padding: 20px;
+                width: 90%;
+                max-width: 500px;
+                min-width: 200px;
+                pointer-events: none;
+            }
+
+            .map-placeholder .welcome-text {
+                font-family: var(--font-zhi);
+                font-size: clamp(1.2rem, 4vw, 2rem);
+                color: var(--gold);
+                margin-bottom: 10px;
+                white-space: normal;
+            }
+
+            .map-placeholder .welcome-quote {
+                font-size: clamp(0.8rem, 2vw, 1rem);
+                color: var(--text-muted);
+                font-style: italic;
+                line-height: 1.8;
+                text-align: center;
+            }
+
+            .placeholder-icon {
+                font-size: clamp(2.5rem, 8vw, 4rem);
+                margin-bottom: 10px;
+                opacity: 0.4;
+            }
+
+            /* ===== 移动端标签栏 - 悬浮式 ===== */
+            .mobile-tabs {
+                display: flex;
+                position: fixed;
+                bottom: 24px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: auto;
+                min-width: 180px;
+                max-width: 92%;
+                height: 52px;
+                background: rgba(22, 17, 62, 0.92);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(212, 175, 55, 0.3);
+                border-radius: 26px;
+                z-index: 200;
+                padding: 4px 8px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+                gap: 4px;
+            }
+
+            body.rice-paper-theme .mobile-tabs {
+                background: rgba(235, 229, 217, 0.95);
+                border-color: rgba(107, 52, 16, 0.25);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            }
+
+            .mobile-tab {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: var(--text-muted);
+                font-size: 0.6rem;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                gap: 1px;
+                padding: 4px 12px;
+                border-radius: 18px;
+                min-height: 38px;
+                background: transparent;
+                border: none;
+                font-family: var(--font-serif);
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .mobile-tab::after {
+                display: none;
+            }
+
+            .mobile-tab.active {
+                background: rgba(212, 175, 55, 0.15);
+                color: var(--gold);
+            }
+
+            body.rice-paper-theme .mobile-tab.active {
+                background: rgba(107, 52, 16, 0.1);
+            }
+
+            .mobile-tab-icon {
+                font-size: 1.05rem;
+                line-height: 1.2;
+            }
+
+            .mobile-tab span:last-child {
+                font-size: 0.55rem;
+                letter-spacing: 0.3px;
+                font-weight: 500;
+            }
+
+            /* ===== 竖屏控件栏 - 完整修复 ===== */
+            .portrait-controls {
+                display: flex !important;
+                position: fixed;
+                bottom: 90px;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+                width: auto !important;
+                max-width: 92% !important;
+                min-width: 200px !important;
+                z-index: 150;
+                background: rgba(22, 17, 62, 0.92);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                padding: 6px 14px;
+                border-radius: 28px;
+                border: 1px solid rgba(212, 175, 55, 0.25);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+                align-items: center;
+                justify-content: space-between;
+                gap: 6px;
+                flex-wrap: nowrap;
+                white-space: nowrap;
+            }
+
+            /* 宣纸主题适配 */
+            body.rice-paper-theme .portrait-controls {
+                background: rgba(235, 229, 217, 0.95);
+                border-color: rgba(107, 52, 16, 0.2);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            }
+
+            .portrait-ctrl-group {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                flex-shrink: 0;
+            }
+
+            /* 控件按钮统一尺寸 */
+            .portrait-controls .control-btn {
+                width: 38px !important;
+                height: 38px !important;
+                min-width: 38px !important;
+                min-height: 38px !important;
+                border: 1px solid rgba(212, 175, 55, 0.25);
+                background: rgba(22, 17, 62, 0.7);
+                color: var(--gold);
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                touch-action: manipulation;
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                padding: 0;
+                flex-shrink: 0;
+            }
+
+            body.rice-paper-theme .portrait-controls .control-btn {
+                background: rgba(235, 229, 217, 0.7);
+                border-color: rgba(107, 52, 16, 0.2);
+            }
+
+            .portrait-controls .control-btn:disabled {
+                opacity: 0.25;
+                cursor: not-allowed;
+                border-color: var(--text-muted);
+                color: var(--text-muted);
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            .portrait-controls .control-btn:not(:disabled):active {
+                background: var(--gold);
+                color: var(--bg-dark);
+                transform: scale(0.92);
+                box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            }
+
+            .portrait-controls .zoom-level {
+                padding: 3px 10px;
+                font-size: 0.7rem;
+                min-width: 44px;
+                background: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                border: 1px solid rgba(212, 175, 55, 0.15);
+                border-radius: 16px;
+                color: var(--gold);
+                font-family: "Courier New", monospace;
+                text-align: center;
+                font-weight: 700;
+                flex-shrink: 0;
+                line-height: 1.4;
+            }
+
+            body.rice-paper-theme .portrait-controls .zoom-level {
+                background: rgba(235, 229, 217, 0.5);
+                border-color: rgba(107, 52, 16, 0.15);
+                color: var(--text);
+            }
+
+            /* 桌面端隐藏竖屏控件 */
+            @media (min-width: 769px) {
+                .map-controls,
+                .map-controls-left {
+                    display: flex !important; 
+                }
+                .portrait-controls {
+                    display: none !important; 
+                }
+            }
+            /* 桌面端显示地图控件 */
+            .map-controls,
             .map-controls-left {
-                bottom: 80px;
-                left: 12px;
+                display: flex !important;
             }
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
+
+            /* 移动端隐藏地图控件，显示竖屏控件 */
+            @media (max-width: 768px) {
+                .map-controls,
+                .map-controls-left {
+                    display: none !important;
+                }
+                .portrait-controls {
+                    display: flex !important;
+                }
             }
-            .zoom-level {
-                padding: 8px 14px;
-                font-size: 0.85rem;
+
+            .sidebar-toggle {
+                display: none !important;
             }
-            .museum-header {
-                padding: 15px;
-            }
-            .museum-title {
-                font-size: 1.4rem;
-            }
+
             .info-header {
-                padding: 15px;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                padding: 16px 18px;
+                background: var(--bg-panel);
+                border-bottom: 1px solid var(--border);
             }
+
+            .info-content {
+                padding: 16px 18px 100px;
+                flex: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .museum-header {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                padding: 16px 15px;
+                background: var(--bg-panel);
+                border-bottom: 2px solid var(--gold);
+            }
+
+            .timeline-list {
+                padding: 8px 8px 100px;
+                flex: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
             .current-year {
                 font-size: 1.8rem;
             }
             .current-title {
                 font-size: 0.95rem;
             }
-            .info-content {
-                padding: 12px 15px;
-            }
             .nav-buttons {
                 display: none;
-            }
-            .top-ornament {
-                top: 40px;
-            }
-            .ornament-line {
-                width: 60px;
-            }
-            .corner-ornament {
-                width: 40px;
-                height: 40px;
-            }
-            .bottom-ornament {
-                bottom: 30px;
-            }
-            .quote-section {
-                padding: 15px;
-                margin-bottom: 30px;
-            }
-            .enter-button {
-                padding: 14px 40px;
-                font-size: 1rem;
             }
             .settings-panel {
                 width: 100%;
@@ -3114,12 +3630,17 @@
             }
             .settings-btn {
                 right: 16px;
+                top: 16px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
             }
             .help-btn {
-                right: 65px;
-                width: 36px;
-                height: 36px;
-                font-size: 1rem;
+                right: 70px;
+                top: 16px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
             }
             .share-modal {
                 max-width: 98vw;
@@ -3133,11 +3654,15 @@
                 gap: 10px;
             }
             .layer-panel {
-                bottom: 155px;
-                left: 10px;
-                right: 10px;
-                transform: translateY(20px);
+                bottom: 160px;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) translateY(20px) !important;
                 min-width: auto;
+                width: auto !important;
+                max-width: 46% !important;
+                padding: 10px 14px;
+                border-radius: 12px;
             }
             .layer-panel.show {
                 transform: translateY(0);
@@ -3169,102 +3694,96 @@
                 padding: 12px 20px;
                 font-size: 0.95rem;
             }
-        }
 
-        @media (max-width: 768px) and (orientation: landscape) {
-            .container {
-                padding-bottom: 50px;
-            }
-            .mobile-tabs {
-                height: 50px;
-            }
-            .portrait-nav {
-                display: none;
-            }
-            .timeline-panel,
-            .info-panel {
-                bottom: 50px;
-                height: calc(100% - 50px);
-            }
-            .museum-header {
-                padding: 10px 15px;
-            }
-            .quote-banner {
-                display: none;
-            }
-            .timeline-list {
-                padding: 5px;
-            }
-            .timeline-item {
-                padding: 8px;
-                min-height: 40px;
-            }
-            .info-header {
-                padding: 10px 15px;
-            }
-            .current-year {
-                font-size: 1.5rem;
-            }
-            .map-controls {
-                bottom: 65px;
-                right: 12px;
-            }
-            .map-controls-left {
-                bottom: 65px;
-                left: 12px;
-            }
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-            .zoom-level {
-                padding: 8px 14px;
-                font-size: 0.85rem;
-            }
-            .map-wrapper {
-                height: 85vh;
-            }
-            .contact-section {
-                display: none;
-            }
-            .nav-buttons {
-                display: flex;
-            }
-            .layer-panel {
-                bottom: 115px;
-            }
-        }
+            /* ===== 横屏专用适配 (landscape) ===== */
+            @media (max-width: 768px) and (orientation: landscape) {
+                .mobile-tabs {
+                    height: 44px;
+                    min-width: 150px;
+                    bottom: 14px;
+                    padding: 3px 6px;
+                }
 
-        @media (max-width: 380px) {
-            .main-title {
-                font-size: 2.5rem;
+                .mobile-tab {
+                    padding: 2px 8px;
+                    min-height: 32px;
+                    font-size: 0.5rem;
+                }
+
+                .mobile-tab-icon {
+                    font-size: 0.85rem;
+                }
+
+                .mobile-tab span:last-child {
+                    font-size: 0.5rem;
+                }
+
+                .portrait-controls {
+                    bottom: 72px;
+                    padding: 4px 8px;
+                    gap: 4px;
+                }
+
+                .portrait-controls .control-btn {
+                    width: 34px;
+                    height: 34px;
+                    font-size: 0.8rem;
+                }
+
+                .portrait-controls .zoom-level {
+                    padding: 3px 8px;
+                    font-size: 0.6rem;
+                    min-width: 38px;
+                }
             }
-            .subtitle {
-                font-size: 1rem;
-            }
-            .quote-text {
-                font-size: 0.9rem;
-            }
-            .current-year {
-                font-size: 1.6rem;
-            }
-            .year-badge {
-                min-width: 50px;
-                font-size: 0.7rem;
-            }
-            .item-name {
-                font-size: 0.75rem;
-            }
-            .portrait-nav {
-                gap: 10px;
-            }
-            .portrait-nav .nav-btn {
-                padding: 8px 16px;
-                font-size: 0.85rem;
+
+            /* ===== 小屏手机横屏优化 ===== */
+            @media (max-width: 480px) and (orientation: landscape) {
+                .portrait-controls {
+                    bottom: 60px;
+                    padding: 3px 6px;
+                    gap: 3px;
+                }
+
+                .portrait-controls .control-btn {
+                    width: 30px;
+                    height: 30px;
+                    font-size: 0.7rem;
+                }
+
+                .portrait-controls .zoom-level {
+                    font-size: 0.55rem;
+                    min-width: 34px;
+                    padding: 2px 6px;
+                }
+
+                .mobile-tabs {
+                    height: 38px;
+                    min-width: 130px;
+                    bottom: 10px;
+                    padding: 2px 5px;
+                }
+
+                .mobile-tab {
+                    padding: 1px 6px;
+                    min-height: 28px;
+                    font-size: 0.45rem;
+                }
+
+                .mobile-tab-icon {
+                    font-size: 0.75rem;
+                }
+
+                .mobile-tab span:last-child {
+                    font-size: 0.45rem;
+                }
             }
         }
-
+        @media (min-width: 769px) {
+            .portrait-controls {
+                display: none !important;
+            }
+        }
         @media (hover: none) {
             .timeline-item:hover {
                 background: transparent;
@@ -4192,14 +4711,6 @@
                     <div class="theme-preview rice"></div>
                     <div>宣纸</div>
                 </div>
-                <div class="theme-option" onclick="App.theme.set('bronze')" id="theme-bronze">
-                    <div class="theme-preview bronze"></div>
-                    <div>青铜</div>
-                </div>
-                <div class="theme-option" onclick="App.theme.set('cinnabar')" id="theme-cinnabar">
-                    <div class="theme-preview cinnabar"></div>
-                    <div>朱砂</div>
-                </div>
             </div>
         </div>
         <div class="settings-section">
@@ -4238,16 +4749,6 @@
                 <div class="quality-explanation" id="exp-low">
                     <strong>低画质</strong>：隐藏地形图层，全图简化渲染，可显著提升流畅度
                 </div>
-            </div>
-        </div>
-        <div class="settings-section">
-            <label class="settings-label">界面特效</label>
-            <div class="blur-toggle" onclick="App.blur.toggle()" id="blurToggle">
-                <div class="toggle-track" id="blurTrack"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label" id="blurLabel">已开启</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;">
-                开启后，弹窗、面板等界面将呈现高斯模糊背景效果
             </div>
         </div>
         <div class="settings-section">
@@ -4456,13 +4957,6 @@
                     <img class="map-image" id="mapImage" alt="历史地图" oncontextmenu="return false;" style="display:none !important;">
                 </div>
             </div>
-            <div class="map-controls" id="mapControls">
-                <button class="control-btn" onclick="App.layer.togglePanel()">🧩</button>
-                <div class="zoom-level" id="zoomLevel">100%</div>
-            </div>
-            <div class="map-controls-left">
-                <button class="control-btn" onclick="App.map.reload()">🔄</button>
-            </div>
         </div>
 
         <!-- 右侧信息面板 -->
@@ -4550,23 +5044,47 @@
     <button class="sidebar-toggle left-toggle" id="leftToggle" onclick="App.layout.toggleSidebar('timeline')">◀</button>
     <button class="sidebar-toggle right-toggle" id="rightToggle" onclick="App.layout.toggleSidebar('info')">▶</button>
 
-    <!-- 竖屏导航 -->
-    <div class="portrait-nav" id="portraitNav">
-        <button class="nav-btn" id="portraitPrevBtn" onclick="App.map.navigate(-1)" disabled>← 前朝</button>
-        <button class="nav-btn" id="portraitNextBtn" onclick="App.map.navigate(1)" disabled>后世 →</button>
+    <!-- 竖屏控件栏 -->
+    <div class="portrait-controls" id="portraitControls">
+        <div class="portrait-ctrl-group">
+            <button class="control-btn" onclick="App.map.reload()" title="刷新">🔄</button>
+        </div>
+        <div class="portrait-ctrl-group">
+            <button class="control-btn" onclick="App.map.navigate(-1)" id="portraitPrevBtn" disabled title="前朝">
+                <span>◀</span>
+            </button>
+            <button class="control-btn" onclick="App.map.navigate(1)" id="portraitNextBtn" disabled title="后世">
+                <span>▶</span>
+            </button>
+        </div>
+        <div class="portrait-ctrl-group">
+            <span class="zoom-level" id="portraitZoomLevel">100%</span>
+            <button class="control-btn" onclick="App.layer.togglePanel()" title="图层">🧩</button>
+        </div>
     </div>
 
+    <div class="map-controls" id="mapControls">
+        <button class="control-btn" onclick="App.layer.togglePanel()">🧩</button>
+        <div class="zoom-level" id="zoomLevel">100%</div>
+    </div>
+    <div class="map-controls-left">
+        <button class="control-btn" onclick="App.map.reload()">🔄</button>
+    </div>
+    
     <!-- 移动端标签 -->
     <div class="mobile-tabs" id="mobileTabs">
-        <div class="mobile-tab active" onclick="App.layout.switchTab('timeline')" id="tab-timeline">
-            <span class="mobile-tab-icon">📜</span><span>时间轴</span>
-        </div>
-        <div class="mobile-tab" onclick="App.layout.switchTab('map')" id="tab-map">
-            <span class="mobile-tab-icon">🗺️</span><span>地图</span>
-        </div>
-        <div class="mobile-tab" onclick="App.layout.switchTab('info')" id="tab-info">
-            <span class="mobile-tab-icon">📖</span><span>详情</span>
-        </div>
+        <button class="mobile-tab active" onclick="App.layout.switchTab('timeline')" id="tab-timeline">
+            <span class="mobile-tab-icon">📜</span>
+            <span>时间轴</span>
+        </button>
+        <button class="mobile-tab" onclick="App.layout.switchTab('map')" id="tab-map">
+            <span class="mobile-tab-icon">🗺️</span>
+            <span>地图</span>
+        </button>
+        <button class="mobile-tab" onclick="App.layout.switchTab('info')" id="tab-info">
+            <span class="mobile-tab-icon">📖</span>
+            <span>详情</span>
+        </button>
     </div>
 
     <!-- 图层控制面板 -->
@@ -5818,25 +6336,22 @@
                 var saved = localStorage.getItem('theme');
                 if (saved) this.set(saved);
             },
-            set: function(theme) {
-                document.body.classList.remove('rice-paper-theme', 'bronze-theme', 'cinnabar-theme');
-                ['dark', 'rice', 'bronze', 'cinnabar'].forEach(function(t) {
-                    var el = document.getElementById('theme-' + t);
-                    if (el) el.classList.remove('active');
-                });
-                if (theme === 'dark') { document.getElementById('theme-dark').classList.add('active');
-                    localStorage.setItem('theme', 'dark'); } else if (theme === 'rice') { document.body.classList.add(
-                        'rice-paper-theme');
-                    document.getElementById('theme-rice').classList.add('active');
-                    localStorage.setItem('theme', 'rice'); } else if (theme === 'bronze') { document.body.classList.add(
-                        'bronze-theme');
-                    document.getElementById('theme-bronze').classList.add('active');
-                    localStorage.setItem('theme', 'bronze'); } else if (theme === 'cinnabar') { document.body.classList
-                        .add('cinnabar-theme');
-                    document.getElementById('theme-cinnabar').classList.add('active');
-                    localStorage.setItem('theme', 'cinnabar'); }
-                this.current = theme;
+        set: function(theme) {
+            document.body.classList.remove('rice-paper-theme');
+            ['dark', 'rice'].forEach(function(t) {
+                var el = document.getElementById('theme-' + t);
+                if (el) el.classList.remove('active');
+            });
+            if (theme === 'dark') { 
+                document.getElementById('theme-dark').classList.add('active');
+                localStorage.setItem('theme', 'dark');
+            } else if (theme === 'rice') { 
+                document.body.classList.add('rice-paper-theme');
+                document.getElementById('theme-rice').classList.add('active');
+                localStorage.setItem('theme', 'rice');
             }
+            this.current = theme;
+        }
         };
 
         /*模块 3: 画质 (Quality)*/
@@ -5937,7 +6452,9 @@
             },
 
             _applyUI: function() {
-                // 对需要模糊的元素应用/移除类
+                var isEnabled = this._enabled;
+
+                // 需要模糊的元素（排除 info-panel 和 timeline-panel）
                 var elements = [
                     '.settings-panel',
                     '.help-panel',
@@ -5950,14 +6467,11 @@
                     '.admin-login-overlay'
                 ];
 
-                var isEnabled = this._enabled;
-
                 elements.forEach(function(sel) {
                     var els = document.querySelectorAll(sel);
                     els.forEach(function(el) {
                         if (isEnabled) {
                             if (!el.classList.contains('blur-backdrop') && !el.classList.contains('blur-backdrop-heavy')) {
-                                // 对于遮罩层使用更重的模糊
                                 if (sel === '.settings-overlay' || sel === '.help-overlay' || 
                                     sel === '.share-modal-overlay' || sel === '.admin-login-overlay') {
                                     el.classList.add('blur-backdrop-heavy');
@@ -5971,9 +6485,8 @@
                     });
                 });
 
-                // 特殊处理：设置面板和帮助面板的背景也需要模糊效果
-                var panels = ['settingsPanel', 'helpPanel'];
-                panels.forEach(function(id) {
+                // 特殊处理：只对设置面板和帮助面板添加模糊，不处理 info-panel 和 timeline-panel
+                ['settingsPanel', 'helpPanel'].forEach(function(id) {
                     var el = document.getElementById(id);
                     if (el) {
                         if (isEnabled) {
@@ -6271,7 +6784,6 @@
 
             _updateTransform: function() {
                 var self = this;
-                
                 this._pendingTransform = { scale: this._scale, tx: this._translateX, ty: this._translateY };
                 if (!this._rafId) {
                     this._rafId = requestAnimationFrame(function() {
@@ -6283,59 +6795,53 @@
                         self._pendingTransform = null;
                         var wrapper = document.getElementById('mapWrapper');
                         if (wrapper) {
-                            wrapper.style.transform = 'translate3d(calc(-50% + ' + tx + 
-                                'px), calc(-50% + ' + ty + 'px), 0) scale3d(' + s + ',' + s + ',1)';
+                            // 使用 translate3d 配合 CSS 的 flex 居中
+                            wrapper.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) scale3d(' + s + ',' + s + ',1)';
                         }
                         var zl = document.getElementById('zoomLevel');
                         if (zl) zl.textContent = Math.round(s * 100) + '%';
+                        var pzl = document.getElementById('portraitZoomLevel');
+                        if (pzl) pzl.textContent = Math.round(s * 100) + '%';
                         if (Quality.current === 'high') Quality.updateHighQualityRendering();
                     });
                 }
             },
+
             _updateTransformImmediate: function() {
-                // 直接更新 transform，不经过 RAF 节流，用于拖拽
                 var wrapper = document.getElementById('mapWrapper');
+                var s = this._scale,
+                    tx = this._translateX,
+                    ty = this._translateY;
                 if (wrapper) {
-                    wrapper.style.transform = 'translate3d(calc(-50% + ' + this._translateX + 
-                        'px), calc(-50% + ' + this._translateY + 'px), 0) scale3d(' + this._scale + ',' + this._scale + ',1)';
+                    wrapper.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) scale3d(' + s + ',' + s + ',1)';
                 }
                 var zl = document.getElementById('zoomLevel');
-                if (zl) zl.textContent = Math.round(this._scale * 100) + '%';
+                if (zl) zl.textContent = Math.round(s * 100) + '%';
+                var pzl = document.getElementById('portraitZoomLevel');
+                if (pzl) pzl.textContent = Math.round(s * 100) + '%';
             },
             _applyConstraints: function() {
-                // 获取地图包装器和视口的尺寸
                 var wrapper = document.getElementById('mapWrapper');
                 var viewport = document.getElementById('mapViewport');
                 if (!wrapper || !viewport) return;
                 
-                var wrapperRect = wrapper.getBoundingClientRect();
+                var rect = wrapper.getBoundingClientRect();
                 var vpRect = viewport.getBoundingClientRect();
                 
-                // 计算地图的显示尺寸（基于缩放）
-                // 由于地图使用 object-fit: contain，我们估算实际显示尺寸
-                var baseW = wrapperRect.width;
-                var baseH = wrapperRect.height;
-                var scale = this._scale;
+                // 计算地图实际显示尺寸
+                var baseW = wrapper.offsetWidth || rect.width || 1;
+                var baseH = wrapper.offsetHeight || rect.height || 1;
+                var s = this._scale;
                 
-                // 计算有效的平移范围
-                var margin = 0.2; // 允许20%的溢出
-                var maxTx = baseW * scale * (0.5 + margin);
-                var maxTy = baseH * scale * (0.5 + margin);
+                // 允许的溢出范围（百分比）
+                var margin = 0.3;
+                var maxTx = baseW * s * margin;
+                var maxTy = baseH * s * margin;
                 
-                // 约束平移
-                // 注意：_translateX 是相对于 centered 位置的偏移
-                // 但由于我们使用 translate3d(calc(-50% + tx), calc(-50% + ty), 0) 定位
-                // 实际上 tx, ty 是在中心点基础上的偏移
-                // 我们简单约束一下，防止地图完全移出视野
-                var minTx = -maxTx;
-                var maxTxClamp = maxTx;
-                var minTy = -maxTy;
-                var maxTyClamp = maxTy;
-                
-                if (this._translateX < minTx) this._translateX = minTx;
-                if (this._translateX > maxTxClamp) this._translateX = maxTxClamp;
-                if (this._translateY < minTy) this._translateY = minTy;
-                if (this._translateY > maxTyClamp) this._translateY = maxTyClamp;
+                if (this._translateX < -maxTx) this._translateX = -maxTx;
+                if (this._translateX > maxTx) this._translateX = maxTx;
+                if (this._translateY < -maxTy) this._translateY = -maxTy;
+                if (this._translateY > maxTy) this._translateY = maxTy;
             },
 
             _forceRepaint: function() {
@@ -7022,25 +7528,38 @@
                     }
                 }
             },
-
             switchTab: function(tab) {
                 var tp = document.getElementById('timelinePanel');
                 var ip = document.getElementById('infoPanel');
                 var tabs = document.querySelectorAll('.mobile-tab');
-                var pn = document.getElementById('portraitNav');
+                var pc = document.getElementById('portraitControls');
 
                 tabs.forEach(function(t) { t.classList.remove('active'); });
                 tp.classList.remove('active');
                 ip.classList.remove('active');
 
-                document.getElementById('tab-' + tab).classList.add('active');
+                var activeTab = document.getElementById('tab-' + tab);
+                if (activeTab) activeTab.classList.add('active');
 
-                if (tab === 'timeline') { tp.classList.add('active');
-                    pn.style.display = 'none'; } else if (tab === 'info') { ip.classList.add('active');
-                    pn.style.display = 'none'; } else if (tab === 'map') {
+                if (tab === 'timeline') {
+                    tp.classList.add('active');
+                    ip.classList.remove('active');
+                    if (pc) pc.style.display = 'none';
+                } else if (tab === 'info') {
+                    ip.classList.add('active');
+                    tp.classList.remove('active');
+                    if (pc) pc.style.display = 'none';
+                } else if (tab === 'map') {
+                    tp.classList.remove('active');
+                    ip.classList.remove('active');
                     var isPortrait = window.innerHeight > window.innerWidth;
                     var isMobile = window.innerWidth <= 768;
-                    pn.style.display = (isMobile && isPortrait) ? 'flex' : 'none';
+                    if (pc) pc.style.display = (isMobile && isPortrait) ? 'flex' : 'none';
+                }
+
+                var container = document.getElementById('mainContainer');
+                if (window.innerWidth <= 768) {
+                    container.style.paddingBottom = '0';
                 }
             }
         };
@@ -7479,24 +7998,29 @@
                 var data = Map.getData();
                 var hasCustomLayers = data && data.layers;
                 
-                // 1. 判断是否需要显示图层面板
-                var hasAnyExclusiveLayer = false;
+                // 1. 判断是否有任何可用的图层（专属或通用）
+                var hasAnyLayer = false;
+                var allLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain', 'bg'];
                 var exclusiveLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain'];
+                
                 if (hasCustomLayers) {
                     for (var i = 0; i < exclusiveLayers.length; i++) {
                         if (data.layers[exclusiveLayers[i]]) {
-                            hasAnyExclusiveLayer = true;
+                            hasAnyLayer = true;
                             break;
                         }
                     }
+                } else {
+                    // 无专属图层的地图，有通用图层（地形、国界、河湖、地名）
+                    hasAnyLayer = true;
                 }
                 
                 // 2. 控制整个图层面板及其按钮的显示
                 var layerPanel = document.getElementById('layerPanel');
                 var layerBtn = document.querySelector('.map-controls .control-btn');
                 
-                if (hasAnyExclusiveLayer) {
-                    if (layerPanel) layerPanel.style.display = '';  // 恢复显示
+                if (hasAnyLayer) {
+                    if (layerPanel) layerPanel.style.display = '';
                     if (layerBtn) layerBtn.style.display = 'flex';
                 } else {
                     if (layerPanel) { layerPanel.classList.remove('show'); layerPanel.style.display = 'none'; }
@@ -7504,13 +8028,13 @@
                 }
 
                 // 3. 处理每个图层
-                var all = ['name', 'road', 'wall', 'river', 'border', 'terrain', 'bg'];
-                all.forEach(function(name) {
+                allLayers.forEach(function(name) {
                     var chk = document.getElementById('layerCheck' + Utils.capitalize(name));
                     var img = document.getElementById('layer' + Utils.capitalize(name));
                     var hasLayer = hasCustomLayers && data.layers[name];
 
                     if (hasCustomLayers) {
+                        // 有专属图层配置的地图
                         if (hasLayer) {
                             if (chk) { chk.checked = true; chk.disabled = false; }
                             if (img) { img.style.display = 'block'; img.classList.add('loaded'); }
@@ -7519,13 +8043,19 @@
                             if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
                         }
                     } else {
-                        // 无专属图层的地图：只显示通用图层（地形、国界、河湖、地名）
+                        // 无专属图层配置的地图：隐藏 road 和 wall 整行
                         if (name === 'road' || name === 'wall') {
+                            // 隐藏整行
+                            var item = chk ? chk.closest('.layer-item') : null;
+                            if (item) item.style.display = 'none';
                             if (chk) { chk.checked = false; chk.disabled = true; }
                             if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
                         } else {
                             if (chk) { chk.checked = true; chk.disabled = name === 'bg'; }
                             if (img) { img.style.display = 'block'; img.classList.add('loaded'); }
+                            // 确保行可见
+                            var item = chk ? chk.closest('.layer-item') : null;
+                            if (item) item.style.display = 'flex';
                         }
                     }
                 });
