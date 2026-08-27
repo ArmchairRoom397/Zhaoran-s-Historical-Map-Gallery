@@ -35,6 +35,8 @@
             --font-serif: "Noto Serif SC", "Source Han Serif SC", "PingFang SC", "Microsoft YaHei", serif;
             --font-zhi: "Zhi Mang Xing", cursive;
             --transition-speed: 0.4s;
+            --blur-amount: 12px;
+            --blur-enabled: 1;
         }
 
         body.rice-paper-theme {
@@ -78,6 +80,23 @@
             --border: rgba(192, 57, 43, 0.2);
             --ink: #3d2020;
             --header-text: #fff000;
+        }
+
+        /* ===== 高斯模糊全局控制 ===== */
+        body.blur-disabled {
+            --blur-enabled: 0;
+        }
+
+        .blur-backdrop {
+            backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
+            transition: backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1), -webkit-backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .blur-backdrop-heavy {
+            backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled)));
+            transition: backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1), -webkit-backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         html,
@@ -263,7 +282,7 @@
             }
         }
 
-        /* 3. 标题屏*/
+        /* 3. 标题屏 */
         .title-screen {
             position: fixed;
             top: 0;
@@ -1887,7 +1906,7 @@
             background: var(--bg-panel);
             border-left: 2px solid var(--gold);
             z-index: 1002;
-            transition: right 0.3s ease;
+            transition: right 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
             padding: 20px;
             overflow-y: auto;
         }
@@ -2084,6 +2103,44 @@
             font-weight: 700;
         }
 
+        /* ===== 模糊控制开关 ===== */
+        .blur-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .blur-toggle .toggle-track {
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            flex-shrink: 0;
+        }
+        .blur-toggle .toggle-track.active {
+            background: var(--gold);
+        }
+        .blur-toggle .toggle-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--text);
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+        .blur-toggle .toggle-track.active .toggle-thumb {
+            transform: translateX(20px);
+            background: var(--bg-dark);
+        }
+        .blur-toggle .toggle-label {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
         .toggle-switch {
             display: flex;
             align-items: center;
@@ -2132,7 +2189,7 @@
             background: var(--bg-panel);
             border-left: 2px solid var(--gold);
             z-index: 1002;
-            transition: right 0.3s ease;
+            transition: right 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
             padding: 0;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -2692,7 +2749,7 @@
             bottom: 140px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            background: rgba(22, 33, 61, 0.95);
+            background: rgba(22, 33, 61, calc(0.75 - 0.55 * var(--blur-enabled)));
             border: 1px solid var(--gold);
             border-radius: 12px;
             padding: 12px 16px;
@@ -2701,10 +2758,11 @@
             flex-direction: column;
             gap: 8px;
             min-width: 200px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled)));
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease, background 0.4s ease;
         }
         .layer-panel.show {
             display: flex;
@@ -4183,6 +4241,16 @@
             </div>
         </div>
         <div class="settings-section">
+            <label class="settings-label">界面特效</label>
+            <div class="blur-toggle" onclick="App.blur.toggle()" id="blurToggle">
+                <div class="toggle-track" id="blurTrack"><div class="toggle-thumb"></div></div>
+                <span class="toggle-label" id="blurLabel">已开启</span>
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;">
+                开启后，弹窗、面板等界面将呈现高斯模糊背景效果
+            </div>
+        </div>
+        <div class="settings-section">
             <label class="settings-label">开发者模式</label>
             <div class="toggle-switch" onclick="App.devMode.toggle()" id="devModeToggle">
                 <div class="toggle-track" id="devModeTrack"><div class="toggle-thumb"></div></div>
@@ -4234,7 +4302,7 @@
                 <div class="help-section-content">
                     <p><strong>昭燃的历史地图馆</strong>是一个专注于中外历史地理数字化展示的在线平台，致力于通过电子历史地图为用户呈现跨越时空的历史图景。</p>
                     <p>地图馆主要收录了作者昭燃从史前文明到当代中国的61幅历史地图，涵盖中国历史七大时期--史前时期、早期国家、帝国形成、成熟帝国、传统社会、中国近代与中国现代。同时精选其他作者的中外历史地图作品，藏图总数 80+ 。</p>
-                    <p>本馆以”以史为鉴，可以知兴替"为核心理念，采用多图层叠加渲染技术(背景、地形、国界、河湖、地名五层独立控制)，支持原画/高画质/低画质三级画质调节，适配桌面端、平板与移动设备多场景浏览。用户可通过时间轴、搜索、键盘快捷键等多种方式探索地图，深入了解历代疆域变迁、政权更迭与文明演进。</p>
+                    <p>本馆以"以史为鉴，可以知兴替"为核心理念，采用多图层叠加渲染技术(背景、地形、国界、河湖、地名五层独立控制)，支持原画/高画质/低画质三级画质调节，适配桌面端、平板与移动设备多场景浏览。用户可通过时间轴、搜索、键盘快捷键等多种方式探索地图，深入了解历代疆域变迁、政权更迭与文明演进。</p>
                     <p>平台还提供学术讨论区（评论区），支持用户发表见解、互动交流，构建历史、地理爱好者的知识共享社区。</p>
                 </div>
             </div>
@@ -4622,7 +4690,7 @@
             }
         };
 
-        /* 模块 1: 数据 (Data)*/
+        /*模块 1: 数据 (Data)*/
         const Data = {
             _data: [],
             _eraQuotes: {
@@ -4631,15 +4699,13 @@
                 "早期国家": [{ text: "普天之下，莫非王土，率土之滨，莫非王臣", author: "《诗经·小雅·北山》" }, { text: "殷鉴不远",
                         author: "《诗经·大雅·荡》" }, { text: "王侯将相宁有种乎", author: "陈胜" }, { text: "大道之行也，天下为公",
                         author: "《礼记·礼运》" }, { text: "变法图强", author: "《史记·商君列传》" }, { text: "天下兴亡，匹夫有责",
-                        author: "顾炎武" }
-                ],
+                        author: "顾炎武" } ],
                 "帝国形成": [{ text: "千古一帝", author: "李贽《藏书》" }, { text: "大风起兮云飞扬", author: "刘邦《大风歌》" },
                     { text: "力拔山兮气盖世", author: "项羽《垓下歌》" }, { text: "犯强汉者，虽远必诛", author: "陈汤" },
                     { text: "光武中兴", author: "《后汉书》" }, { text: "对酒当歌，人生几何", author: "曹操《短歌行》" },
                     { text: "天下三分", author: "陈寿《三国志》" }, { text: "三分归晋", author: "《三国演义》" },
                     { text: "投鞭断流", author: "《晋书·苻坚载记》" }, { text: "旧时王谢堂前燕", author: "刘禹锡《乌衣巷》" },
-                    { text: "商女不知亡国恨，隔江犹唱后庭花", author: "杜牧《泊秦淮》" }
-                ],
+                    { text: "商女不知亡国恨，隔江犹唱后庭花", author: "杜牧《泊秦淮》" } ],
                 "成熟帝国": [{ text: "开皇之治", author: "《隋书》" }, { text: "尽道隋亡为此河", author: "皮日休《汴河怀古》" },
                     { text: "天可汗", author: "四夷君长尊号" }, { text: "政启开元，治宏贞观", author: "郭沫若" },
                     { text: "忆昔开元全盛日，小邑犹藏万家室", author: "杜甫《忆昔》" }, { text: "国破山河在，城春草木深",
@@ -4648,22 +4714,20 @@
                         author: "《新五代史·晋本纪》" }, { text: "先南后北", author: "赵匡胤统一战略" }, { text: "澶渊之盟",
                         author: "宋辽和约" }, { text: "靖康耻，犹未雪，臣子恨，何时灭", author: "岳飞《满江红》" },
                     { text: "一代天骄，成吉思汗", author: "毛泽东《沁园春·雪》" }, { text: "北逾阴山，西极流沙",
-                        author: "《元史·地理志》" }, { text: "石人一只眼", author: "元末民谣" }
-                ],
+                        author: "《元史·地理志》" }, { text: "石人一只眼", author: "元末民谣" } ],
                 "传统社会": [{ text: "天子守国门", author: "永乐迁都" }, { text: "倭寇之患", author: "《明史》" },
                     { text: "君王死社稷", author: "崇祯自缢煤山" }, { text: "十全武功", author: "乾隆自诩" },
-                    { text: "三千年未有之大变局", author: "李鸿章" }
-                ],
+                    { text: "三千年未有之大变局", author: "李鸿章" } ],
                 "中国近代": [{ text: "瓜分豆剖", author: "康有为" }, { text: "量中华之物力，结与国之欢心", author: "慈禧太后" },
                     { text: "革命尚未成功，同志仍需努力", author: "孙中山" }, { text: "天下大势，分久必合，合久必分",
                         author: "《三国演义》" }, { text: "一寸山河一寸血，十万青年十万兵", author: "抗战名言" },
-                    { text: "天翻地覆慨而慷", author: "毛泽东《七律》" }, { text: "雄鸡一唱天下白", author: "毛泽东《浣溪沙》" }
-                ],
+                    { text: "天翻地覆慨而慷", author: "毛泽东《七律》" }, { text: "雄鸡一唱天下白", author: "毛泽东《浣溪沙》" } ],
                 "中国现代": [{ text: "独立自主", author: "建国方针" }, { text: "实现中华民族伟大复兴", author: "中国梦" }],
                 "世界历史": [{ text: "黄金之国，神秘大陆", author: "欧洲探险家对南美洲的称谓" }, { text: "波托西，世界的宝库",
                         author: "西班牙殖民者" }, { text: "解放者的事业永垂不朽", author: "西蒙·玻利瓦尔" },
-                    { text: "同一个大陆，同一个梦想", author: "南美洲一体化愿景" }
-                ]
+                    { text: "同一个大陆，同一个梦想", author: "南美洲一体化愿景" } ],
+                "其他作者优秀作品": [{ text: "博采众长，集思广益", author: "展馆" }, { text: "他山之石，可以攻玉",
+                    author: "《诗经·小雅·鹤鸣》" } ]
             },
             _generalQuotes: [{ text: "究天人之际，通古今之变", author: "司马迁" }, { text: "以史为鉴，可以知兴替",
                     author: "唐太宗" }, { text: "读史使人明智", author: "培根" }, { text: "前事不忘，后事之师",
@@ -4672,7 +4736,7 @@
             ],
 
             load: function() {
-                // 内联数据
+                // 内联数据 - 保持原有数据不变
                 this._data = [{
                         "year": "旧石器",
                         "name": "中国境内早期人类主要遗址分布图",
@@ -5545,7 +5609,7 @@
                         "desc": "【图例】<span style='display:inline-block;width:12px;height:12px;background:#CEBB90;margin-right:4px;vertical-align:middle;border:1px solid rgba(0,0,0,0.3);'></span>色块为新秦中范围，<span style='display:inline-block;width:12px;height:12px;background:#BFBFBF;margin-right:4px;vertical-align:middle;border:1px solid rgba(0,0,0,0.3);'></span>色块为西汉势力范围。\n\n关于龟兹属国与五属国：\n《史记·卫将军骠骑列传》说：元狩二年(公元前121年)，浑邪王谋降汉……尽将其众渡河，降者数万。居顷之，乃分徙降者边郡故塞外，而皆在河南，因其故俗为属国。\n这五属国的所在地，说者不同。《汉书·地理志》所说较为具体，天水郡的属国都尉治于勇士县的满福，安定郡的治于三水，上郡的治于龟兹，西河郡的治于美稷，五原郡的治于蒲泽。不论如何解释，五属国之中有三处皆在河南地，则是无疑义的。当时随浑邪王来降的有四万余人，五属国平均分配，每属国皆当在八九千人之间。\n\n关于乌兰布和沙漠：\n由现在地图上可以明显看出，内蒙古磴口县和乌海市之西，沙漠弥漫，渺无人烟，这是有名的乌兰布和沙漠。在这样的沙漠地区中，汉代如何能够修建一个眩雷塞，而且还要在当地屯田？按诸汉代实际情况，并非就是这样。\n根据在三封废墟附近采集的大约属于新石器时期的遗物，设想在汉代开垦以前，这个地区原是一片一望无际的大草原。\n\n与河南地的异同：\n《史记》和《汉书》的《匈奴传》皆有所涉及。一则说：\"燕筑长城自造阳至襄平\"。韦昭和颜师古的解释都说在上谷。……应劭说：\"秦始皇遣蒙恬攘却匈奴，得其河南造阳之北千里，甚好，于是为筑城郭，徙民充之，名曰新秦\"。\n这里涉及五原、云中、定襄、雁门四郡。……赵亡即入于秦国，初无待于蒙恬之由匈奴夺得。蒙恬夺取于匈奴的，只是高阙以南的阳山北假中，及更南的河南地，与五原、云中、定襄、雁门四郡皆无关系，不得并为一谈。\n\n四障：\n《汉书·地理志》:北地郡浑怀都尉治塞外浑怀障,上郡匈归都尉治塞外匈归障,西河郡南部都尉治塞外翁龙、埤是。\n这四个障都是汉朝都尉的治所。都尉掌佐守，典武职甲卒，为当时各郡国中仅次于太守和相的官吏。一郡之中的都尉可能不止一员，但由于地位的重要，绝不能设置于郡外。仅由这一点而论，这几个障虽都被称为塞外，都还应分别是有关各郡的边境之内，更不能说是当地已经不隶属于汉朝的版图。\n这样说来，所谓塞外云者，只是因为它们分别在秦昭襄王和秦始皇所修筑的长城之外的缘故。由于汉朝初年匈奴势力的强大，复取去河南地，和汉朝以故塞为界，这样的情况，前后延续了数十年，因而成了惯例，甚而见诸文字的记载。",
                         "quote": "新秦中，地肥饶，外有河山之固",
                         "quoteAuthor": "—— 史念海《新秦中考》",
-                        "periodBg": "新秦中是秦汉时期北方边疆的重要地理区域，其名称源于其土地肥沃、物产丰饶，可与关中（秦中）相媲美。秦始皇三十二年（前215年），蒙恬北逐匈奴，略取河南地，在新秦中地区设县移民，修筑长城，将其纳入秦朝版图。秦末战乱，该地复为匈奴所夺。汉武帝时期，卫青于元朔二年（前127年）率军收复河南地，重新将新秦中纳入汉朝疆域。此后汉朝先后徙民万口充实其间，设置朔方、五原等郡，修筑朔方城，使之成为防御匈奴的前沿阵地和军事通道。该地区人口构成复杂，既有内地迁来的汉族移民，也有匈奴降附部落和保塞蛮夷，各族同居而统属于汉朝管辖。史念海先生在《新秦中考》中系统考证了秦汉时期新秦中的地理范围，重点批驳了将新秦中仅限于朔方郡或将其部分土地划归匈奴的旧说，指出新秦中的范围应包括今内蒙古鄂尔多斯高原及陕北、宁夏一带，北起阴山之下的黄河以南，南至秦昭襄王长城一线。",
+                        "periodBg": "新秦中是秦汉时期北方边疆的重要地理区域，其名称源于其土地肥沃、物产丰饶，可与关中（秦中）相媲美。秦始皇三十二年（前215年），蒙恬北逐匈奴，略取河南地，在新秦中地区设县移民，修筑长城，将其纳入秦朝版图。秦末战乱，该地复为匈奴所夺。汉武帝时期，卫青于元朔二年（前127年）率军收复河南地，重新将新秦中纳入汉朝疆域。此后汉朝先后徙民万口充实其间，设置朔方、五原等郡，修筑朔方城，使之成为防御匈奴的前沿阵地和军事通道。该地区人口构成复杂，既有内地迁来的汉族移民，也有匈奴降附部落和保塞蛮夷，各族同居而统属于汉朝管辖。史念海先生在《新秦中考》中系统考证了秦汉时期新秦中的地理范围，重点批驳了将新秦中仅限于朔方郡或将其部分土地划归匈奴的旧说，指出新秦中的范围应包括今内蒙古鄂尔多斯高原及陕北、宁夏一带，北至阴山之下的黄河以南，南至秦昭襄王长城一线。",
                         "author": "山河明鉴",
                         "authorLink": "https://space.bilibili.com/3494370206550352",
                         "organization": "天策府",
@@ -5844,6 +5908,88 @@
             }
         };
 
+        /*模块 3.5: 高斯模糊 (Blur) */
+        const Blur = {
+            _enabled: localStorage.getItem('blurEnabled') !== 'false',
+
+            init: function() {
+                this._applyUI();
+                var track = document.getElementById('blurTrack');
+                var label = document.getElementById('blurLabel');
+                if (track) track.classList.toggle('active', this._enabled);
+                if (label) label.textContent = this._enabled ? '已开启' : '已关闭';
+                this._updateBodyClass();
+            },
+
+            toggle: function() {
+                this._enabled = !this._enabled;
+                localStorage.setItem('blurEnabled', String(this._enabled));
+                var track = document.getElementById('blurTrack');
+                var label = document.getElementById('blurLabel');
+                if (track) track.classList.toggle('active', this._enabled);
+                if (label) label.textContent = this._enabled ? '已开启' : '已关闭';
+                this._updateBodyClass();
+                this._applyUI();
+            },
+
+            _updateBodyClass: function() {
+                document.body.classList.toggle('blur-disabled', !this._enabled);
+            },
+
+            _applyUI: function() {
+                // 对需要模糊的元素应用/移除类
+                var elements = [
+                    '.settings-panel',
+                    '.help-panel',
+                    '.share-modal',
+                    '.admin-login-modal',
+                    '.title-screen',
+                    '.settings-overlay',
+                    '.help-overlay',
+                    '.share-modal-overlay',
+                    '.admin-login-overlay'
+                ];
+
+                var isEnabled = this._enabled;
+
+                elements.forEach(function(sel) {
+                    var els = document.querySelectorAll(sel);
+                    els.forEach(function(el) {
+                        if (isEnabled) {
+                            if (!el.classList.contains('blur-backdrop') && !el.classList.contains('blur-backdrop-heavy')) {
+                                // 对于遮罩层使用更重的模糊
+                                if (sel === '.settings-overlay' || sel === '.help-overlay' || 
+                                    sel === '.share-modal-overlay' || sel === '.admin-login-overlay') {
+                                    el.classList.add('blur-backdrop-heavy');
+                                } else {
+                                    el.classList.add('blur-backdrop');
+                                }
+                            }
+                        } else {
+                            el.classList.remove('blur-backdrop', 'blur-backdrop-heavy');
+                        }
+                    });
+                });
+
+                // 特殊处理：设置面板和帮助面板的背景也需要模糊效果
+                var panels = ['settingsPanel', 'helpPanel'];
+                panels.forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) {
+                        if (isEnabled) {
+                            el.classList.add('blur-backdrop');
+                        } else {
+                            el.classList.remove('blur-backdrop');
+                        }
+                    }
+                });
+            },
+
+            isEnabled: function() {
+                return this._enabled;
+            }
+        };
+
         /*模块 4: 地图引擎 (Map)*/
         const Map = {
             _index: -1,
@@ -6125,9 +6271,6 @@
 
             _updateTransform: function() {
                 var self = this;
-                
-                // 移除 _applyConstraints 调用，暂时禁用约束以避免跳动
-                // this._applyConstraints();
                 
                 this._pendingTransform = { scale: this._scale, tx: this._translateX, ty: this._translateY };
                 if (!this._rafId) {
@@ -6907,6 +7050,8 @@
             toggle: function() {
                 document.getElementById('settingsPanel').classList.toggle('open');
                 document.getElementById('settingsOverlay').classList.toggle('open');
+                // 应用模糊效果
+                Blur._applyUI();
             },
 
             updateWidth: function(side, value) {
@@ -6937,6 +7082,8 @@
             toggle: function() {
                 document.getElementById('helpPanel').classList.toggle('open');
                 document.getElementById('helpOverlay').classList.toggle('open');
+                // 应用模糊效果
+                Blur._applyUI();
             }
         };
 
@@ -6948,6 +7095,7 @@
                 if (Map.getIndex() < 0) { alert('请先选择一幅地图'); return; }
                 document.getElementById('shareModalOverlay').classList.add('show');
                 document.body.style.overflow = 'hidden';
+                Blur._applyUI();
                 this._generate();
             },
 
@@ -6959,6 +7107,7 @@
             closeDirect: function() {
                 document.getElementById('shareModalOverlay').classList.remove('show');
                 document.body.style.overflow = '';
+                Blur._applyUI();
             },
 
             download: function() {
@@ -7298,6 +7447,7 @@
                 var panel = document.getElementById('layerPanel');
                 this._panelOpen = !this._panelOpen;
                 panel.classList.toggle('show', this._panelOpen);
+                Blur._applyUI();
             },
 
             toggle: function(name) {
@@ -7327,10 +7477,34 @@
 
             updateForGuestWork: function() {
                 var data = Map.getData();
-                // 优先检测：只要有专属图层配置，就按专属图层处理
                 var hasCustomLayers = data && data.layers;
-                var all = ['name', 'road', 'wall', 'river', 'border', 'terrain', 'bg'];
+                
+                // 1. 判断是否需要显示图层面板
+                var hasAnyExclusiveLayer = false;
+                var exclusiveLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain'];
+                if (hasCustomLayers) {
+                    for (var i = 0; i < exclusiveLayers.length; i++) {
+                        if (data.layers[exclusiveLayers[i]]) {
+                            hasAnyExclusiveLayer = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // 2. 控制整个图层面板及其按钮的显示
+                var layerPanel = document.getElementById('layerPanel');
+                var layerBtn = document.querySelector('.map-controls .control-btn');
+                
+                if (hasAnyExclusiveLayer) {
+                    if (layerPanel) layerPanel.style.display = '';  // 恢复显示
+                    if (layerBtn) layerBtn.style.display = 'flex';
+                } else {
+                    if (layerPanel) { layerPanel.classList.remove('show'); layerPanel.style.display = 'none'; }
+                    if (layerBtn) layerBtn.style.display = 'none';
+                }
 
+                // 3. 处理每个图层
+                var all = ['name', 'road', 'wall', 'river', 'border', 'terrain', 'bg'];
                 all.forEach(function(name) {
                     var chk = document.getElementById('layerCheck' + Utils.capitalize(name));
                     var img = document.getElementById('layer' + Utils.capitalize(name));
@@ -7338,25 +7512,25 @@
 
                     if (hasCustomLayers) {
                         if (hasLayer) {
-                            if (chk) { chk.checked = true;
-                                chk.disabled = false; }
-                            if (img) { img.style.display = 'block';
-                                img.classList.add('loaded'); }
+                            if (chk) { chk.checked = true; chk.disabled = false; }
+                            if (img) { img.style.display = 'block'; img.classList.add('loaded'); }
                         } else {
-                            if (chk) { chk.checked = false;
-                                chk.disabled = true; }
-                            if (img) { img.style.display = 'none';
-                                img.classList.remove('loaded'); }
+                            if (chk) { chk.checked = false; chk.disabled = true; }
+                            if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
                         }
                     } else {
-                        if (chk) { chk.checked = true;
-                            chk.disabled = name === 'bg'; }
-                        if (img) { img.style.display = 'block';
-                            img.classList.add('loaded'); }
+                        // 无专属图层的地图：只显示通用图层（地形、国界、河湖、地名）
+                        if (name === 'road' || name === 'wall') {
+                            if (chk) { chk.checked = false; chk.disabled = true; }
+                            if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
+                        } else {
+                            if (chk) { chk.checked = true; chk.disabled = name === 'bg'; }
+                            if (img) { img.style.display = 'block'; img.classList.add('loaded'); }
+                        }
                     }
                 });
 
-                // 更新标签
+                // 4. 更新标签
                 var labels = {
                     name: { name: '地名', badge: '顶层' },
                     road: { name: '交通线', badge: '专属' },
@@ -7985,6 +8159,7 @@
                 error.textContent = '';
                 input.value = '';
                 overlay.classList.add('show');
+                Blur._applyUI();
                 setTimeout(function() { input.focus(); }, 100);
             },
 
@@ -8023,6 +8198,7 @@
                     if (Map.getIndex() >= 0) {
                         App.discussion.load(Map.getIndex());
                     }
+                    Blur._applyUI();
                 } else {
                     // 登录失败
                     this._loginAttempts++;
@@ -8056,6 +8232,7 @@
                 if (Map.getIndex() >= 0) {
                     App.discussion.load(Map.getIndex());
                 }
+                Blur._applyUI();
             },
 
             // ===== 管理员工具 =====
@@ -8190,13 +8367,14 @@
                 }
                 
                 var info = {
-                    '版本': 'v1.0',
+                    '版本': 'v1.1',
                     '地图总数': Data.count(),
                     '开发者模式': this._enabled ? '✅ 已开启' : '❌ 已关闭',
                     '当前地图': Map.getIndex() >= 0 ? Map.getIndex() + 1 : '无',
                     '缩放级别': Math.round(Map.getScale() * 100) + '%',
                     '主题': Theme.current,
                     '画质': Quality.current,
+                    '高斯模糊': Blur.isEnabled() ? '✅ 已开启' : '❌ 已关闭',
                     '屏幕尺寸': window.innerWidth + 'x' + window.innerHeight,
                     'UA': navigator.userAgent.substring(0, 60) + '...'
                 };
@@ -8525,6 +8703,7 @@
             data: Data,
             theme: Theme,
             quality: Quality,
+            blur: Blur,
             map: Map,
             search: Search,
             layout: Layout,
@@ -8542,6 +8721,7 @@
                 this._renderTimeline();
                 this.theme.init();
                 this.quality.init();
+                this.blur.init();
                 this.settings.loadSaved();
                 this.devMode.init();
                 this.discussion.init();
@@ -8652,7 +8832,7 @@
                     setTimeout(function() { self.layout.switchTab('map'); }, 500);
                 }
 
-                console.log('✨ 昭燃的历史地图馆 v1.1 已启动');
+                console.log('✨ 昭燃的历史地图馆 v1.1 已启动（含高斯模糊功能）');
             },
 
             _renderTimeline: function() {
@@ -8677,7 +8857,7 @@
                             "中国近代": "救亡图存",
                             "中国现代": "复兴之路",
                             "世界历史": "纵观世界",
-                            "其他作者作品": "博采众长"
+                            "其他作者优秀作品": "博采众长"
                         };
                         eraDiv.innerHTML = '<span>' + currentEra + '</span><span class="era-quote">' + (quotes[currentEra] || '') + '</span>';
                         list.appendChild(eraDiv);
