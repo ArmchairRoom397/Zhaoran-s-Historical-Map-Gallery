@@ -164,8 +164,10 @@
         }
 
         body.rice-paper-theme .layer-panel {
-            background: rgba(235, 229, 217, 0.92) !important;
-            border-color: rgba(107, 52, 16, 0.15) !important;
+            background: rgba(235, 229, 217, 0.6) !important;
+            backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled))) !important;
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled))) !important;
+            border-color: rgba(107, 52, 16, 0.2) !important;
         }
 
         body.rice-paper-theme .layer-item:hover {
@@ -1237,26 +1239,26 @@
             max-width: 92% !important;
             min-width: 200px !important;
             z-index: 150;
-            background: rgba(22, 17, 62, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(22, 17, 62, 0.6);  /* 从 0.85 降低到 0.7，更透明 */
+            backdrop-filter: blur(calc(16px * var(--blur-enabled)));  /* 增强模糊 */
+            -webkit-backdrop-filter: blur(calc(16px * var(--blur-enabled)));
             padding: 8px 16px;
             border-radius: 28px;
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(212, 175, 55, 0.2);  /* 边框更透明 */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
             align-items: center;
             justify-content: space-between;
             gap: 8px;
             flex-wrap: nowrap;
             white-space: nowrap;
-            backdrop-filter: blur(calc(10px * var(--blur-enabled)));
-            -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
         }
 
         body.rice-paper-theme .portrait-controls {
-            background: rgba(235, 229, 217, 0.92) !important;
+            background: rgba(235, 229, 217, 0.8) !important;
+            backdrop-filter: blur(calc(16px * var(--blur-enabled))) !important;
+            -webkit-backdrop-filter: blur(calc(16px * var(--blur-enabled))) !important;
             border-color: rgba(107, 52, 16, 0.2) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
         }
 
         .portrait-ctrl-group {
@@ -3007,8 +3009,10 @@
             bottom: 140px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            background: rgba(22, 33, 61, calc(0.85 - 0.55 * var(--blur-enabled)));
-            border: 1px solid var(--gold);
+            background: rgba(22, 33, 61, 0.75);
+            backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled)));
+            border: 1px solid rgba(212, 175, 55, 0.2);  
             border-radius: 12px;
             padding: 12px 16px;
             z-index: 101;
@@ -3016,9 +3020,7 @@
             flex-direction: column;
             gap: 8px;
             min-width: 200px;
-            backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled)));
-            -webkit-backdrop-filter: blur(calc(var(--blur-amount) * 2 * var(--blur-enabled)));
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             opacity: 0;
             transition: all 0.3s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease, background 0.4s ease;
         }
@@ -3062,9 +3064,11 @@
             gap: 10px;
             cursor: pointer;
             transform: translateX(0);
+            background: rgba(255, 255, 255, 0.03);  /* 微弱的透明背景 */
         }
+
         .layer-item:hover {
-            background: rgba(212, 175, 55, 0.08);
+            background: rgba(212, 175, 55, 0.12);  /* 悬停时稍微加深 */
             transform: translateX(8px);
         }
         .layer-item-left {
@@ -4898,6 +4902,17 @@
                 开启后可管理评论（删除、置顶），需密码验证
             </div>
         </div>
+        <div class="settings-section">
+            <label class="settings-label">高斯模糊</label>
+            <div class="toggle-switch" onclick="App.blur.toggle()" id="blurToggle" role="button" tabindex="0" aria-label="切换高斯模糊">
+                <div class="toggle-track" id="blurTrack"><div class="toggle-thumb"></div></div>
+                <span class="toggle-label" id="blurLabel">已开启</span>
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;">
+                开启后背景界面将呈现毛玻璃效果，关闭可提升性能
+            </div>
+        </div>
+
         <!-- 开发者工具 -->
         <div class="settings-section" id="devToolsSection" style="display:none;">
             <label class="settings-label">🛠️ 开发者工具</label>
@@ -4982,12 +4997,6 @@
                     <span class="shortcut-desc">重新加载当前地图</span>
                     <span class="shortcut-key">L</span>
                     <span class="shortcut-desc">打开/关闭图层面板</span>
-                    <span class="shortcut-key">T</span>
-                    <span class="shortcut-desc">切换到时间轴</span>
-                    <span class="shortcut-key">I</span>
-                    <span class="shortcut-desc">切换到信息面板</span>
-                    <span class="shortcut-key">M</span>
-                    <span class="shortcut-desc">切换到地图视图</span>
                     <span class="shortcut-key">Esc</span>
                     <span class="shortcut-desc">关闭所有弹出面板</span>
                 </div>
@@ -5024,6 +5033,7 @@
         <div>版权保护</div>
         <div class="toast-sub">未经作者允许，严禁保存、复制地图文件！</div>
     </div>
+
 
     <!-- 开发者模式 -->
     <div class="dev-mode-indicator" id="devModeIndicator">
