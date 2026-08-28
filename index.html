@@ -1131,19 +1131,29 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0);
-            backdrop-filter: blur(0px);
+            background: rgba(0, 0, 0, 0);          
+            backdrop-filter: blur(0px);            
+            -webkit-backdrop-filter: blur(0px);
             z-index: 80;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0;                     
         }
+
         .loading-overlay.show {
             display: flex;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.75);       
+            backdrop-filter: blur(8px);            
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        body.rice-paper-theme .loading-overlay.show {
+            background: rgba(245, 240, 232, 0.85);  
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
         .loading-container {
             text-align: center;
