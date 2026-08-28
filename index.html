@@ -6484,7 +6484,8 @@
         /*模块 3: 画质 (Quality)*/
         const Quality = {
             current: 'original',
-            _lastRenderedZoom: -1,  // 上次重绘时的缩放百分比（整数）
+            _lastRenderedZoom: -1,
+            _renderBoundary: 600,  // 重绘边界：600%
             
             init: function() {
                 var saved = localStorage.getItem('mapQuality');
@@ -6527,7 +6528,6 @@
                                 l.classList.add('loaded'); }
                         }
                     });
-                    // 首次进入高画质，强制更新渲染
                     this._lastRenderedZoom = -1;
                     this._updateRenderingForZoom(Math.round(App.map.getScale() * 100));
                 } else if (q === 'low') {
@@ -6545,7 +6545,15 @@
                 }
             },
             
-            // 新增：根据缩放百分比更新渲染（仅在跨过整数边界时调用）
+            // 检查是否跨过了 600% 边界
+            _crossedBoundary: function(currentZoom, lastZoom) {
+                var boundary = this._renderBoundary;
+                if (lastZoom < 0) return true;
+                var currentAbove = currentZoom >= boundary;
+                var lastAbove = lastZoom >= boundary;
+                return currentAbove !== lastAbove;
+            },
+            
             _updateRenderingForZoom: function(zoomPercent) {
                 var isMobile = window.innerWidth <= 768;
                 var threshold = isMobile ? 750 : 300;
@@ -6556,15 +6564,22 @@
                 });
                 var mapImage = document.getElementById('mapImage');
                 if (mapImage) mapImage.style.imageRendering = highPrecision ? 'crisp-edges' : 'auto';
+                
+                this._lastRenderedZoom = zoomPercent;
             },
             
-            // 移除原有的 updateHighQualityRendering 方法，或保留为兼容
+            checkAndRender: function(currentZoomPercent) {
+                if (this.current !== 'high') return;
+                var currentInt = Math.round(currentZoomPercent);
+                if (this._crossedBoundary(currentInt, this._lastRenderedZoom)) {
+                    this._updateRenderingForZoom(currentInt);
+                }
+            },
+            
             updateHighQualityRendering: function() {
-                // 由 Map 模块的 _updateTransform 控制调用，不再自动触发
-                // 保留空方法以防外部调用报错
+                // 已废弃
             }
         };
-
         /*模块 3.5: 高斯模糊 (Blur) */
         const Blur = {
             _enabled: localStorage.getItem('blurEnabled') !== 'false',
@@ -6697,14 +6712,21 @@
                     App._showEmptyState();
                     return;
                 }
+                // 修复 #14: 取消之前的加载
                 this._abortAll();
                 this._index = index;
+                var data = Data.get(index);
+                this._isGuestWork = data.era === '其他作者优秀作品';
+                
+                // 重置缩放和位置
                 this._scale = 1;
                 this._translateX = 0;
                 this._translateY = 0;
-                this._lastRenderedScale = 1;
-                var data = Data.get(index);
-                this._isGuestWork = data.era === '其他作者优秀作品';
+                
+                // 重置高画质渲染状态（但先不立即渲染，等待加载完成）
+                if (Quality.current === 'high') {
+                    Quality._lastRenderedZoom = -1;
+                }
 
                 var cache = this._imageCache;
                 var keys = Object.keys(cache);
@@ -6739,7 +6761,7 @@
 
                 localStorage.setItem('lastSelectedMapIndex', String(index));
             },
-
+            
             _updateTimelineUI: function(index) {
                 var items = document.querySelectorAll('.timeline-item');
                 items.forEach(function(el, i) {
@@ -6835,14 +6857,15 @@
 
             navigate: function(dir) { this.select(this._index + dir); },
 
-            // 修改 reload 方法，重置渲染状态
             reload: function() {
                 if (this._index < 0) return;
                 this._abortAll();
                 this._scale = 1;
                 this._translateX = 0;
                 this._translateY = 0;
-                this._lastRenderedScale = 1;  // 重置渲染状态
+                if (Quality.current === 'high') {
+                    Quality._lastRenderedZoom = -1;
+                }
                 this._updateTransform();
                 document.querySelectorAll('.layer-image').forEach(function(l) {
                     l.classList.remove('loaded');
@@ -6850,14 +6873,12 @@
                 });
                 this._currentLayerPaths = {};
                 this._loadLayersWithProgress(Data.get(this._index).path);
-                // 在加载完成后更新渲染
                 if (Quality.current === 'high') {
                     setTimeout(function() {
                         Quality._updateRenderingForZoom(100);
-                    }, 600);
+                    }, 500);
                 }
             },
-            // 修改 resetView 方法，重置时强制更新
             resetView: function() {
                 var startScale = this._scale;
                 var startTx = this._translateX;
@@ -6869,8 +6890,10 @@
                 var startTime = performance.now();
                 var self = this;
 
-                // 重置时强制更新 _lastRenderedScale
-                this._lastRenderedScale = 1;
+                // 重置时强制更新渲染状态
+                if (Quality.current === 'high') {
+                    Quality._lastRenderedZoom = -1;
+                }
 
                 function animate(time) {
                     var elapsed = time - startTime;
@@ -6883,9 +6906,8 @@
                     if (progress < 1) {
                         requestAnimationFrame(animate);
                     } else {
-                        // 动画结束，确保最终状态正确
                         if (Quality.current === 'high') {
-                            self._lastRenderedScale = 1;
+                            Quality._lastRenderedZoom = -1;
                             Quality._updateRenderingForZoom(100);
                         }
                     }
@@ -6948,20 +6970,14 @@
                         var pzl = document.getElementById('portraitZoomLevel');
                         if (pzl) pzl.textContent = Math.round(s * 100) + '%';
                         
-                        // 只有高画质模式且缩放跨过整数百分比边界时才重绘
+                        // 只有高画质模式才检查是否需要重绘
                         if (Quality.current === 'high') {
                             var currentPercent = s * 100;
-                            var currentInt = Math.round(currentPercent);
-                            var lastInt = Math.round(self._lastRenderedScale * 100);
-                            if (currentInt !== lastInt) {
-                                self._lastRenderedScale = s;
-                                Quality._updateRenderingForZoom(currentInt);
-                            }
+                            Quality.checkAndRender(currentPercent);
                         }
                     });
                 }
             },
-            // 修改 _updateTransformImmediate 方法
             _updateTransformImmediate: function() {
                 var wrapper = document.getElementById('mapWrapper');
                 var s = this._scale,
@@ -6975,15 +6991,9 @@
                 var pzl = document.getElementById('portraitZoomLevel');
                 if (pzl) pzl.textContent = Math.round(s * 100) + '%';
                 
-                // 只有高画质模式且缩放跨过整数百分比边界时才重绘
                 if (Quality.current === 'high') {
                     var currentPercent = s * 100;
-                    var currentInt = Math.round(currentPercent);
-                    var lastInt = Math.round(this._lastRenderedScale * 100);
-                    if (currentInt !== lastInt) {
-                        this._lastRenderedScale = s;
-                        Quality._updateRenderingForZoom(currentInt);
-                    }
+                    Quality.checkAndRender(currentPercent);
                 }
             },
 
