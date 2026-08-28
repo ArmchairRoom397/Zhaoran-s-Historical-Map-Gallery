@@ -8920,63 +8920,72 @@
                 return this._lockedUntil > Date.now();
             },
 
-            login: function() {
-                var input = document.getElementById('devModePasswordInput');
-                var error = document.getElementById('devModeLoginError');
-                var value = input.value;
+        login: function() {
+            var input = document.getElementById('devModePasswordInput');
+            var error = document.getElementById('devModeLoginError');
+            var value = input.value;
 
-                if (this._isLocked()) {
-                    var remaining = Math.ceil((this._lockedUntil - Date.now()) / 60000);
-                    error.textContent = '🔒 已锁定，请 ' + remaining + ' 分钟后重试';
-                    return;
-                }
+            if (this._isLocked()) {
+                var remaining = Math.ceil((this._lockedUntil - Date.now()) / 60000);
+                error.textContent = '🔒 已锁定，请 ' + remaining + ' 分钟后重试';
+                return;
+            }
 
-                if (value === this.PASSWORD) {
-                    this._enabled = true;
-                    this._loginAttempts = 0;
-                    localStorage.setItem('devModeEnabled', 'true');
-                    localStorage.removeItem('devModeLockedUntil');
-                    document.getElementById('devModeLoginOverlay').classList.remove('show');
-                    this._showIndicator();
-                    this._updateUI(true);
-                    error.textContent = '';
-                    this._showToast('✅ 开发者模式已开启', 'success');
-                    this._logAction('开发者登录');
-                    if (Map.getIndex() >= 0) {
-                        App.discussion.load(Map.getIndex());
-                    }
-                    Blur._applyUI();
-                } else {
-                    this._loginAttempts++;
-                    var remaining2 = this._maxAttempts - this._loginAttempts;
-                    if (remaining2 <= 0) {
-                        this._lockedUntil = Date.now() + 15 * 60 * 1000;
-                        localStorage.setItem('devModeLockedUntil', String(this._lockedUntil));
-                        error.textContent = '🔒 尝试次数过多，已锁定 15 分钟';
-                        this._showToast('🔒 登录已锁定 15 分钟', 'error');
-                    } else {
-                        error.textContent = '❌ 密码错误，剩余尝试次数: ' + remaining2;
-                        input.value = '';
-                        input.focus();
-                        this._showToast('❌ 密码错误', 'error');
-                    }
-                }
-            },
-
-            logout: function() {
-                if (!this._enabled) return;
-                if (!confirm('确定要退出开发者模式吗？')) return;
-                this._enabled = false;
-                localStorage.removeItem('devModeEnabled');
-                this._hideIndicator();
-                this._updateUI(false);
-                this._showToast('🔒 开发者模式已关闭', 'info');
-                this._logAction('开发者退出');
+            if (value === this.PASSWORD) {
+                this._enabled = true;
+                this._loginAttempts = 0;
+                localStorage.setItem('devModeEnabled', 'true');
+                localStorage.removeItem('devModeLockedUntil');
+                document.getElementById('devModeLoginOverlay').classList.remove('show');
+                this._showIndicator();
+                this._updateUI(true);
+                error.textContent = '';
+                this._showToast('✅ 开发者模式已开启', 'success');
+                this._logAction('开发者登录');
                 if (Map.getIndex() >= 0) {
                     App.discussion.load(Map.getIndex());
                 }
                 Blur._applyUI();
-            },
+                // ★★★ 关键：更新保护状态，放行所有限制 ★★★
+                if (App.protection && App.protection.update) {
+                    App.protection.update();
+                }
+                console.log('🔓 开发者模式已激活：所有限制已解除（右键、复制、F12、快捷键等）');
+            } else {
+                this._loginAttempts++;
+                var remaining2 = this._maxAttempts - this._loginAttempts;
+                if (remaining2 <= 0) {
+                    this._lockedUntil = Date.now() + 15 * 60 * 1000;
+                    localStorage.setItem('devModeLockedUntil', String(this._lockedUntil));
+                    error.textContent = '🔒 尝试次数过多，已锁定 15 分钟';
+                    this._showToast('🔒 登录已锁定 15 分钟', 'error');
+                } else {
+                    error.textContent = '❌ 密码错误，剩余尝试次数: ' + remaining2;
+                    input.value = '';
+                    input.focus();
+                    this._showToast('❌ 密码错误', 'error');
+                }
+            }
+        },
+
+        logout: function() {
+            if (!this._enabled) return;
+            if (!confirm('确定要退出开发者模式吗？')) return;
+            this._enabled = false;
+            localStorage.removeItem('devModeEnabled');
+            this._hideIndicator();
+            this._updateUI(false);
+            this._showToast('🔒 开发者模式已关闭', 'info');
+            this._logAction('开发者退出');
+            if (Map.getIndex() >= 0) {
+                App.discussion.load(Map.getIndex());
+            }
+            Blur._applyUI();
+            if (App.protection && App.protection.update) {
+                App.protection.update();
+            }
+            console.log('🔒 开发者模式已关闭：保护限制已恢复');
+        },
 
             clearAllDiscussions: function() {
                 if (!this._enabled) {
@@ -9209,6 +9218,12 @@
                         localStorage.removeItem('devModeEnabled');
                         this._updateUI(false);
                         this._hideIndicator();
+                    } else {
+                        if (App.protection && App.protection.update) {
+                            setTimeout(function() {
+                                App.protection.update();
+                            }, 100);
+                        }
                     }
                 }
             }
@@ -9309,12 +9324,19 @@
             }
         };
 
-        /*模块 14: 保护 (Protection) — 修复 #5 */
+        /*模块 14: 保护 (Protection) — 修复 #5，开发者模式完全开放 */
         const Protection = {
             init: function() {
                 var self = this;
-                // 禁用右键
+                
+                // 辅助函数：检查是否允许操作（开发者模式下完全开放）
+                function isDevMode() {
+                    return App && App.devMode && App.devMode.isEnabled();
+                }
+
+                // === 右键菜单（开发者模式下允许） ===
                 document.addEventListener('contextmenu', function(e) {
+                    if (isDevMode()) return true;
                     var tag = e.target.tagName;
                     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
                         e.target.isContentEditable ||
@@ -9325,16 +9347,18 @@
                     return false;
                 }, true);
 
-                // 禁用拖拽
+                // === 拖拽（开发者模式下允许） ===
                 document.addEventListener('dragstart', function(e) {
+                    if (isDevMode()) return true;
                     if (e.target.tagName === 'IMG' || e.target.closest('.map-viewport')) {
                         e.preventDefault();
                         return false;
                     }
                 }, true);
 
-                // 禁用复制
+                // === 复制（开发者模式下允许） ===
                 document.addEventListener('copy', function(e) {
+                    if (isDevMode()) return true;
                     var tag = e.target.tagName;
                     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
                         e.target.isContentEditable ||
@@ -9348,8 +9372,11 @@
                     }
                 }, true);
 
-                // 禁用键盘快捷键（移除 debugger 陷阱）
+                // === 键盘快捷键（开发者模式下允许所有，包括 F12、Ctrl+Shift+I 等） ===
                 document.addEventListener('keydown', function(e) {
+                    // 开发者模式：完全放行所有按键
+                    if (isDevMode()) return true;
+                    
                     var tag = e.target.tagName;
                     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) {
                         var allowed = ['a', 'c', 'v', 'x', 'z', 'y', 'A', 'C', 'V', 'X', 'Z', 'Y',
@@ -9357,6 +9384,8 @@
                         ];
                         if ((e.ctrlKey || e.metaKey) && allowed.indexOf(e.key) >= 0) return true;
                     }
+                    
+                    // Ctrl/Cmd 组合键
                     if (e.ctrlKey || e.metaKey) {
                         if (e.key === 'r' || e.key === 'R') return true;
                         e.preventDefault();
@@ -9368,6 +9397,8 @@
                         }
                         return false;
                     }
+                    
+                    // F12 和截图键
                     if (e.key === 'F12' || e.key === 'PrintScreen') {
                         e.preventDefault();
                         self._showToast();
@@ -9375,13 +9406,14 @@
                     }
                 }, true);
 
-                // 禁用打印
+                // === 打印保护样式（开发者模式下移除） ===
                 var style = document.createElement('style');
+                style.id = 'printProtectionStyle';
                 style.innerHTML =
                     '@media print{ .map-viewport,.map-wrapper,#mapImage{display:none !important;} body::after{content:"本页面内容受版权保护，禁止打印";display:block;text-align:center;padding:50px;font-size:18px;color:#999;}}';
                 document.head.appendChild(style);
 
-                // 移除 debugger 陷阱，使用轻量级检测
+                // === 开发者工具检测（仅警告，不阻塞） ===
                 var devtoolsOpen = false;
                 var element = new Image();
                 Object.defineProperty(element, 'id', {
@@ -9395,13 +9427,32 @@
                     console.log(element);
                     console.clear();
                     if (devtoolsOpen) {
-                        // 仅记录一次，不阻塞
                         if (!window._devtoolsWarned) {
                             window._devtoolsWarned = true;
                             console.warn('⚠️ 开发者工具检测到，请尊重知识产权');
                         }
                     }
                 }, 3000);
+                
+                console.log('🛡️ 版权保护已启动（开发者模式下自动放行所有限制）');
+            },
+
+            // 更新保护状态（开发者模式切换时调用）
+            update: function() {
+                var isDev = App && App.devMode && App.devMode.isEnabled();
+                var style = document.getElementById('printProtectionStyle');
+                if (style) {
+                    if (isDev) {
+                        // 开发者模式：移除打印保护
+                        style.innerHTML = '';
+                        console.log('🔓 开发者模式：打印保护已禁用');
+                    } else {
+                        // 普通模式：恢复打印保护
+                        style.innerHTML =
+                            '@media print{ .map-viewport,.map-wrapper,#mapImage{display:none !important;} body::after{content:"本页面内容受版权保护，禁止打印";display:block;text-align:center;padding:50px;font-size:18px;color:#999;}}';
+                        console.log('🔒 打印保护已恢复');
+                    }
+                }
             },
 
             _showToast: function() {
@@ -9412,7 +9463,6 @@
                 this._toastTimer = setTimeout(function() { toast.classList.remove('show'); }, 2500);
             }
         };
-
         /*模块 15: 入口 (App) */
         const App = {
             data: Data,
