@@ -8177,31 +8177,26 @@
             updateForGuestWork: function() {
                 var data = Map.getData();
                 var hasCustomLayers = data && data.layers;
-                var hasAnyLayer = false;
                 var allLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain', 'bg'];
-                var exclusiveLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain'];
 
+                // 检查是否有任何自定义图层（排除 bg）
+                var hasAnyExclusiveLayer = false;
                 if (hasCustomLayers) {
-                    for (var i = 0; i < exclusiveLayers.length; i++) {
-                        if (data.layers[exclusiveLayers[i]]) {
-                            hasAnyLayer = true;
+                    var exclusiveCheck = ['name', 'road', 'wall', 'river', 'border', 'terrain'];
+                    for (var i = 0; i < exclusiveCheck.length; i++) {
+                        if (data.layers[exclusiveCheck[i]]) {
+                            hasAnyExclusiveLayer = true;
                             break;
                         }
                     }
-                } else {
-                    hasAnyLayer = true;
                 }
 
                 var layerPanel = document.getElementById('layerPanel');
-                var layerBtn = document.querySelector('.map-controls .control-btn');
-
-                if (hasAnyLayer) {
-                    if (layerPanel) layerPanel.style.display = '';
-                    if (layerBtn) layerBtn.style.display = 'flex';
+                if (hasAnyExclusiveLayer || !hasCustomLayers) {
+                    if (layerPanel) { layerPanel.style.display = ''; }
                 } else {
                     if (layerPanel) { layerPanel.classList.remove('show');
                         layerPanel.style.display = 'none'; }
-                    if (layerBtn) layerBtn.style.display = 'none';
                 }
 
                 allLayers.forEach(function(name) {
@@ -8209,10 +8204,30 @@
                     var img = document.getElementById('layer' + Utils.capitalize(name));
                     var hasLayer = hasCustomLayers && data.layers[name];
 
+                    // 对于 road 和 wall，只要有自定义配置就显示，否则隐藏
+                    if (name === 'road' || name === 'wall') {
+                        var item = chk ? chk.closest('.layer-item') : null;
+                        if (hasLayer) {
+                            if (item) item.style.display = 'flex';
+                            if (chk) { chk.checked = true;
+                                chk.disabled = false; }
+                            if (img) { img.style.display = 'block';
+                                img.classList.add('loaded'); }
+                        } else {
+                            if (item) item.style.display = 'none';
+                            if (chk) { chk.checked = false;
+                                chk.disabled = true; }
+                            if (img) { img.style.display = 'none';
+                                img.classList.remove('loaded'); }
+                        }
+                        return;
+                    }
+
+                    // 其他图层：如果自定义配置存在则启用，否则按默认规则
                     if (hasCustomLayers) {
                         if (hasLayer) {
                             if (chk) { chk.checked = true;
-                                chk.disabled = false; }
+                                chk.disabled = name === 'bg'; }
                             if (img) { img.style.display = 'block';
                                 img.classList.add('loaded'); }
                         } else {
@@ -8222,24 +8237,15 @@
                                 img.classList.remove('loaded'); }
                         }
                     } else {
-                        if (name === 'road' || name === 'wall') {
-                            var item = chk ? chk.closest('.layer-item') : null;
-                            if (item) item.style.display = 'none';
-                            if (chk) { chk.checked = false;
-                                chk.disabled = true; }
-                            if (img) { img.style.display = 'none';
-                                img.classList.remove('loaded'); }
-                        } else {
-                            if (chk) { chk.checked = true;
-                                chk.disabled = name === 'bg'; }
-                            if (img) { img.style.display = 'block';
-                                img.classList.add('loaded'); }
-                            var item2 = chk ? chk.closest('.layer-item') : null;
-                            if (item2) item2.style.display = 'flex';
-                        }
+                        // 没有自定义图层时，按默认规则（bg 不可关闭，其他默认开启）
+                        if (chk) { chk.checked = name !== 'bg';
+                            chk.disabled = name === 'bg'; }
+                        if (img && name !== 'bg') { img.style.display = 'block';
+                            img.classList.add('loaded'); }
                     }
                 });
 
+                // 更新标签文字
                 var labels = {
                     name: { name: '地名', badge: '顶层' },
                     road: { name: '交通线', badge: '专属' },
@@ -8249,20 +8255,23 @@
                     terrain: { name: '地形', badge: '相乘' },
                     bg: { name: '背景', badge: '底层' }
                 };
-                if (hasCustomLayers) {
-                    for (var n in labels) {
-                        var has = data.layers[n];
-                        var le = document.getElementById('layerLabel' + Utils.capitalize(n));
-                        var be = document.getElementById('layerBadge' + Utils.capitalize(n));
-                        if (le) le.textContent = labels[n].name + (has ? '' : ' (无)');
-                        if (be) be.textContent = has ? '专属' : '—';
+                for (var n in labels) {
+                    var has = hasCustomLayers && data.layers[n];
+                    var le = document.getElementById('layerLabel' + Utils.capitalize(n));
+                    var be = document.getElementById('layerBadge' + Utils.capitalize(n));
+                    if (le) {
+                        if (hasCustomLayers) {
+                            le.textContent = labels[n].name + (has ? '' : ' (无)');
+                        } else {
+                            le.textContent = labels[n].name;
+                        }
                     }
-                } else {
-                    for (var n2 in labels) {
-                        var le2 = document.getElementById('layerLabel' + Utils.capitalize(n2));
-                        var be2 = document.getElementById('layerBadge' + Utils.capitalize(n2));
-                        if (le2) le2.textContent = labels[n2].name;
-                        if (be2) be2.textContent = labels[n2].badge;
+                    if (be) {
+                        if (hasCustomLayers) {
+                            be.textContent = has ? '专属' : '—';
+                        } else {
+                            be.textContent = labels[n].badge;
+                        }
                     }
                 }
             }
