@@ -1368,7 +1368,12 @@
                 font-size: 0.85rem !important;
                 min-width: 56px !important;
             }
+            #portraitPrevBtn,
+            #portraitNextBtn {
+                display: none !important;
+            }
         }
+
 
         /* 移动端 - 底部位置微调 */
         @media (max-width: 768px) {
@@ -9502,6 +9507,8 @@
             protection: Protection,
 
             init: function() {
+                if (!localStorage.getItem('lastSelectedMapIndex')) {
+                }
                 this.data.load();
                 this._renderTimeline();
                 this.theme.init();
@@ -9648,10 +9655,10 @@
                 setTimeout(function() { list.classList.remove('initial-load'); }, 1000);
 
                 var saved = localStorage.getItem('lastSelectedMapIndex');
-                if (saved !== null && parseInt(saved) < data.length) {
+                if (saved !== null && parseInt(saved) < data.length && parseInt(saved) >= 0) {
                     App.map.select(parseInt(saved));
-                } else if (data.length > 0) {
-                    App.map.select(0);
+                } else {
+                    App._showEmptyState();
                 }
             },
 
