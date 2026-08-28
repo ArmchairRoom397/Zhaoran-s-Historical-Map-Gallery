@@ -3331,55 +3331,56 @@
                 contain: layout style paint;
             }
 
-            .map-wrapper {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                will-change: transform;
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-            }
+            @media (max-width: 768px) {
+                .map-wrapper {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    /* 不要用 transform: none */
+                    will-change: transform;
+                    backface-visibility: hidden;
+                    -webkit-backface-visibility: hidden;
+                    overflow: visible;
+                    transform-origin: center center;
+                    /* 初始居中由 JS 的 translate(0,0) + scale(1) 实现 */
+                }
 
-            .layer-stack {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                pointer-events: none;
-                contain: layout style paint;
-                overflow: hidden;
-            }
+                /* layer-stack 负责内容居中 */
+                .layer-stack {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 100%;
+                    height: 100%;
+                    transform: translate(-50%, -50%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    pointer-events: none;
+                    contain: layout style paint;
+                    overflow: hidden;
+                }
 
-            .layer-image {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                object-position: center;
-                max-width: 100%;
-                max-height: 100%;
-                user-select: none;
-                -webkit-user-drag: none;
-                pointer-events: none;
-                image-rendering: crisp-edges;
-                display: none;
-                backface-visibility: hidden;
-                will-change: auto;
-                contain: layout style;
-                transition: opacity 0.15s ease;
-                transform: none !important;
+                /* 图层图片居中显示 */
+                .layer-image {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                    object-position: center;
+                    user-select: none;
+                    -webkit-user-drag: none;
+                    pointer-events: none;
+                    display: none;
+                    backface-visibility: hidden;
+                    will-change: auto;
+                    contain: layout style;
+                    transition: opacity 0.15s ease;
+                }
             }
 
             .layer-image.loaded {
@@ -6891,7 +6892,6 @@
                 var my = cy - rect.top - rect.height / 2;
                 return { x: (mx - this._translateX) / this._scale, y: (my - this._translateY) / this._scale };
             },
-
             _updateTransform: function() {
                 var self = this;
                 this._pendingTransform = { scale: this._scale, tx: this._translateX, ty: this._translateY };
@@ -6905,7 +6905,17 @@
                         self._pendingTransform = null;
                         var wrapper = document.getElementById('mapWrapper');
                         if (wrapper) {
-                            wrapper.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) scale3d(' + s + ',' + s + ',1)';
+                            // 移动端：基于视口中心缩放
+                            var isMobile = window.innerWidth <= 768;
+                            if (isMobile) {
+                                // 获取视口尺寸
+                                var vw = window.innerWidth;
+                                var vh = window.innerHeight;
+                                // 保持地图居中，缩放围绕中心点
+                                wrapper.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) scale3d(' + s + ',' + s + ',1)';
+                            } else {
+                                wrapper.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) scale3d(' + s + ',' + s + ',1)';
+                            }
                         }
                         var zl = document.getElementById('zoomLevel');
                         if (zl) zl.textContent = Math.round(s * 100) + '%';
@@ -6915,7 +6925,6 @@
                     });
                 }
             },
-
             _updateTransformImmediate: function() {
                 var wrapper = document.getElementById('mapWrapper');
                 var s = this._scale,
