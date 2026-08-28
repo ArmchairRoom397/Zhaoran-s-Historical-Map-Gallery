@@ -3337,7 +3337,6 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                transform: none !important;
                 will-change: transform;
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
@@ -3348,7 +3347,9 @@
             }
 
             .layer-stack {
-                position: relative;
+                position: absolute;
+                top: 0;
+                left: 0;
                 width: 100%;
                 height: 100%;
                 display: flex;
