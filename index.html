@@ -6781,8 +6781,8 @@
                         "layers": { "bg": { "file": "025.webp", "opacity": 1.0, "zIndex": 1 } }
                     },
                     {
-                        "year": "约前138-后127年",
-                        "name": "中国丝绸之路路线示意图",
+                        "year": "约前138-后907年",
+                        "name": "中国汉唐时期丝绸之路路线示意图",
                         "era": "高中历史教材地图",
                         "path": "maps/textbook/026.webp",
                         "span": "约前138-后127年",
@@ -10804,20 +10804,19 @@
                     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) {
                         return;
                     }
-                    if (e.key === 'ArrowLeft') { e.preventDefault();
-                        self.map.navigate(-1); } else if (e.key === 'ArrowRight') { e.preventDefault();
-                        self.map.navigate(1); } else if (e.key === 'ArrowUp') { e.preventDefault();
-                        self.map.zoomIn(); } else if (e.key === 'ArrowDown') { e.preventDefault();
-                        self.map.zoomOut(); } else if (e.key === '0') { e.preventDefault();
-                        self.map.resetView(); } else if (e.key === '=' || e.key === '+') { e.preventDefault();
-                        self.map.zoomIn(); } else if (e.key === '-' || e.key === '_') { e.preventDefault();
-                        self.map.zoomOut(); } else if (e.key === 'h' || e.key === 'H') { e.preventDefault();
-                        App.help.toggle(); } else if (e.key === 's' || e.key === 'S') { e.preventDefault();
-                        App.settings.toggle(); } else if (e.key === 'f' || e.key === 'F') { e.preventDefault();
-                        document.getElementById('searchInput').focus(); } else if (e.key === 'r' || e.key ===
-                        'R') { e.preventDefault();
-                        App.map.reload(); } else if (e.key === 'l' || e.key === 'L') { e.preventDefault();
-                        App.layer.togglePanel(); } else if (e.key === 't' || e.key === 'T') {
+                    if (e.key === 'ArrowLeft') { e.preventDefault(); self.map.navigate(-1); } 
+                    else if (e.key === 'ArrowRight') { e.preventDefault(); self.map.navigate(1); } 
+                    else if (e.key === 'ArrowUp') { e.preventDefault(); self.map.zoomIn(); } 
+                    else if (e.key === 'ArrowDown') { e.preventDefault(); self.map.zoomOut(); } 
+                    else if (e.key === '0') { e.preventDefault(); self.map.resetView(); } 
+                    else if (e.key === '=' || e.key === '+') { e.preventDefault(); self.map.zoomIn(); } 
+                    else if (e.key === '-' || e.key === '_') { e.preventDefault(); self.map.zoomOut(); } 
+                    else if (e.key === 'h' || e.key === 'H') { e.preventDefault(); App.help.toggle(); } 
+                    else if (e.key === 's' || e.key === 'S') { e.preventDefault(); App.settings.toggle(); } 
+                    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); document.getElementById('searchInput').focus(); } 
+                    else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); App.map.reload(); } 
+                    else if (e.key === 'l' || e.key === 'L') { e.preventDefault(); App.layer.togglePanel(); } 
+                    else if (e.key === 't' || e.key === 'T') {
                         e.preventDefault();
                         if (window.innerWidth <= 1200) {
                             App.layout.toggleSidebar('timeline');
@@ -10831,8 +10830,8 @@
                         } else {
                             document.getElementById('infoPanel').scrollIntoView({ behavior: 'smooth' });
                         }
-                    } else if (e.key === 'm' || e.key === 'M') { e.preventDefault();
-                        App.layout.switchTab('map'); } else if (e.key === 'Escape') {
+                    } else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); App.layout.switchTab('map'); } 
+                    else if (e.key === 'Escape') {
                         if (document.getElementById('settingsPanel').classList.contains('open')) {
                             App.settings.toggle();
                         }
@@ -10848,11 +10847,64 @@
                     }
                 });
 
-                document.getElementById('titleScreen').addEventListener('click', this._enterMuseum);
+                // ★★★ 修复移动端标题屏点击问题 ★★★
+                var titleScreen = document.getElementById('titleScreen');
+                var isEnteringMuseum = false;
+
+                function enterMuseumHandler(e) {
+                    if (isEnteringMuseum) return;
+                    if (titleScreen.classList.contains('hidden')) return;
+                    if (e.type === 'touchstart') {
+                        e.preventDefault();
+                    }
+                    isEnteringMuseum = true;
+                    self._enterMuseum();
+                    setTimeout(function() {
+                        isEnteringMuseum = false;
+                    }, 500);
+                }
+
+                // 移除旧监听器
+                titleScreen.removeEventListener('click', self._enterMuseum);
+                titleScreen.removeEventListener('click', enterMuseumHandler);
+                titleScreen.removeEventListener('touchstart', enterMuseumHandler);
+
+                // 绑定新监听器
+                titleScreen.addEventListener('click', enterMuseumHandler);
+                titleScreen.addEventListener('touchstart', enterMuseumHandler, { passive: false });
+
+                // 底部装饰也支持点击
+                var bottomOrnament = document.querySelector('.bottom-ornament');
+                if (bottomOrnament) {
+                    bottomOrnament.removeEventListener('click', enterMuseumHandler);
+                    bottomOrnament.removeEventListener('touchstart', enterMuseumHandler);
+                    bottomOrnament.addEventListener('click', enterMuseumHandler);
+                    bottomOrnament.addEventListener('touchstart', enterMuseumHandler, { passive: false });
+                }
+
+                // 移动端额外保障：触摸任何空白区域
+                if ('ontouchstart' in window) {
+                    titleScreen.addEventListener('touchstart', function(e) {
+                        if (e.target.closest('a') || e.target.closest('button')) return;
+                        if (titleScreen.classList.contains('hidden')) return;
+                        if (isEnteringMuseum) return;
+                        e.preventDefault();
+                        isEnteringMuseum = true;
+                        self._enterMuseum();
+                        setTimeout(function() {
+                            isEnteringMuseum = false;
+                        }, 500);
+                    }, { passive: false });
+                }
 
                 var params = Utils.getUrlParams();
                 if (params.auto === '1') {
-                    setTimeout(function() { App._enterMuseum(); }, 500);
+                    setTimeout(function() {
+                        if (!isEnteringMuseum) {
+                            isEnteringMuseum = true;
+                            self._enterMuseum();
+                        }
+                    }, 500);
                 }
 
                 if (window.innerWidth <= 768) {
