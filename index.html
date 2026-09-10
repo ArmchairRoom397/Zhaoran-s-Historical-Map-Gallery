@@ -8427,8 +8427,21 @@
                     var layerImg = document.getElementById('layer' + Utils.capitalize(layerName));
                     var preloaded = self._imageCache[layerPath];
 
+                    var isFileProtocol = window.location.protocol === 'file:';
+
                     if (layerName === 'bg' || layerName === 'name') {
-                        if (layerPath) layersToXHR.push({ name: layerName, path: layerPath });
+                        if (layerPath) {
+                            if (isFileProtocol) {
+                                // file:// 协议下 XHR 被阻止，直接设置 img.src
+                                var directImg = document.getElementById('layer' + Utils.capitalize(layerName));
+                                if (directImg) {
+                                    directImg.src = layerPath;
+                                    layersToImg.push({ name: layerName, img: directImg });
+                                }
+                            } else {
+                                layersToXHR.push({ name: layerName, path: layerPath });
+                            }
+                        }
                     } else if (layerName === 'river') {
                         if (isWorld || isGuest) {
                             if (layerImg && layerPath) {
@@ -9293,10 +9306,20 @@
                     const layerImg = document.getElementById(layerId);
                     if (layerImg && layerImg.classList.contains('loaded') && layerImg.style.display !== 'none') {
                         if (layerImg.naturalWidth > 0 && layerImg.naturalHeight > 0) {
+                            // 从 class 或 computed style 中读取混合模式
+                            let blendMode = 'normal';
+                            if (layerImg.classList.contains('mode-multiply')) {
+                                blendMode = 'multiply';
+                            } else if (layerImg.classList.contains('mode-normal')) {
+                                blendMode = 'normal';
+                            } else {
+                                const computed = window.getComputedStyle(layerImg);
+                                blendMode = computed.mixBlendMode || 'normal';
+                            }
                             visibleLayers.push({
                                 img: layerImg,
                                 opacity: parseFloat(layerImg.style.opacity) || 1,
-                                blendMode: layerImg.style.mixBlendMode || 'normal',
+                                blendMode: blendMode,
                                 layerName: layerId
                             });
                         }
