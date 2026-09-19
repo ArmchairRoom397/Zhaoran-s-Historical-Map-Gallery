@@ -1402,6 +1402,11 @@
         .map-controls-left {
             display: none !important;
         }
+
+        /* 竖屏时按标签隐藏地图控件（关键：用 !important 覆盖 .portrait-controls 的 display:flex !important） */
+        .portrait-controls.hidden-by-tab {
+            display: none !important;
+        }
         /* 7. 右侧 — 信息面板 */
         .info-panel {
             background: var(--bg-panel);
@@ -2169,18 +2174,21 @@
             -webkit-backdrop-filter: blur(calc(10px * var(--blur-enabled)));
         }
 
+        /* ===== 设置面板：与帮助面板完全一致的定位与外观 ===== */
         .settings-panel {
             position: fixed;
             top: 0;
-            right: -400px;
-            width: 400px;
+            right: -500px;
+            width: 500px;
+            max-width: 100%;
             height: 100%;
             background: var(--bg-panel);
             border-left: 2px solid var(--gold);
             z-index: 1002;
             transition: right 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
-            padding: 20px;
+            padding: 0;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
             -webkit-backdrop-filter: blur(calc(var(--blur-amount) * var(--blur-enabled)));
         }
@@ -6475,7 +6483,6 @@
             border-color: rgba(107, 52, 16, 0.2);
         }
 
-        /* 移动端适配 */
         @media (max-width: 480px) {
             .v15-modal { max-width: 94vw; border-radius: 16px; }
             .v15-modal-body { padding: 32px 20px 22px; gap: 12px; }
@@ -6485,7 +6492,6 @@
             .v15-desc { font-size: 0.8rem; }
         }
 
-        /* 减少动画适配 */
         @media (prefers-reduced-motion: reduce) {
             .v15-modal,
             .v15-badge,
@@ -6494,6 +6500,25 @@
                 animation: none !important;
                 transition: none !important;
             }
+        }
+
+        /* ===== 设置面板与帮助中心统一 ===== */
+        .settings-panel .help-content {
+            gap: 0;   /* 覆盖帮助中心的 25px gap，避免双倍间距 */
+        }
+        .settings-panel .settings-section {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+        }
+        body.rice-paper-theme .settings-panel .settings-section {
+            background: rgba(107, 52, 16, 0.04) !important;
+            border-color: rgba(107, 52, 16, 0.10) !important;
+        }
+        .settings-panel .settings-section:last-child {
+            margin-bottom: 0;
         }
     </style>
     <script src="maps-data.js"></script>
@@ -6532,114 +6557,129 @@
         </div>
     </div>
 
-    <!-- 帮助 & 设置按钮（添加 aria-label 辅助功能） -->
+    <!-- 帮助 & 设置按钮 -->
     <button class="help-btn" onclick="App.help.toggle()" data-i18n-aria="aria.help" aria-label="打开帮助中心">❓</button>
     <button class="settings-btn" onclick="App.settings.toggle()" data-i18n-aria="aria.settings" aria-label="打开设置面板">⚙️</button>
+
     <!-- 设置面板 -->
     <div class="settings-panel" id="settingsPanel">
-        <div class="settings-header">
-            <span class="settings-title" data-i18n="settings.title">展馆设置</span>
-            <button class="close-settings" onclick="App.settings.toggle()" data-i18n-aria="aria.closeSettings" aria-label="关闭设置">✕</button>
+        <div class="help-header">
+            <span class="help-title" data-i18n="settings.title">展馆设置</span>
+            <button class="close-help" onclick="App.settings.toggle()" data-i18n-aria="aria.closeSettings" aria-label="关闭设置">✕</button>
         </div>
+        <div class="help-content">
+            <div class="settings-section">
+                <label class="settings-label" data-i18n="settings.theme">主题风格</label>
+                <div class="theme-options">
+                    <div class="theme-option active" onclick="App.theme.set('dark')" id="theme-dark" role="button" tabindex="0" data-i18n-aria="aria.themeDark" aria-label="切换到玄墨主题">
+                        <div class="theme-preview dark"></div>
+                        <div data-i18n="settings.theme.dark">玄墨</div>
+                    </div>
+                    <div class="theme-option" onclick="App.theme.set('rice')" id="theme-rice" role="button" tabindex="0" data-i18n-aria="aria.themeRice" aria-label="切换到宣纸主题">
+                        <div class="theme-preview rice"></div>
+                        <div data-i18n="settings.theme.rice">宣纸</div>
+                    </div>
+                    <div class="theme-option" onclick="App.theme.set('custom')" id="theme-custom" role="button" tabindex="0" data-i18n-aria="aria.themeCustom" aria-label="切换到自定义主题">
+                        <div class="theme-preview custom" id="customThemePreview"></div>
+                        <div data-i18n="settings.theme.custom">自定义</div>
+                    </div>
+                    <div class="theme-option" onclick="App.theme.set('auto')" id="theme-auto" role="button" tabindex="0" data-i18n-aria="aria.themeAuto" aria-label="切换到自动主题">
+                        <div class="theme-preview auto" id="autoThemePreview"></div>
+                        <div data-i18n="settings.theme.auto">自动</div>
+                    </div>
+                </div>
+                <div class="theme-hint" id="autoThemeHint" style="display:none;" data-i18n="settings.theme.autoHint">
+                    🌗 白天使用宣纸，晚上（19:00 - 07:00）自动切换为玄墨
+                </div>
+            </div>
 
-        <div class="settings-section">
-            <label class="settings-label" data-i18n="settings.theme">主题风格</label>
-            <div class="theme-options">
-                <div class="theme-option active" onclick="App.theme.set('dark')" id="theme-dark" role="button" tabindex="0" data-i18n-aria="aria.themeDark" aria-label="切换到玄墨主题">
-                    <div class="theme-preview dark"></div>
-                    <div data-i18n="settings.theme.dark">玄墨</div>
+            <div class="settings-section" id="customThemeEditor" style="display:none;">
+                <label class="settings-label" data-i18n="settings.customColors">🎨 自定义颜色</label>
+                <div class="custom-theme-grid">
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.bg">背景</span>
+                        <input type="color" id="color-bg-dark" data-var="--bg-dark" oninput="App.theme.updateCustomColor(this)">
+                    </div>
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.panel">面板</span>
+                        <input type="color" id="color-bg-panel" data-var="--bg-panel" oninput="App.theme.updateCustomColor(this)">
+                    </div>
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.hover">悬停</span>
+                        <input type="color" id="color-bg-hover" data-var="--bg-hover" oninput="App.theme.updateCustomColor(this)">
+                    </div>
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.accent">强调色</span>
+                        <input type="color" id="color-accent" data-var="--accent" oninput="App.theme.updateCustomColor(this)">
+                    </div>
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.accentLight">强调浅色</span>
+                        <input type="color" id="color-accent-light" data-var="--accent-light" oninput="App.theme.updateCustomColor(this)">
+                    </div>
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.gold">金色</span>
+                        <input type="color" id="color-gold" data-var="--gold" oninput="App.theme.updateCustomColor(this)">
+                    </div>
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.goldLight">金色浅</span>
+                        <input type="color" id="color-gold-light" data-var="--gold-light" oninput="App.theme.updateCustomColor(this)">
+                    </div>
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.text">主文字</span>
+                        <input type="color" id="color-text" data-var="--text" oninput="App.theme.updateCustomColor(this)">
+                    </div>
+                    <div class="custom-color-row">
+                        <span class="custom-color-label" data-i18n="settings.color.textMuted">次要文字</span>
+                        <input type="color" id="color-text-muted" data-var="--text-muted" oninput="App.theme.updateCustomColor(this)">
+                    </div>
                 </div>
-                <div class="theme-option" onclick="App.theme.set('rice')" id="theme-rice" role="button" tabindex="0" data-i18n-aria="aria.themeRice" aria-label="切换到宣纸主题">
-                    <div class="theme-preview rice"></div>
-                    <div data-i18n="settings.theme.rice">宣纸</div>
-                </div>
-                <div class="theme-option" onclick="App.theme.set('custom')" id="theme-custom" role="button" tabindex="0" data-i18n-aria="aria.themeCustom" aria-label="切换到自定义主题">
-                    <div class="theme-preview custom" id="customThemePreview"></div>
-                    <div data-i18n="settings.theme.custom">自定义</div>
-                </div>
-                <div class="theme-option" onclick="App.theme.set('auto')" id="theme-auto" role="button" tabindex="0" data-i18n-aria="aria.themeAuto" aria-label="切换到自动主题">
-                    <div class="theme-preview auto" id="autoThemePreview"></div>
-                    <div data-i18n="settings.theme.auto">自动</div>
+                <div class="custom-theme-actions">
+                    <button class="custom-theme-btn" onclick="App.theme.copyFromCurrent()" data-i18n="settings.copyFromCurrent">📋 从当前主题复制</button>
+                    <button class="custom-theme-btn" onclick="App.theme.resetCustom()" data-i18n="settings.resetCustom">↺ 恢复默认</button>
                 </div>
             </div>
-            <div class="theme-hint" id="autoThemeHint" style="display:none;" data-i18n="settings.theme.autoHint">
-                🌗 白天使用宣纸，晚上（19:00 - 07:00）自动切换为玄墨
-            </div>
-        </div>
 
-        <div class="settings-section" id="customThemeEditor" style="display:none;">
-            <label class="settings-label" data-i18n="settings.customColors">🎨 自定义颜色</label>
-            <div class="custom-theme-grid">
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.bg">背景</span>
-                    <input type="color" id="color-bg-dark" data-var="--bg-dark" oninput="App.theme.updateCustomColor(this)">
-                </div>
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.panel">面板</span>
-                    <input type="color" id="color-bg-panel" data-var="--bg-panel" oninput="App.theme.updateCustomColor(this)">
-                </div>
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.hover">悬停</span>
-                    <input type="color" id="color-bg-hover" data-var="--bg-hover" oninput="App.theme.updateCustomColor(this)">
-                </div>
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.accent">强调色</span>
-                    <input type="color" id="color-accent" data-var="--accent" oninput="App.theme.updateCustomColor(this)">
-                </div>
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.accentLight">强调浅色</span>
-                    <input type="color" id="color-accent-light" data-var="--accent-light" oninput="App.theme.updateCustomColor(this)">
-                </div>
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.gold">金色</span>
-                    <input type="color" id="color-gold" data-var="--gold" oninput="App.theme.updateCustomColor(this)">
-                </div>
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.goldLight">金色浅</span>
-                    <input type="color" id="color-gold-light" data-var="--gold-light" oninput="App.theme.updateCustomColor(this)">
-                </div>
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.text">主文字</span>
-                    <input type="color" id="color-text" data-var="--text" oninput="App.theme.updateCustomColor(this)">
-                </div>
-                <div class="custom-color-row">
-                    <span class="custom-color-label" data-i18n="settings.color.textMuted">次要文字</span>
-                    <input type="color" id="color-text-muted" data-var="--text-muted" oninput="App.theme.updateCustomColor(this)">
-                </div>
+            <div class="settings-section">
+                <label class="settings-label" data-i18n="settings.leftWidth">左侧栏宽度</label>
+                <input type="range" class="width-slider" id="leftWidthSlider" min="200" max="400" value="300" oninput="App.settings.updateWidth('left', this.value)" data-i18n-aria="aria.leftWidth" aria-label="调整左侧栏宽度">
+                <div class="width-value" id="leftWidthValue">300px</div>
             </div>
-            <div class="custom-theme-actions">
-                <button class="custom-theme-btn" onclick="App.theme.copyFromCurrent()" data-i18n="settings.copyFromCurrent">📋 从当前主题复制</button>
-                <button class="custom-theme-btn" onclick="App.theme.resetCustom()" data-i18n="settings.resetCustom">↺ 恢复默认</button>
-            </div>
-        </div>
 
-        <div class="settings-section">
-            <label class="settings-label" data-i18n="settings.leftWidth">左侧栏宽度</label>
-            <input type="range" class="width-slider" id="leftWidthSlider" min="200" max="400" value="300" oninput="App.settings.updateWidth('left', this.value)" data-i18n-aria="aria.leftWidth" aria-label="调整左侧栏宽度">
-            <div class="width-value" id="leftWidthValue">300px</div>
-        </div>
-        <div class="settings-section">
-            <label class="settings-label" data-i18n="settings.rightWidth">右侧栏宽度</label>
-            <input type="range" class="width-slider" id="rightWidthSlider" min="280" max="450" value="380" oninput="App.settings.updateWidth('right', this.value)" data-i18n-aria="aria.rightWidth" aria-label="调整右侧栏宽度">
-            <div class="width-value" id="rightWidthValue">380px</div>
-        </div>
+            <div class="settings-section">
+                <label class="settings-label" data-i18n="settings.rightWidth">右侧栏宽度</label>
+                <input type="range" class="width-slider" id="rightWidthSlider" min="280" max="450" value="380" oninput="App.settings.updateWidth('right', this.value)" data-i18n-aria="aria.rightWidth" aria-label="调整右侧栏宽度">
+                <div class="width-value" id="rightWidthValue">380px</div>
+            </div>
 
-        <div class="settings-section">
-            <label class="settings-label" data-i18n="settings.quality">画质设置</label>
-            <div class="quality-options">
-                <div class="quality-option active" onclick="App.quality.set('original')" id="quality-original" role="button" tabindex="0" data-i18n-aria="aria.qualityOriginal" aria-label="原画画质">
-                    <div class="quality-icon">🎨</div>
-                    <div class="quality-name" data-i18n="settings.quality.original">原画</div>
+            <div class="settings-section">
+                <label class="settings-label" data-i18n="settings.quality">画质设置</label>
+                <div class="quality-options">
+                    <div class="quality-option active" onclick="App.quality.set('original')" id="quality-original" role="button" tabindex="0" data-i18n-aria="aria.qualityOriginal" aria-label="原画画质">
+                        <div class="quality-icon">🎨</div>
+                        <div class="quality-name" data-i18n="settings.quality.original">原画</div>
+                    </div>
+                    <div class="quality-option" onclick="App.quality.set('high')" id="quality-high" role="button" tabindex="0" data-i18n-aria="aria.qualityHigh" aria-label="高画质">
+                        <div class="quality-icon">✨</div>
+                        <div class="quality-name" data-i18n="settings.quality.high">高画质</div>
+                    </div>
+                    <div class="quality-option" onclick="App.quality.set('low')" id="quality-low" role="button" tabindex="0" data-i18n-aria="aria.qualityLow" aria-label="低画质">
+                        <div class="quality-icon">⚡</div>
+                        <div class="quality-name" data-i18n="settings.quality.low">低画质</div>
+                    </div>
                 </div>
-                <div class="quality-option" onclick="App.quality.set('high')" id="quality-high" role="button" tabindex="0" data-i18n-aria="aria.qualityHigh" aria-label="高画质">
-                    <div class="quality-icon">✨</div>
-                    <div class="quality-name" data-i18n="settings.quality.high">高画质</div>
-                </div>
-                <div class="quality-option" onclick="App.quality.set('low')" id="quality-low" role="button" tabindex="0" data-i18n-aria="aria.qualityLow" aria-label="低画质">
-                    <div class="quality-icon">⚡</div>
-                    <div class="quality-name" data-i18n="settings.quality.low">低画质</div>
+                <div class="quality-explanations">
+                    <div class="quality-explanation show" id="exp-original" data-i18n="settings.quality.expOriginal">
+                        <strong>原画</strong>：全图高精细度重绘，画质最佳但占用资源较多
+                    </div>
+                    <div class="quality-explanation" id="exp-high" data-i18n="settings.quality.expHigh">
+                        <strong>高画质</strong>：电脑版与iPad版小于300%简化渲染，300%以上高精度；手机版小于750%简化渲染，750%以上高精度
+                    </div>
+                    <div class="quality-explanation" id="exp-low" data-i18n="settings.quality.expLow">
+                        <strong>低画质</strong>：隐藏地形图层，全图简化渲染，可显著提升流畅度
+                    </div>
                 </div>
             </div>
+
             <div class="settings-section">
                 <label class="settings-label" data-i18n="settings.renderMode">渲染模式</label>
                 <div class="quality-options">
@@ -6668,125 +6708,117 @@
                     </div>
                 </div>
             </div>
-            <div class="quality-explanations">
-                <div class="quality-explanation show" id="exp-original" data-i18n="settings.quality.expOriginal">
-                    <strong>原画</strong>：全图高精细度重绘，画质最佳但占用资源较多
+
+            <!-- 语言选择器 -->
+            <div class="settings-section">
+                <label class="settings-label" data-i18n="lang.label">语言 / Language</label>
+                <select class="lang-selector" id="langSelector" onchange="I18n.set(this.value)" aria-label="选择语言">
+                    <option value="zh-CN" data-i18n="lang.zhCN">简体中文（中国大陆）</option>
+                    <option value="zh-TW" data-i18n="lang.zhTW">繁體中文（中國台灣省）</option>
+                    <option value="zh-HK" data-i18n="lang.zhHK">繁體中文（中國香港特别行政区）</option>
+                    <option value="en" data-i18n="lang.en">English</option>
+                </select>
+            </div>
+
+            <div class="settings-section">
+                <label class="settings-label" data-i18n="settings.devMode">开发者模式</label>
+                <div class="toggle-switch" onclick="App.devMode.toggle()" id="devModeToggle" role="button" tabindex="0" data-i18n-aria="aria.devMode" aria-label="切换开发者模式">
+                    <div class="toggle-track" id="devModeTrack"><div class="toggle-thumb"></div></div>
+                    <span class="toggle-label" id="devModeLabel">已关闭</span>
                 </div>
-                <div class="quality-explanation" id="exp-high" data-i18n="settings.quality.expHigh">
-                    <strong>高画质</strong>：电脑版与iPad版小于300%简化渲染，300%以上高精度；手机版小于750%简化渲染，750%以上高精度
-                </div>
-                <div class="quality-explanation" id="exp-low" data-i18n="settings.quality.expLow">
-                    <strong>低画质</strong>：隐藏地形图层，全图简化渲染，可显著提升流畅度
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;" data-i18n="settings.devMode.desc">
+                    开启后可管理评论（删除、置顶），需密码验证
                 </div>
             </div>
-        </div>
 
-        <!-- 语言选择器 -->
-        <div class="settings-section">
-            <label class="settings-label" data-i18n="lang.label">语言 / Language</label>
-            <select class="lang-selector" id="langSelector" onchange="I18n.set(this.value)" aria-label="选择语言">
-                <option value="zh-CN" data-i18n="lang.zhCN">简体中文（中国大陆）</option>
-                <option value="zh-TW" data-i18n="lang.zhTW">繁體中文（中國台灣省）</option>
-                <option value="zh-HK" data-i18n="lang.zhHK">繁體中文（中國香港特别行政区）</option>
-                <option value="en" data-i18n="lang.en">English</option>
-            </select>
-        </div>
+            <div class="settings-section">
+                <label class="settings-label" data-i18n="settings.blur">高斯模糊</label>
+                <div class="toggle-switch" onclick="App.blur.toggle()" id="blurToggle" role="button" tabindex="0" data-i18n-aria="aria.blur" aria-label="切换高斯模糊">
+                    <div class="toggle-track" id="blurTrack"><div class="toggle-thumb"></div></div>
+                    <span class="toggle-label" id="blurLabel">已开启</span>
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;" data-i18n="settings.blur.desc">
+                    开启后背景界面将呈现毛玻璃效果，关闭可提升性能
+                </div>
+            </div>
 
-        <div class="settings-section">
-            <label class="settings-label" data-i18n="settings.devMode">开发者模式</label>
-            <div class="toggle-switch" onclick="App.devMode.toggle()" id="devModeToggle" role="button" tabindex="0" data-i18n-aria="aria.devMode" aria-label="切换开发者模式">
-                <div class="toggle-track" id="devModeTrack"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label" id="devModeLabel">已关闭</span>
+            <div class="settings-section">
+                <label class="settings-label" data-i18n="settings.a11y">♿ 无障碍</label>
+                <div class="toggle-switch" onclick="App.a11y.toggleHighContrast()" id="hcToggle" role="button" tabindex="0" data-i18n-aria="aria.a11yHc" aria-label="切换高对比度">
+                    <div class="toggle-track" id="hcTrack"><div class="toggle-thumb"></div></div>
+                    <span class="toggle-label" id="hcLabel">已关闭</span>
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin:4px 0 12px;line-height:1.5;" data-i18n="settings.a11y.hcDesc">
+                    增强文字与背景对比度，适合弱视用户
+                </div>
+                <div class="toggle-switch" onclick="App.a11y.toggleColorblind()" id="cbToggle" role="button" tabindex="0" data-i18n-aria="aria.a11yCb" aria-label="切换色盲友好模式">
+                    <div class="toggle-track" id="cbTrack"><div class="toggle-thumb"></div></div>
+                    <span class="toggle-label" id="cbLabel">已关闭</span>
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin:4px 0 12px;line-height:1.5;" data-i18n="settings.a11y.cbDesc">
+                    用蓝黄替代红绿，适合色盲/色弱用户
+                </div>
+                <div class="toggle-switch" onclick="App.a11y.toggleReduceMotion()" id="rmToggle" role="button" tabindex="0" data-i18n-aria="aria.a11yRm" aria-label="切换减少动画">
+                    <div class="toggle-track" id="rmTrack"><div class="toggle-thumb"></div></div>
+                    <span class="toggle-label" id="rmLabel">已关闭</span>
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin:4px 0 0;line-height:1.5;" data-i18n="settings.a11y.rmDesc">
+                    关闭所有过渡与动画，适合对动效敏感的用户
+                </div>
             </div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;" data-i18n="settings.devMode.desc">
-                开启后可管理评论（删除、置顶），需密码验证
-            </div>
-        </div>
 
-        <div class="settings-section">
-            <label class="settings-label" data-i18n="settings.blur">高斯模糊</label>
-            <div class="toggle-switch" onclick="App.blur.toggle()" id="blurToggle" role="button" tabindex="0" data-i18n-aria="aria.blur" aria-label="切换高斯模糊">
-                <div class="toggle-track" id="blurTrack"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label" id="blurLabel">已开启</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;" data-i18n="settings.blur.desc">
-                开启后背景界面将呈现毛玻璃效果，关闭可提升性能
-            </div>
-        </div>
-
-        <div class="settings-section">
-            <label class="settings-label" data-i18n="settings.a11y">♿ 无障碍</label>
-            <div class="toggle-switch" onclick="App.a11y.toggleHighContrast()" id="hcToggle" role="button" tabindex="0" data-i18n-aria="aria.a11yHc" aria-label="切换高对比度">
-                <div class="toggle-track" id="hcTrack"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label" id="hcLabel">已关闭</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin:4px 0 12px;line-height:1.5;" data-i18n="settings.a11y.hcDesc">
-                增强文字与背景对比度，适合弱视用户
-            </div>
-            <div class="toggle-switch" onclick="App.a11y.toggleColorblind()" id="cbToggle" role="button" tabindex="0" data-i18n-aria="aria.a11yCb" aria-label="切换色盲友好模式">
-                <div class="toggle-track" id="cbTrack"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label" id="cbLabel">已关闭</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin:4px 0 12px;line-height:1.5;" data-i18n="settings.a11y.cbDesc">
-                用蓝黄替代红绿，适合色盲/色弱用户
-            </div>
-            <div class="toggle-switch" onclick="App.a11y.toggleReduceMotion()" id="rmToggle" role="button" tabindex="0" data-i18n-aria="aria.a11yRm" aria-label="切换减少动画">
-                <div class="toggle-track" id="rmTrack"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label" id="rmLabel">已关闭</span>
-            </div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin:4px 0 0;line-height:1.5;" data-i18n="settings.a11y.rmDesc">
-                关闭所有过渡与动画，适合对动效敏感的用户
-            </div>
-        </div>
-
-        <div class="settings-section" id="devToolsSection" style="display:none;">
-            <label class="settings-label" data-i18n="settings.devTools">🛠️ 开发者工具</label>
-            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
-                <button class="nav-btn" onclick="App.devMode.exportData()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.export" data-i18n-aria="aria.exportData" aria-label="导出数据为JSON">
-                    📤 导出数据 (JSON)
-                </button>
-                <button class="nav-btn" onclick="App.devMode.showSystemInfo()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.sysInfo" data-i18n-aria="aria.sysInfo" aria-label="显示系统信息">
-                    📊 系统信息
-                </button>
-                <button class="nav-btn" onclick="App.devMode.refreshCache()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.refreshCache" data-i18n-aria="aria.refreshCache" aria-label="刷新缓存">
-                    🔄 刷新缓存
-                </button>
-                <button class="nav-btn" onclick="App.devMode.clearStats()" style="width:100%;font-size:0.8rem;padding:10px;color:#e74c3c;border-color:#e74c3c;" data-i18n="settings.devTools.clearStats" data-i18n-aria="aria.clearStats" aria-label="重置统计数据">
-                    📊 重置统计数据
-                </button>
-                <button class="nav-btn" onclick="App.devMode.clearAllDiscussions()" style="width:100%;font-size:0.8rem;padding:10px;color:#c0392b;border-color:#c0392b;" data-i18n="settings.devTools.clearDiscussions" data-i18n-aria="aria.clearDiscussions" aria-label="删除全部评论">
-                    🗑️ 删除全部评论
-                </button>
-                <button class="nav-btn" onclick="App.devMode.clearLogs()" style="width:100%;font-size:0.8rem;padding:10px;color:#7f8c8d;border-color:#7f8c8d;" data-i18n="settings.devTools.clearLogs" data-i18n-aria="aria.clearLogs" aria-label="清除操作日志">
-                    📋 清除操作日志
-                </button>
-                <button class="nav-btn" onclick="App.devMode.showReports()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.showReports" data-i18n-aria="aria.showReports" aria-label="查看举报">
-                    🚩 查看举报
-                </button>
-                <button class="nav-btn" onclick="App.errorLogger.show()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.errorLogs" data-i18n-aria="aria.errorLogs" aria-label="查看错误日志">
-                    🐛 查看错误日志
-                </button>
-                <button class="nav-btn" onclick="App.errorLogger.export()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.exportErrors" data-i18n-aria="aria.exportErrors" aria-label="导出错误日志">
-                    📥 导出错误日志
-                </button>
-                <button class="nav-btn" onclick="App.devPanel.toggle()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.devPanel" data-i18n-aria="aria.devPanel" aria-label="开发日志面板">
-                    📊 开发日志面板（悬浮）
-                </button>
-                <button class="nav-btn" onclick="App.perfMonitor.show()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.perfMonitor" data-i18n-aria="aria.perfMonitor" aria-label="性能监控报告">
-                    ⚡ 性能监控报告
-                </button>
-                <button class="nav-btn" onclick="App.shortcutDebug.show()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.shortcutDebug" data-i18n-aria="aria.shortcutDebug" aria-label="快捷键调试">
-                    ⌨️ 快捷键调试
-                </button>
-            </div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;" data-i18n="settings.devTools.warning">
-                警告：部分操作不可恢复，请谨慎使用
+            <div class="settings-section" id="devToolsSection" style="display:none;">
+                <label class="settings-label" data-i18n="settings.devTools">🛠️ 开发者工具</label>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+                    <button class="nav-btn" onclick="App.devMode.exportData()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.export" data-i18n-aria="aria.exportData" aria-label="导出数据为JSON">
+                        📤 导出数据 (JSON)
+                    </button>
+                    <button class="nav-btn" onclick="App.devMode.showSystemInfo()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.sysInfo" data-i18n-aria="aria.sysInfo" aria-label="显示系统信息">
+                        📊 系统信息
+                    </button>
+                    <button class="nav-btn" onclick="App.devMode.refreshCache()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.refreshCache" data-i18n-aria="aria.refreshCache" aria-label="刷新缓存">
+                        🔄 刷新缓存
+                    </button>
+                    <button class="nav-btn" onclick="App.devMode.clearStats()" style="width:100%;font-size:0.8rem;padding:10px;color:#e74c3c;border-color:#e74c3c;" data-i18n="settings.devTools.clearStats" data-i18n-aria="aria.clearStats" aria-label="重置统计数据">
+                        📊 重置统计数据
+                    </button>
+                    <button class="nav-btn" onclick="App.devMode.clearAllDiscussions()" style="width:100%;font-size:0.8rem;padding:10px;color:#c0392b;border-color:#c0392b;" data-i18n="settings.devTools.clearDiscussions" data-i18n-aria="aria.clearDiscussions" aria-label="删除全部评论">
+                        🗑️ 删除全部评论
+                    </button>
+                    <button class="nav-btn" onclick="App.devMode.clearLogs()" style="width:100%;font-size:0.8rem;padding:10px;color:#7f8c8d;border-color:#7f8c8d;" data-i18n="settings.devTools.clearLogs" data-i18n-aria="aria.clearLogs" aria-label="清除操作日志">
+                        📋 清除操作日志
+                    </button>
+                    <button class="nav-btn" onclick="App.devMode.showReports()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.showReports" data-i18n-aria="aria.showReports" aria-label="查看举报">
+                        🚩 查看举报
+                    </button>
+                    <button class="nav-btn" onclick="App.errorLogger.show()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.errorLogs" data-i18n-aria="aria.errorLogs" aria-label="查看错误日志">
+                        🐛 查看错误日志
+                    </button>
+                    <button class="nav-btn" onclick="App.errorLogger.export()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.exportErrors" data-i18n-aria="aria.exportErrors" aria-label="导出错误日志">
+                        📥 导出错误日志
+                    </button>
+                    <button class="nav-btn" onclick="App.devPanel.toggle()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.devPanel" data-i18n-aria="aria.devPanel" aria-label="开发日志面板">
+                        📊 开发日志面板
+                    </button>
+                    <button class="nav-btn" onclick="App.perfMonitor.show()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.perfMonitor" data-i18n-aria="aria.perfMonitor" aria-label="性能监控报告">
+                        ⚡ 性能监控报告
+                    </button>
+                    <button class="nav-btn" onclick="App.shortcutDebug.show()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.shortcutDebug" data-i18n-aria="aria.shortcutDebug" aria-label="快捷键调试">
+                        ⌨️ 快捷键调试
+                    </button>
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;" data-i18n="settings.devTools.warning">
+                    警告：部分操作不可恢复，请谨慎使用
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- 设置面板遮罩 -->
+    <div class="settings-overlay" id="settingsOverlay" onclick="App.settings.close(event)"></div>
     <!-- 帮助面板 -->
     <div class="help-overlay" id="helpOverlay" onclick="App.help.toggle()"></div>
-<div class="help-panel" id="helpPanel">
+    <div class="help-panel" id="helpPanel">
     <div class="help-header">
         <span class="help-title" data-i18n="help.title">📖 帮助中心</span>
         <button class="close-help" onclick="App.help.toggle()" data-i18n-aria="aria.closeHelp" aria-label="关闭帮助中心">✕</button>
@@ -6880,7 +6912,7 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
 
     <!-- 防盗图提示 -->
     <div class="protect-toast" id="protectToast">
@@ -7116,7 +7148,51 @@
         <div class="layer-item"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckTerrain" checked onchange="App.layer.toggle('terrain')" data-i18n-aria="aria.layerTerrain" aria-label="切换地形图层"><span class="layer-name" id="layerLabelTerrain" data-i18n="layer.terrain">地形</span><span class="layer-badge" id="layerBadgeTerrain" data-i18n="layer.badge.multiply">相乘</span></div></div>
         <div class="layer-item" style="opacity:0.7;"><div class="layer-item-left"><input type="checkbox" class="layer-checkbox" id="layerCheckBg" checked disabled data-i18n-aria="aria.layerBg" aria-label="背景图层（不可关闭）"><span class="layer-name" id="layerLabelBg" data-i18n="layer.bg">背景</span><span class="layer-badge" id="layerBadgeBg" data-i18n="layer.badge.bottom">底层</span></div></div>
     </div>
-
+    <!-- 开发者浮动日志面板 -->
+    <div class="dev-float-panel" id="devFloatPanel">
+        <div class="dev-float-header">
+            <span class="dev-float-title">📊 开发日志</span>
+            <div class="dev-float-actions">
+                <button class="dev-float-btn" id="devPanelPinBtn" onclick="App.devPanel.togglePin()" title="固定">📌</button>
+                <button class="dev-float-btn" id="devPanelCollapseBtn" onclick="App.devPanel.toggleCollapse()" title="折叠">▼</button>
+                <button class="dev-float-btn" onclick="App.devPanel.close()" title="关闭">✕</button>
+            </div>
+        </div>
+        <div class="dev-float-body">
+            <div class="dev-metric-row">
+                <span class="dev-metric-label">当前地图</span>
+                <span class="dev-metric-value" id="devMetricIndex">—</span>
+            </div>
+            <div class="dev-metric-row">
+                <span class="dev-metric-label">缩放</span>
+                <span class="dev-metric-value" id="devMetricZoom">—</span>
+            </div>
+            <div class="dev-metric-row">
+                <span class="dev-metric-label">渲染模式</span>
+                <span class="dev-metric-value" id="devMetricRenderMode">—</span>
+            </div>
+            <div class="dev-metric-row">
+                <span class="dev-metric-label">加载耗时</span>
+                <span class="dev-metric-value" id="devMetricLoadTime">—</span>
+            </div>
+            <div class="dev-metric-row">
+                <span class="dev-metric-label">缓存命中</span>
+                <span class="dev-metric-value" id="devMetricCacheHit">—</span>
+            </div>
+            <div class="dev-metric-row">
+                <span class="dev-metric-label">已加载图层</span>
+                <span class="dev-metric-value" id="devMetricLayers">—</span>
+            </div>
+            <div class="dev-metric-row">
+                <span class="dev-metric-label">帧率</span>
+                <span class="dev-metric-value" id="devMetricFPS">—</span>
+            </div>
+            <div class="dev-metric-row">
+                <span class="dev-metric-label">内存</span>
+                <span class="dev-metric-value" id="devMetricMemory">—</span>
+            </div>
+        </div>
+    </div>
     <!-- 分享弹窗 -->
     <div class="share-modal-overlay" id="shareModalOverlay" onclick="App.share.close(event)">
         <div class="share-modal" onclick="event.stopPropagation()">
@@ -7597,7 +7673,7 @@
                     'settings.devTools.showReports': '🚩 查看举报',
                     'settings.devTools.errorLogs': '🐛 查看错误日志',
                     'settings.devTools.exportErrors': '📥 导出错误日志',
-                    'settings.devTools.devPanel': '📊 开发日志面板（悬浮）',
+                    'settings.devTools.devPanel': '📊 开发日志面板',
                     'settings.devTools.perfMonitor': '⚡ 性能监控报告',
                     'settings.devTools.shortcutDebug': '⌨️ 快捷键调试',
 
@@ -7960,7 +8036,7 @@
                     'settings.devTools.showReports': '🚩 檢舉紀錄',
                     'settings.devTools.errorLogs': '🐛 檢視錯誤日誌',
                     'settings.devTools.exportErrors': '📥 匯出錯誤日誌',
-                    'settings.devTools.devPanel': '📊 開發日誌面板（懸浮）',
+                    'settings.devTools.devPanel': '📊 開發日誌面板',
                     'settings.devTools.perfMonitor': '⚡ 效能監控報告',
                     'settings.devTools.shortcutDebug': '⌨️ 快速鍵偵錯',
                     'settings.devTools.warning': '警告：部分操作不可恢復，請謹慎使用',
@@ -9437,6 +9513,11 @@
 
             init: function() {
                 var self = this;
+                // ★ file:// 协议下跳过 IndexedDB（XHR 会被 CORS 拦截）
+                if (window.location.protocol === 'file:') {
+                    console.warn('⚠️ file:// 协议下缓存功能已禁用');
+                    return;
+                }
                 if (!window.indexedDB) {
                     console.warn('⚠️ 浏览器不支持 IndexedDB，缓存功能已禁用');
                     return;
@@ -9633,6 +9714,13 @@
                 if (this._loadingSet[task.path]) { this._processQueue(); return; }
                 this._loadingSet[task.path] = true;
                 this._activeCount++;
+
+                // ★ file:// 协议下跳过 XHR 预加载（会被 CORS 拦截）
+                if (window.location.protocol === 'file:') {
+                    self._activeCount--;
+                    self._processQueue();
+                    return;
+                }
 
                 // 先用 IndexedDB 查，没有则静默下载
                 LayerCache.get(task.path).then(function(blobUrl) {
@@ -10153,6 +10241,13 @@
                     layers.forEach(function(l) {
                         l.style.imageRendering = 'auto';
                         if (l.dataset.layer === 'terrain') {
+                            // ★ 清 src
+                            try {
+                                if (l.src && l.src.indexOf('blob:') === 0) {
+                                    try { URL.revokeObjectURL(l.src); } catch (e) {}
+                                }
+                            } catch (e) {}
+                            l.removeAttribute('src');
                             l.style.display = 'none';
                             l.classList.remove('loaded');
                             var chk = document.getElementById('layerCheckTerrain');
@@ -10446,8 +10541,21 @@
             },
             _imageCache: {},
             _isGuestWork: false,
+            _applyCrossZoneReset: function() {
+                if (this._pendingCrossZoneReset) {
+                    this._scale = 1;
+                    this._translateX = 0;
+                    this._translateY = 0;
+                    this._updateTransformImmediate();
+                    this._pendingCrossZoneReset = false;
+                }
+            },
             _loadTimeout: null,
             _loadingTimer: null,
+            _pendingCrossZoneReset: false,
+            _loadToken: 0,
+            _activeImgHandlers: [],
+            _activeXHRHandlers: [],
 
             // Map 模块顶部加
             _onLoadCompleteCallbacks: [],
@@ -10466,22 +10574,45 @@
             getScale: function() { return this._scale; },
             getData: function() { return this._index >= 0 ? Data.get(this._index) : null; },
 
+            // ★ 判断某个 era 是否属于"后 3 个板块"
+            _isLateZone: function(era) {
+                return era === '世界历史' ||
+                       era === '其他作者优秀作品' ||
+                       era === '高中历史教材地图';
+            },
+
             select: function(index) {
                 if (index < 0 || index >= Data.count()) {
                     App._showEmptyState();
                     return;
                 }
-                // 修复 #14: 取消之前的加载
+
+                var oldData = this._index >= 0 ? Data.get(this._index) : null;
+                var newData = Data.get(index);
+                var oldEra = oldData ? oldData.era : '';
+                var newEra = newData ? newData.era : '';
+                var oldIsLate = this._isLateZone(oldEra);
+                var newIsLate = this._isLateZone(newEra);
+                var crossZone = (this._index < 0) ||
+                                oldIsLate ||
+                                newIsLate;
+
                 this._abortAll();
+                this._pendingCrossZoneReset = false;
                 this._index = index;
-                var data = Data.get(index);
+                var data = newData;
                 this._isGuestWork = data.era === '其他作者优秀作品';
-                
-                // 重置缩放和位置
-                this._scale = 1;
-                this._translateX = 0;
-                this._translateY = 0;
-                
+
+                if (crossZone) {
+                    this._scale = 1;
+                    this._translateX = 0;
+                    this._translateY = 0;
+                    this._updateTransformImmediate();
+                }
+
+                // ★ 记录本次是否跨区，供加载完成后强制回正
+                this._pendingCrossZoneReset = crossZone;
+
                 // 重置高画质渲染状态（但先不立即渲染，等待加载完成）
                 if (Quality.current === 'high') {
                     Quality._lastRenderedZoom = -1;
@@ -10515,6 +10646,10 @@
                 this._updateQuotes(data);
                 this._updateNavButtons(index);
                 this._hideFallback();
+
+                // ★ 先更新图层 UI，再发起加载
+                App.layer.updateForGuestWork();
+
                 this._loadLayersWithProgress(data.path);
 
                 var self = this;
@@ -10523,7 +10658,6 @@
                 });
                 
                 App.discussion.load(index);
-                App.layer.updateForGuestWork();
 
                 var data = Data.get(index);
                 var hasCustomLayers = data && data.layers;
@@ -10559,8 +10693,8 @@
                         document.getElementById('timelinePanel').classList.remove('active');
                     }
                 }
-                if (window.innerWidth <= 768) App.layout.switchTab('map');
-
+                // 只有用户主动选择时才切换，程序初始化恢复时不动
+                if (window.innerWidth <= 768 && !Map._isRestoring) App.layout.switchTab('map');
                 localStorage.setItem('lastSelectedMapIndex', String(index));
             },
             
@@ -10740,7 +10874,7 @@
             },
 
             zoomIn: function() {
-                var newScale = Math.min(this._scale * 1.15, 10);
+                var newScale = Math.min(this._scale * 1.15, 20);
                 if (this._lastMouseX !== 0 && this._lastMouseY !== 0) {
                     var point = this._getPointOnImage(this._lastMouseX, this._lastMouseY);
                     this._zoomAtPoint(point.x, point.y, newScale);
@@ -10758,7 +10892,7 @@
             },
 
             _zoomAtPoint: function(px, py, newScale) {
-                newScale = Math.max(0.2, Math.min(10, newScale));
+                newScale = Math.max(0.2, Math.min(20, newScale));
                 var sx = px * this._scale + this._translateX;
                 var sy = py * this._scale + this._translateY;
                 this._scale = newScale;
@@ -10916,14 +11050,27 @@
                 }
                 this._layerXhrs = {};
                 this._layerLoadStates = {};
-                // 修复 #9: 重置 _currentLayerPaths
                 this._currentLayerPaths = {};
+
+                // ★ 清掉上一轮所有 img.onload/onerror，防止旧回调污染新图层
+                if (this._activeImgHandlers) {
+                    this._activeImgHandlers.forEach(function(h) {
+                        try { h.img.onload = null; h.img.onerror = null; } catch (e) {}
+                    });
+                    this._activeImgHandlers = [];
+                }
+                this._activeXHRHandlers = [];
+
+                // ★ 递增 token，让所有进行中的回调失效
+                this._loadToken = (this._loadToken || 0) + 1;
                 clearTimeout(this._loadTimeout);
                 clearTimeout(this._loadingTimer);
             },
 
             _loadLayersWithProgress: function(path) {
                 this._abortAll();
+                var loadToken = this._loadToken;
+                console.log('▶️ [_loadLayersWithProgress] 开始, token=', loadToken, 'path=', path);
                 document.getElementById('placeholder').style.display = 'none';
 
                 // 1. 渲染模式分流
@@ -10956,14 +11103,30 @@
                     var allLayerIds = ['layerName', 'layerRoad', 'layerWall', 'layerRiver', 'layerBorder', 'layerTerrain'];
                     allLayerIds.forEach(function(id) {
                         var el = document.getElementById(id);
-                        if (el) { el.style.display = 'none'; el.classList.remove('loaded'); }
+                        if (el) {
+                            // ★ 清 src 防止旧图残影
+                            try {
+                                if (el.src && el.src.indexOf('blob:') === 0) {
+                                    try { URL.revokeObjectURL(el.src); } catch (e) {}
+                                }
+                            } catch (e) {}
+                            el.removeAttribute('src');
+                            el.style.display = 'none';
+                            el.classList.remove('loaded');
+                        }
                     });
                     var bgEl = document.getElementById('layerBg');
                     if (bgEl) {
-                        bgEl.onload = function() { self2._hideFallback(); };
+                        bgEl.onload = function() {
+                            if (self2._loadToken !== loadToken) return;   // ★ token 校验
+                            self2._hideFallback();
+                            self2._applyCrossZoneReset();
+                        };
                         bgEl.onerror = function() {
+                            if (self2._loadToken !== loadToken) return;   // ★ token 校验
                             bgEl.classList.remove('loaded');
                             self2._showFallback('地图资源加载失败，请检查网络后重试。');
+                            self2._applyCrossZoneReset();
                         };
                         bgEl.src = path;
                         bgEl.style.display = 'block';
@@ -10995,39 +11158,55 @@
                 layerNames.forEach(function(layerName) {
                     var cfg = self._layerConfig[layerName];
                     var layerPath = paths[layerName];
+                    console.log('  📦 处理层:', layerName, 'path=', layerPath);
 
                     if (data2 && data2.layers) {
                         var hasLayer = data2.layers[layerName];
                         if (!hasLayer && layerName !== 'bg') {
+                            console.log('  ⏭️ 跳过', layerName, '（data.layers 中无此层）');
                             var skipImg = document.getElementById('layer' + Utils.capitalize(layerName));
-                            if (skipImg) { skipImg.style.display = 'none';
-                                skipImg.classList.remove('loaded'); }
+                            if (skipImg) {
+                                try {
+                                    if (skipImg.src && skipImg.src.indexOf('blob:') === 0) {
+                                        try { URL.revokeObjectURL(skipImg.src); } catch (e) {}
+                                    }
+                                } catch (e) {}
+                                skipImg.removeAttribute('src');
+                                skipImg.style.display = 'none';
+                                skipImg.classList.remove('loaded');
+                            }
                             return;
                         }
                     }
 
-                    if (layerName === 'terrain' && Quality.current === 'low') return;
+                    if (layerName === 'terrain' && Quality.current === 'low') {
+                        console.log('  ⏭️ 跳过 terrain（低画质）');
+                        return;
+                    }
 
                     var chk = document.getElementById('layerCheck' + Utils.capitalize(layerName));
-                    if (chk && !chk.checked && layerName !== 'bg') return;
+                    if (chk && !chk.checked && layerName !== 'bg') {
+                        console.log('  ⏭️ 跳过', layerName, '（复选框未勾选）');
+                        return;
+                    }
 
                     var layerImg = document.getElementById('layer' + Utils.capitalize(layerName));
                     var preloaded = self._imageCache[layerPath];
 
                     var isFileProtocol = window.location.protocol === 'file:';
 
+                    // ★ file:// 协议下所有层都走 img.src 直连，不走 XHR
+                    if (isFileProtocol) {
+                        if (layerImg && layerPath) {
+                            layerImg.src = layerPath;
+                            layersToImg.push({ name: layerName, img: layerImg });
+                        }
+                        return;
+                    }
+
                     if (layerName === 'bg' || layerName === 'name') {
                         if (layerPath) {
-                            if (isFileProtocol) {
-                                // file:// 协议下 XHR 被阻止，直接设置 img.src
-                                var directImg = document.getElementById('layer' + Utils.capitalize(layerName));
-                                if (directImg) {
-                                    directImg.src = layerPath;
-                                    layersToImg.push({ name: layerName, img: directImg });
-                                }
-                            } else {
-                                layersToXHR.push({ name: layerName, path: layerPath });
-                            }
+                            layersToXHR.push({ name: layerName, path: layerPath });
                         }
                     } else if (layerName === 'river') {
                         if (isWorld || isGuest) {
@@ -11069,8 +11248,12 @@
                     for (var n in self._layerLoadStates) { self._layerLoadStates[n] = { done: true, loaded: 1,
                             total: 1 }; }
                     self._updateLoadingDisplay();
-                    setTimeout(function() { self._hideLoading();
-                        self._forceRepaint(); }, 150);
+                    setTimeout(function() {
+                        if (self._loadToken !== loadToken) return;   // ★ token 校验
+                        self._hideLoading();
+                        self._forceRepaint();
+                        self._applyCrossZoneReset();
+                    }, 150);
                     return;
                 }
 
@@ -11079,6 +11262,7 @@
                 Map._loadStartTime = Date.now();
 
                 self._loadTimeout = setTimeout(function() {
+                    if (self._loadToken !== loadToken) return;   // ★ token 校验
                     var anyPending = false;
                     for (var key in self._layerLoadStates) {
                         if (!self._layerLoadStates[key].done) { anyPending = true; break; }
@@ -11096,12 +11280,17 @@
                         if (loadedSuccess === 0) {
                             self._showFallback(I18n.t('map.layer.timeout'));
                         }
-                        setTimeout(function() { self._hideLoading();
-                            self._forceRepaint(); }, 300);
+                        setTimeout(function() {
+                            if (self._loadToken !== loadToken) return;   // ★ token 校验
+                            self._hideLoading();
+                            self._forceRepaint();
+                            self._applyCrossZoneReset();
+                        }, 300);
                     }
                 }, 30000);
 
                 var onDone = function(success) {
+                    if (self._loadToken !== loadToken) return;   // ★ token 校验
                     completed++;
                     if (success === true) loadedSuccess++;
                     if (success === false) loadedFail++;
@@ -11115,8 +11304,10 @@
                             self._hideFallback();
                         }
                         setTimeout(function() {
+                            if (self._loadToken !== loadToken) return;   // ★ token 校验
                             self._hideLoading();
                             self._forceRepaint();
+                            self._applyCrossZoneReset();
                         }, 300);
                     }
                 };
@@ -11125,24 +11316,33 @@
                     var img = layer.img;
                     var name = layer.name;
                     if (!img) { onDone(false); return; }
+                    // ★ 关键：赋 src 前先重置 loaded class 和 display
+                    // 但不要 removeAttribute('src')，因为后面要检查 img.src.length
+                    img.classList.remove('loaded');
+                    img.style.display = 'none';
                     if (img.complete && img.naturalWidth > 0) {
+                        if (self._loadToken !== loadToken) return;   // ★ token 校验
                         img.classList.add('loaded');
                         img.style.display = 'block';
                         self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
                         onDone(true);
-                    } else if (img.src && img.src.length > 0) {
+                    } else if (img.src && img.src.length > 0 && img.src.indexOf(window.location.href) !== 0) {
                         var loadHandler = function() {
+                            if (self._loadToken !== loadToken) return;   // ★ token 校验
                             img.classList.add('loaded');
                             img.style.display = 'block';
                             self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
                             onDone(true);
                         };
                         var errorHandler = function() {
+                            if (self._loadToken !== loadToken) return;   // ★ token 校验
                             img.classList.remove('loaded');
                             img.style.display = 'none';
                             self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
                             onDone(false);
                         };
+                        // ★ 记录本轮的 handler，abortAll 时清掉，防止旧回调覆盖新图
+                        self._activeImgHandlers.push({ img: img, onload: loadHandler, onerror: errorHandler });
                         img.onload = loadHandler;
                         img.onerror = errorHandler;
                         if (img.complete) {
@@ -11165,6 +11365,7 @@
                     self._layerLoadStates[layer.name] = state;
 
                     xhr.onprogress = function(ev) {
+                        if (self._loadToken !== loadToken) return;   // ★ token 校验
                         if (ev.lengthComputable) { state.loaded = ev.loaded;
                             state.total = ev.total; }
                         var now = Date.now();
@@ -11176,6 +11377,7 @@
                     };
 
                     xhr.onload = function() {
+                        if (self._loadToken !== loadToken) return;   // ★ token 校验（关键）
                         state.done = true;
                         state.loaded = state.total || 1;
                         var layerImg = document.getElementById('layer' + Utils.capitalize(layer.name));
@@ -11199,18 +11401,21 @@
                         onDone(xhr.status === 200);
                     };
                     xhr.ontimeout = function() {
+                        if (self._loadToken !== loadToken) return;   // ★ token 校验
                         state.done = true;
                         state.loaded = 1;
                         console.warn('图层加载超时:', layer.name);
                         onDone(false);
                     };
                     xhr.onerror = function() {
+                        if (self._loadToken !== loadToken) return;   // ★ token 校验
                         state.done = true;
                         state.loaded = 1;
                         console.warn('图层加载错误:', layer.name);
                         onDone(false);
                     };
                     xhr.onabort = function() {
+                        if (self._loadToken !== loadToken) return;   // ★ token 校验
                         state.done = true;
                         state.loaded = 1;
                         onDone(false);
@@ -11221,6 +11426,7 @@
 
             _fetchLayerWithXHR: function(layer, onDone, loadedSuccess, loadedFail) {
                 var self = this;
+                var loadToken = this._loadToken;   // ★ 记录本轮 token
                 var xhr = new XMLHttpRequest();
                 this._layerXhrs[layer.name] = xhr;
                 xhr.open('GET', layer.path, true);
@@ -11231,6 +11437,7 @@
                 this._layerLoadStates[layer.name] = state;
 
                 xhr.onprogress = function(ev) {
+                    if (self._loadToken !== loadToken) return;   // ★ token 校验
                     if (ev.lengthComputable) { state.loaded = ev.loaded; state.total = ev.total; }
                     var now = Date.now();
                     var dt = (now - state.lastTime) / 1000;
@@ -11243,6 +11450,7 @@
                 };
 
                 xhr.onload = function() {
+                    if (self._loadToken !== loadToken) return;   // ★ token 校验
                     state.done = true;
                     state.loaded = state.total || 1;
                     var layerImg = document.getElementById('layer' + Utils.capitalize(layer.name));
@@ -11266,17 +11474,34 @@
                     }
                     onDone(xhr.status === 200);
                 };
-                xhr.ontimeout = function() { state.done = true; state.loaded = 1; onDone(false); };
-                xhr.onerror = function() { state.done = true; state.loaded = 1; onDone(false); };
-                xhr.onabort = function() { state.done = true; state.loaded = 1; onDone(false); };
+                xhr.ontimeout = function() {
+                    if (self._loadToken !== loadToken) return;   // ★ token 校验
+                    state.done = true;
+                    state.loaded = 1;
+                    onDone(false);
+                };
+                xhr.onerror = function() {
+                    if (self._loadToken !== loadToken) return;   // ★ token 校验
+                    state.done = true;
+                    state.loaded = 1;
+                    onDone(false);
+                };
+                xhr.onabort = function() {
+                    if (self._loadToken !== loadToken) return;   // ★ token 校验
+                    state.done = true;
+                    state.loaded = 1;
+                    onDone(false);
+                };
                 xhr.send();
             },
 
             _loadSingleLayer: function(basePath) {
                 var self = this;
+                var loadToken = this._loadToken;
                 var data = Data.get(this._index);
                 var mergedPath = (data && data.mergedPath) || basePath;
 
+                // 隐藏所有非背景图层
                 var allLayerIds = ['layerName', 'layerRoad', 'layerWall', 'layerRiver', 'layerBorder', 'layerTerrain'];
                 allLayerIds.forEach(function(id) {
                     var el = document.getElementById(id);
@@ -11286,55 +11511,202 @@
                 var bgEl = document.getElementById('layerBg');
                 if (!bgEl) return;
 
+                // 清掉上一轮残留
+                bgEl.onload = null;
+                bgEl.onerror = null;
+                bgEl.classList.remove('loaded');
+                bgEl.style.display = 'none';
+                try {
+                    if (bgEl.src && bgEl.src.indexOf('blob:') === 0) {
+                        try { URL.revokeObjectURL(bgEl.src); } catch (e) {}
+                    }
+                } catch (e) {}
+                bgEl.removeAttribute('src');
+
+                // 显示加载遮罩
                 this._showLoading(mergedPath);
                 var startTime = Date.now();
+                var done = false;
+                var progressTimer = null;
 
-                var onLoad = function() {
-                    bgEl.classList.add('loaded');
-                    bgEl.style.display = 'block';
-                    self._hideFallback();
-                    self._hideLoading();
-                    self._forceRepaint();
-                    Map._lastLoadTime = Date.now() - startTime;
-                    if (Quality.current === 'high') {
-                        Quality._updateRenderingForZoom(Math.round(self._scale * 100));
-                    }
+                // 模拟进度：从 0% 缓慢涨到 90%，给用户反馈
+                var fakeProgress = 0;
+                var updateFakeProgress = function() {
+                    if (done) return;
+                    // 每次增加一点，越接近 90% 涨得越慢
+                    var remain = 90 - fakeProgress;
+                    fakeProgress += Math.max(0.5, remain * 0.08);
+                    if (fakeProgress > 90) fakeProgress = 90;
+                    var bar = document.getElementById('loadingProgressBar');
+                    var pct = document.getElementById('loadingPercent');
+                    if (bar) bar.style.width = fakeProgress.toFixed(0) + '%';
+                    if (pct) pct.textContent = fakeProgress.toFixed(0) + '%';
+                    var pathEl = document.getElementById('loadingPath');
+                    if (pathEl) pathEl.textContent = I18n.t('map.layer.loading');
+                    var speedEl = document.getElementById('loadingSpeed');
+                    if (speedEl) speedEl.textContent = I18n.t('map.layer.init');
                 };
+                progressTimer = setInterval(updateFakeProgress, 200);
+                updateFakeProgress();
 
-                var onError = function() {
-                    if (mergedPath !== basePath) {
-                        console.warn(I18n.t('map.layer.mergedFallback'), basePath);
-                        bgEl.onerror = function() {
-                            bgEl.classList.remove('loaded');
+                // 统一的完成处理
+                var finish = function(success, reason) {
+                    if (self._loadToken !== loadToken) return;
+                    if (done) return;
+                    done = true;
+                    clearInterval(progressTimer);
+
+                    if (success) {
+                        bgEl.classList.add('loaded');
+                        bgEl.style.display = 'block';
+                        self._hideFallback();
+                        // 强制 100%
+                        var bar = document.getElementById('loadingProgressBar');
+                        var pct = document.getElementById('loadingPercent');
+                        if (bar) bar.style.width = '100%';
+                        if (pct) pct.textContent = '100%';
+                        var pathEl = document.getElementById('loadingPath');
+                        if (pathEl) pathEl.textContent = I18n.t('map.layer.loadedCount') + ' 1/1';
+                        var speedEl = document.getElementById('loadingSpeed');
+                        if (speedEl) speedEl.textContent = I18n.t('map.layer.done');
+                        // 稍后关闭 loading
+                        setTimeout(function() {
+                            if (self._loadToken !== loadToken) return;
                             self._hideLoading();
-                            self._showFallback('地图资源加载失败，请检查网络后重试。');
-                        };
-                        bgEl.onload = onLoad;
-                        bgEl.src = basePath;
+                            self._forceRepaint();
+                            self._applyCrossZoneReset();
+                            Map._lastLoadTime = Date.now() - startTime;
+                            if (Quality.current === 'high') {
+                                Quality._updateRenderingForZoom(Math.round(self._scale * 100));
+                            }
+                        }, 200);
                     } else {
+                        // 失败：如果 mergedPath 与 basePath 不同，回退到 basePath 再试
+                        if (mergedPath !== basePath) {
+                            console.warn(I18n.t('map.layer.mergedFallback'), basePath);
+                            mergedPath = basePath;
+                            // 重置 fake progress，重新尝试
+                            fakeProgress = 0;
+                            done = false;
+                            progressTimer = setInterval(updateFakeProgress, 200);
+                            tryLoad(basePath, true);
+                            return;
+                        }
+                        // 最终失败
                         bgEl.classList.remove('loaded');
+                        bgEl.style.display = 'none';
                         self._hideLoading();
-                        self._showFallback('地图资源加载失败，请检查网络后重试。');
+                        self._showFallback(reason || '地图资源加载失败，请检查网络后重试。');
+                        self._applyCrossZoneReset();
                     }
                 };
 
-                bgEl.onload = onLoad;
-                bgEl.onerror = onError;
+                // 用 Image 预加载后再赋给 bgEl，避免 onload 时序问题
+                var tryLoad = function(src, isFallback) {
+                    if (self._loadToken !== loadToken) return;
+                    if (done && !isFallback) return;
 
-                if (typeof LayerCache !== 'undefined') {
+                    var probe = new Image();
+                    var settled = false;
+
+                    // 超时保护：20 秒
+                    var timeoutId = setTimeout(function() {
+                        if (settled) return;
+                        settled = true;
+                        probe.onload = probe.onerror = null;
+                        console.warn('⏱️ 单图层 probe 加载超时:', src);
+                        finish(false, I18n.t('map.layer.timeout'));
+                    }, 20000);
+
+                    probe.onload = function() {
+                        if (self._loadToken !== loadToken) return;
+                        if (settled) return;
+                        settled = true;
+                        clearTimeout(timeoutId);
+
+                        // probe 成功，把 src 赋给 bgEl
+                        bgEl.onload = function() {
+                            if (self._loadToken !== loadToken) return;
+                            finish(true);
+                        };
+                        bgEl.onerror = function() {
+                            if (self._loadToken !== loadToken) return;
+                            finish(false, '地图资源加载失败，请检查网络后重试。');
+                        };
+                        bgEl.src = src;
+
+                        // 如果 bgEl 立刻已加载（缓存命中），手动触发
+                        if (bgEl.complete && bgEl.naturalWidth > 0) {
+                            // 稍等一拍，避免竞态
+                            setTimeout(function() {
+                                if (self._loadToken !== loadToken) return;
+                                if (!done) finish(true);
+                            }, 30);
+                        }
+                    };
+
+                    probe.onerror = function() {
+                        if (self._loadToken !== loadToken) return;
+                        if (settled) return;
+                        settled = true;
+                        clearTimeout(timeoutId);
+                        console.warn('❌ 单图层 probe 加载失败:', src);
+                        finish(false, '地图资源加载失败，请检查网络后重试。');
+                    };
+
+                    probe.src = src;
+                };
+
+                // 优先查 IndexedDB 缓存
+                if (typeof LayerCache !== 'undefined' && LayerCache.get && window.location.protocol !== 'file:') {
                     LayerCache.get(mergedPath).then(function(blobUrl) {
+                        if (self._loadToken !== loadToken) {
+                            if (blobUrl) { try { URL.revokeObjectURL(blobUrl); } catch (e) {} }
+                            return;
+                        }
                         if (blobUrl) {
-                            bgEl.src = blobUrl;
                             Map._lastCacheHits = (Map._lastCacheHits || 0) + 1;
+                            // 缓存命中：不 revoke，交给 bgEl 长期持有
+                            self._currentBlobUrl = blobUrl;
+                            // 检查这个 blob 是否有效（能加载）
+                            var testImg = new Image();
+                            var testSettled = false;
+                            var testTimeout = setTimeout(function() {
+                                if (testSettled) return;
+                                testSettled = true;
+                                testImg.onload = testImg.onerror = null;
+                                console.warn('⚠️ 缓存 blob 加载超时，回退到原图');
+                                try { URL.revokeObjectURL(blobUrl); } catch (e) {}
+                                self._currentBlobUrl = null;
+                                tryLoad(mergedPath, true);
+                            }, 8000);
+                            testImg.onload = function() {
+                                if (testSettled) return;
+                                testSettled = true;
+                                clearTimeout(testTimeout);
+                                // blob 有效，直接用
+                                tryLoad(blobUrl, false);
+                            };
+                            testImg.onerror = function() {
+                                if (testSettled) return;
+                                testSettled = true;
+                                clearTimeout(testTimeout);
+                                console.warn('⚠️ 缓存 blob 失效，回退到原图');
+                                try { URL.revokeObjectURL(blobUrl); } catch (e) {}
+                                self._currentBlobUrl = null;
+                                tryLoad(mergedPath, true);
+                            };
+                            testImg.src = blobUrl;
                         } else {
-                            bgEl.src = mergedPath;
                             Map._lastCacheMisses = (Map._lastCacheMisses || 0) + 1;
+                            tryLoad(mergedPath, false);
                         }
                     }).catch(function() {
-                        bgEl.src = mergedPath;
+                        if (self._loadToken !== loadToken) return;
+                        tryLoad(mergedPath, false);
                     });
                 } else {
-                    bgEl.src = mergedPath;
+                    tryLoad(mergedPath, false);
                 }
 
                 // 更新图层面板：只显示背景项
@@ -11526,15 +11898,13 @@
                     if (now - self._lastZoomWheelTime < 16) return;
                     self._lastZoomWheelTime = now;
                     var delta = e.deltaY > 0 ? 0.9 : 1.1;
-                    var newScale = Math.max(0.2, Math.min(10, self._scale * delta));
+                    var newScale = Math.max(0.2, Math.min(20, self._scale * delta));
                     var rect = viewport.getBoundingClientRect();
                     var cx = e.clientX - rect.left - rect.width / 2;
                     var cy = e.clientY - rect.top - rect.height / 2;
                     var px = (cx - self._translateX) / self._scale;
                     var py = (cy - self._translateY) / self._scale;
                     self._zoomAtPoint(px, py, newScale);
-                    // 移除这行：if (Quality.current === 'high') { Quality.updateHighQualityRendering(); }
-                    // 重绘逻辑已由 _updateTransform 内部处理
                 }, { passive: false });
 
                 // 修复 #6: 触摸事件 - 改进状态管理
@@ -11605,7 +11975,7 @@
                         var dist = Math.hypot(dx2, dy2);
                         if (touchStartDist > 0) {
                             var scaleRatio = dist / touchStartDist;
-                            var newScale = Math.max(0.2, Math.min(10, touchStartScale * scaleRatio));
+                            var newScale = Math.max(0.2, Math.min(20, touchStartScale * scaleRatio));
                             var center = {
                                 x: (touchTouches[0].clientX + touchTouches[1].clientX) / 2,
                                 y: (touchTouches[0].clientY + touchTouches[1].clientY) / 2
@@ -12175,20 +12545,38 @@
                 var activeTab = document.getElementById('tab-' + tab);
                 if (activeTab) activeTab.classList.add('active');
 
+                var isMobile = window.innerWidth <= 768;
+                var isPortrait = window.innerHeight > window.innerWidth;
+
                 if (tab === 'timeline') {
                     tp.classList.add('active');
                     ip.classList.remove('active');
-                    if (pc) pc.style.display = 'none';
+                    // 时间轴标签下，地图控件全部隐藏
+                    if (pc) {
+                        pc.classList.add('hidden-by-tab');
+                        pc.style.display = 'none';
+                    }
                 } else if (tab === 'info') {
                     ip.classList.add('active');
                     tp.classList.remove('active');
-                    if (pc) pc.style.display = 'none';
+                    // 详情标签下，地图控件全部隐藏
+                    if (pc) {
+                        pc.classList.add('hidden-by-tab');
+                        pc.style.display = 'none';
+                    }
                 } else if (tab === 'map') {
                     tp.classList.remove('active');
                     ip.classList.remove('active');
-                    var isPortrait = window.innerHeight > window.innerWidth;
-                    var isMobile = window.innerWidth <= 768;
-                    if (pc) pc.style.display = (isMobile && isPortrait) ? 'flex' : 'none';
+                    // 仅地图标签下，且为竖屏移动端时显示控件
+                    if (pc) {
+                        if (isMobile && isPortrait) {
+                            pc.classList.remove('hidden-by-tab');
+                            pc.style.display = '';
+                        } else {
+                            pc.classList.add('hidden-by-tab');
+                            pc.style.display = 'none';
+                        }
+                    }
                 }
 
                 var container = document.getElementById('mainContainer');
@@ -12201,9 +12589,18 @@
         /*模块 7: 设置 (Settings)*/
         const Settings = {
             toggle: function() {
-                document.getElementById('settingsPanel').classList.toggle('open');
-                document.getElementById('settingsOverlay').classList.toggle('open');
+                var panel = document.getElementById('settingsPanel');
+                var overlay = document.getElementById('settingsOverlay');
+                if (!panel) return;
+                panel.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('open');
                 Blur._applyUI();
+            },
+
+            close: function(e) {
+                // 只有点击遮罩本身才关闭
+                if (e && e.target !== e.currentTarget) return;
+                this.toggle();
             },
 
             updateWidth: function(side, value) {
@@ -12998,16 +13395,39 @@
                     var tc = document.getElementById('layerCheckTerrain');
                     if (tc) tc.checked = false;
                     var ti = document.getElementById('layerTerrain');
-                    if (ti) { ti.style.display = 'none';
-                        ti.classList.remove('loaded'); }
+                    if (ti) {
+                        try {
+                            if (ti.src && ti.src.indexOf('blob:') === 0) {
+                                try { URL.revokeObjectURL(ti.src); } catch (e) {}
+                            }
+                        } catch (e) {}
+                        ti.removeAttribute('src');
+                        ti.style.display = 'none';
+                        ti.classList.remove('loaded');
+                    }
                     return;
                 }
                 var chk = document.getElementById('layerCheck' + Utils.capitalize(name));
                 var img = document.getElementById('layer' + Utils.capitalize(name));
                 if (!img) return;
-                if (chk && chk.checked) { img.style.display = 'block';
-                    img.classList.add('loaded'); } else { img.style.display = 'none';
-                    img.classList.remove('loaded'); }
+                if (chk && chk.checked) {
+                    // 显示：从 _currentLayerPaths 重新加载（如果 src 为空）
+                    if (!img.src || img.src.indexOf('blob:') === 0 && !img.classList.contains('loaded')) {
+                        // 交给下一轮 _loadLayersWithProgress 重新加载
+                    }
+                    img.style.display = 'block';
+                    img.classList.add('loaded');
+                } else {
+                    // 隐藏：清 src
+                    try {
+                        if (img.src && img.src.indexOf('blob:') === 0) {
+                            try { URL.revokeObjectURL(img.src); } catch (e) {}
+                        }
+                    } catch (e) {}
+                    img.removeAttribute('src');
+                    img.style.display = 'none';
+                    img.classList.remove('loaded');
+                }
             },
 
             updateForGuestWork: function() {
@@ -13033,7 +13453,6 @@
                         if (hasLayer) {
                             if (item) item.style.display = 'flex';
                             if (chk) { chk.checked = true; chk.disabled = false; }
-                            if (img) { img.style.display = 'block'; img.classList.add('loaded'); }
                         } else {
                             if (item) item.style.display = 'none';
                             if (chk) { chk.checked = false; chk.disabled = true; }
@@ -13045,14 +13464,13 @@
                     if (hasCustomLayers) {
                         if (hasLayer) {
                             if (chk) { chk.checked = true; chk.disabled = name === 'bg'; }
-                            if (img) { img.style.display = 'block'; img.classList.add('loaded'); }
                         } else {
                             if (chk) { chk.checked = false; chk.disabled = true; }
-                            if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
                         }
                     } else {
                         if (chk) { chk.checked = name !== 'bg'; chk.disabled = name === 'bg'; }
-                        if (img && name !== 'bg') { img.style.display = 'block'; img.classList.add('loaded'); }
+                        // ★ 不再给 img 加 loaded/display
+                        if (img) img.classList.remove('loaded');
                     }
                 });
 
@@ -15579,10 +15997,13 @@
                         }
                     }, 500);
                 }
-
+                // 竖屏移动端：先隐藏地图控件（用类，避免被 !important 覆盖）
                 if (window.innerWidth <= 768) {
-                    setTimeout(function() { self.layout.switchTab('map'); }, 500);
+                    var pc = document.getElementById('portraitControls');
+                    if (pc) pc.classList.add('hidden-by-tab');
                 }
+                // 注意：竖屏进入主界面后显示时间轴的逻辑统一放在 _enterMuseum 里，
+                // 避免与 _enterMuseum 的延迟切换互相覆盖。
 
                 console.log('✨ 昭燃的历史地图馆 v1.3 已启动');
             },
@@ -15599,7 +16020,9 @@
 
                 var saved = localStorage.getItem('lastSelectedMapIndex');
                 if (saved !== null && parseInt(saved) < data.length && parseInt(saved) >= 0) {
+                    Map._isRestoring = true;   // ★ 标记为恢复中，不自动切标签
                     App.map.select(parseInt(saved));
+                    Map._isRestoring = false;  // ★ 恢复完成
                 } else {
                     App._showEmptyState();
                 }
@@ -15629,7 +16052,8 @@
                 }, 1000);
 
                 if (window.innerWidth <= 768 && typeof App !== 'undefined' && App.layout) {
-                    setTimeout(function() { App.layout.switchTab('map'); }, 1200);
+                    // 竖屏进入主界面后先显示时间轴（统一入口，避免多处覆盖）
+                    setTimeout(function() { App.layout.switchTab('timeline'); }, 1200);
                 }
             },
 
@@ -15652,7 +16076,7 @@
                             if (App.layout && App.layout.detect) App.layout.detect();
                             if (App._showEmptyState) App._showEmptyState();
                             if (window.innerWidth <= 768 && App.layout && App.layout.switchTab) {
-                                App.layout.switchTab('map');
+                                App.layout.switchTab('timeline');
                             }
                         } catch (err) {
                             console.error('_forceEnterMuseum 延迟任务失败:', err);
