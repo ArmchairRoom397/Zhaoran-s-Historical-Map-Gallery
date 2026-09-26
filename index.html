@@ -3947,11 +3947,49 @@
         .timeline-item {
             opacity: 1;
             transform: translateX(0);
+            transition: 
+                background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                border-left-color 0.25s ease,
+                transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.3s ease;
         }
-        .timeline-list.initial-load .timeline-item {
-            animation: slideInLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            opacity: 0;
-            transform: translateX(-20px);
+
+        .timeline-item.animate-in {
+            animation: itemSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes itemSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-24px) scale(0.96);
+                filter: blur(3px);
+            }
+            60% {
+                filter: blur(0);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        /* 时期标签入场 */
+        .era-label.animate-in {
+            animation: eraSlideInNew 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes eraSlideInNew {
+            0% {
+                opacity: 0;
+                transform: translateX(-32px);
+                letter-spacing: 6px;
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+                letter-spacing: 1.5px;
+            }
         }
         .timeline-list.initial-load .timeline-item:nth-child(1) { animation-delay: 0.02s; }
         .timeline-list.initial-load .timeline-item:nth-child(2) { animation-delay: 0.04s; }
@@ -3970,6 +4008,71 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
+        /* === 时期折叠箭头旋转 === */
+        .era-toggle {
+            display: inline-block;
+            width: 14px;
+            font-size: 0.7rem;
+            color: var(--gold);
+            margin-right: 6px;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            will-change: transform;
+        }
+        /* === item 悬停/激活增强 === */
+        .timeline-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 12px rgba(212, 175, 55, 0.08);
+        }
+
+        .timeline-item.active {
+            transform: translateX(4px);
+            box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.15),
+                        0 4px 16px rgba(212, 175, 55, 0.12);
+        }
+
+        /* 年份徽章脉冲 */
+        .timeline-item.active .year-badge {
+            animation: badgePulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            50%      { box-shadow: 0 0 0 5px rgba(212, 175, 55, 0); }
+        }
+        /* === 时期标签呼吸光 === */
+        .era-label {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .era-label::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(212, 175, 55, 0.18),
+                transparent
+            );
+            animation: eraShine 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes eraShine {
+            0%   { left: -100%; }
+            50%  { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        /* 减少动画模式下禁用 */
+        body.reduce-motion .era-label::after,
+        body.reduce-motion .timeline-item.active .year-badge {
+            animation: none !important;
+        }
         /* === 2. 时期标签入场动画 === */
         .era-label {
             opacity: 1;
@@ -9954,12 +10057,19 @@
 
                 // 流式渲染可见行（不绝对定位，不写 height）
                 var fragment = document.createDocumentFragment();
+                // 在 _render 里的 fragment 循环中
                 for (var i = startIdx; i <= endIdx && i < this._flatRows.length; i++) {
                     var row = this._flatRows[i];
                     var el = row.type === 'era'
                         ? this._createEraEl(row.data)
                         : this._createItemEl(row.data, row.index);
-                    // ★★ 绝对不要写 el.style.height ★★
+
+                    // ★ 只有带 animate-in 的行才设置延迟
+                    if (el.classList.contains('animate-in')) {
+                        var delay = Math.min((i - startIdx) * 0.025, 0.2);
+                        el.style.animationDelay = delay + 's';
+                    }
+
                     fragment.appendChild(el);
                 }
                 this._container.appendChild(fragment);
@@ -9992,7 +10102,14 @@
             _createEraEl: function(data) {
                 var div = document.createElement('div');
                 var isGuestWork = data.era === '其他作者优秀作品';
-                div.className = isGuestWork ? 'era-label era-label-guest' : 'era-label';
+                var baseClass = isGuestWork ? 'era-label era-label-guest' : 'era-label';
+                // ★ 时期标签同理
+                var animKey = 'era_' + data.era;
+                if (!TimelineVirtual._suppressAnimation && !TimelineVirtual._animatedKeys.has(animKey)) {
+                    baseClass += ' animate-in';
+                    TimelineVirtual._animatedKeys.add(animKey);
+                }
+                div.className = baseClass;
 
                 var arrow = data.collapsed ? '▶' : '▼';
                 div.innerHTML =
@@ -10000,46 +10117,78 @@
                     '<span class="era-title">' + data.era + '</span>' +
                     '<span class="era-quote">' + data.quote + '</span>';
 
+                div.setAttribute('aria-expanded', data.collapsed ? 'false' : 'true');
+
                 var self = this;
                 div.onclick = function(e) {
                     e.stopPropagation();
                     self.toggleEra(data.era);
                 };
-                // 无障碍
                 div.setAttribute('role', 'button');
                 div.setAttribute('tabindex', '0');
-                div.setAttribute('aria-expanded', data.collapsed ? 'false' : 'true');
                 div.onkeydown = function(e) {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         self.toggleEra(data.era);
                     }
                 };
+
+                // ★ 动画结束后移除 animate-in
+                div.addEventListener('animationend', function handler() {
+                    div.classList.remove('animate-in');
+                    div.removeEventListener('animationend', handler);
+                });
+
                 return div;
             },
 
             toggleEra: function(era) {
-                this._eraCollapsed[era] = !this._eraCollapsed[era];
-                // 存 localStorage
+                var self = this;
+                var isCollapsing = !this._eraCollapsed[era];
+
+                // 立即更新箭头
+                this._eraCollapsed[era] = isCollapsing;
+                this._container.querySelectorAll('.era-label').forEach(function(el) {
+                    var t = el.querySelector('.era-title');
+                    if (t && t.textContent === era) {
+                        el.setAttribute('aria-expanded', isCollapsing ? 'false' : 'true');
+                    }
+                });
                 try {
                     localStorage.setItem('eraCollapsed', JSON.stringify(this._eraCollapsed));
                 } catch (e) {}
 
-                // 重新测量并渲染
+                this._suppressAnimation = true;
                 this._calculateFlatRows();
                 this._render(true);
+                this._suppressAnimation = false;
 
-                // 可选：折叠时如果当前选中图在该 era 下，保持滚动位置
-                var selectedIdx = (typeof Map !== 'undefined') ? Map.getIndex() : -1;
-                if (selectedIdx >= 0) {
-                    var data = Data.get(selectedIdx);
-                    if (data && data.era === era && this._eraCollapsed[era]) {
-                        // 折叠了当前 era，滚动到该 era 标题
-                        this._scrollToEra(era);
+                // ★ 展开时：给新出现的 item 加淡入
+                if (!isCollapsing) {
+                    var newEls = [];
+                    var target = null;
+                    self._container.querySelectorAll('.era-label').forEach(function(el) {
+                        var t = el.querySelector('.era-title');
+                        if (t && t.textContent === era) target = el;
+                    });
+                    if (target) {
+                        var nx = target.nextElementSibling;
+                        while (nx && nx.classList.contains('timeline-item')) {
+                            newEls.push(nx);
+                            nx = nx.nextElementSibling;
+                        }
                     }
+                    newEls.forEach(function(el, i) {
+                        el.style.opacity = '0';
+                        el.style.transform = 'translateX(-16px)';
+                        el.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)';
+                        el.style.transitionDelay = (i * 0.02) + 's';
+                        requestAnimationFrame(function() {
+                            el.style.opacity = '1';
+                            el.style.transform = 'translateX(0)';
+                        });
+                    });
                 }
-
-                console.log('📁 时期「' + era + '」' + (this._eraCollapsed[era] ? '已折叠' : '已展开'));
             },
 
             _scrollToEra: function(era) {
@@ -10054,7 +10203,14 @@
 
             _createItemEl: function(item, index) {
                 var div = document.createElement('div');
-                div.className = 'timeline-item';
+                var className = 'timeline-item';
+                // ★ 只有未播放过的行才加入场动画
+                var animKey = 'item_' + index;
+                if (!TimelineVirtual._suppressAnimation && !TimelineVirtual._animatedKeys.has(animKey)) {
+                    className += ' animate-in';
+                    TimelineVirtual._animatedKeys.add(animKey);
+                }
+                div.className = className;
                 div.dataset.index = index;
                 var reignText = item.reign ? '<span class="reign-badge">' + item.reign + '</span>' : '';
                 var authorText = (item.era === '其他作者优秀作品' && item.author) ?
@@ -10064,6 +10220,13 @@
                     '<div class="item-info"><span class="item-name">' +
                     item.name + '</span>' + authorText + reignText + '</div>';
                 div.onclick = function() { App.map.select(index); };
+
+                // ★ 动画结束后移除 animate-in，避免重复触发
+                div.addEventListener('animationend', function handler() {
+                    div.classList.remove('animate-in');
+                    div.removeEventListener('animationend', handler);
+                });
+
                 return div;
             },
 
@@ -10119,7 +10282,11 @@
                 } else {
                     targetTop = row.top;
                 }
-                this._container.scrollTop = Math.max(0, targetTop);
+                // ★ 平滑滚动
+                this._container.scrollTo({
+                    top: Math.max(0, targetTop),
+                    behavior: 'smooth'
+                });
             },
 
             // 高亮指定 index
@@ -10127,7 +10294,10 @@
                 var items = this._container.querySelectorAll('.timeline-item');
                 items.forEach(function(el) {
                     var i = parseInt(el.dataset.index);
-                    el.classList.toggle('active', i === index);
+                    var shouldActive = (i === index);
+                    if (el.classList.contains('active') !== shouldActive) {
+                        el.classList.toggle('active', shouldActive);
+                    }
                 });
             },
 
@@ -10139,6 +10309,7 @@
 
             setFilteredData: function(filteredData) {
                 this._filtering = true;
+                this._animatedKeys = new Set();
 
                 this._flatRows = [];
                 var top = 0;
@@ -10179,7 +10350,8 @@
 
             // ★ 恢复全量数据时，关闭 filtering
             setData: function(items) {
-                this._filtering = false;   // ★
+                this._filtering = false;
+                this._animatedKeys = new Set();   // ★ 清空
                 this._items = items || [];
                 if (!this._container) return;
                 this._calculateFlatRows();
