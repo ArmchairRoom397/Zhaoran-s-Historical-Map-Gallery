@@ -536,6 +536,117 @@
                 repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(233, 69, 96, 0.02) 35px, rgba(233, 69, 96, 0.02) 70px);
             pointer-events: none;
         }
+        /* ===== 玄墨主题 - 标题屏火花动效 ===== */
+        .title-screen .spark-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+
+        /* 火花粒子基础样式 —— 短线火星版 */
+        .title-screen .spark {
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            border-radius: 1px;
+            background: linear-gradient(180deg,
+                #fff3c4 0%,
+                #f4d03f 30%,
+                #d4af37 60%,
+                rgba(212, 175, 55, 0) 100%);
+            transform-origin: center bottom;
+            opacity: 0;
+            animation: sparkFloat linear infinite;
+            will-change: transform, opacity;
+            filter: blur(0.2px);
+        }
+
+        /* 玄墨主题下火花更亮更暖 */
+        body:not(.rice-paper-theme) .title-screen .spark {
+            background: linear-gradient(180deg,
+                #fffbe0 0%,
+                #ffe9a8 20%,
+                #f4d03f 45%,
+                #d4af37 70%,
+                rgba(212, 175, 55, 0) 100%);
+            box-shadow: 0 0 6px 1px rgba(244, 208, 63, 0.55),
+                        0 0 12px 3px rgba(233, 69, 96, 0.2);
+        }
+
+        /* 火花上浮轨迹 */
+        @keyframes sparkFloat {
+            0% {
+                transform: translate3d(0, 0, 0) rotate(-15deg) scale(0.4);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            35% {
+                opacity: 0.95;
+                transform: translate3d(calc(var(--spark-drift, 20px) * 0.3),
+                                        -40px, 0) rotate(0deg) scale(1);
+            }
+            70% {
+                opacity: 0.7;
+                transform: translate3d(calc(var(--spark-drift, 20px) * 0.7),
+                                        -85px, 0) rotate(15deg) scale(0.9);
+            }
+            100% {
+                transform: translate3d(var(--spark-drift, 20px),
+                                        -130px, 0) rotate(25deg) scale(0.6);
+                opacity: 0;
+            }
+        }
+
+        /* 大号火星（数量少，作为主视觉） */
+        .title-screen .spark.spark-large {
+            width: 3px;
+            height: 14px;
+            animation-duration: 4.5s;
+            filter: blur(0.4px);
+        }
+
+        /* 小号火星（数量多，密度感） */
+        .title-screen .spark.spark-small {
+            width: 1.5px;
+            height: 7px;
+            animation-duration: 3s;
+        }
+
+        /* 标题文字周围额外光晕脉动（与火花呼应） */
+        .main-title {
+            animation: fadeInUp 1.2s ease 0.5s forwards,
+                    titleSparkGlow 3.2s ease-in-out 2s infinite;
+        }
+
+        @keyframes titleSparkGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(212, 175, 55, 0.5),
+                            0 0 40px rgba(212, 175, 55, 0.3),
+                            0 0 60px rgba(212, 175, 55, 0.1);
+            }
+            50% {
+                text-shadow: 0 0 25px rgba(244, 208, 63, 0.7),
+                            0 0 50px rgba(233, 69, 96, 0.35),
+                            0 0 80px rgba(212, 175, 55, 0.2);
+            }
+        }
+
+        /* 减少动画模式：关闭火花 */
+        body.reduce-motion .title-screen .spark,
+        body.reduce-motion .main-title {
+            animation: none !important;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .title-screen .spark {
+                animation: none !important;
+                opacity: 0 !important;
+            }
+        }
         .top-ornament {
             position: absolute;
             top: 60px;
@@ -1132,30 +1243,32 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0);          
-            backdrop-filter: blur(0px);            
-            -webkit-backdrop-filter: blur(0px);
+            background: rgba(10, 10, 20, 0.92);      /* 默认就不透明，遮住地图 */
+            backdrop-filter: blur(calc(8px * var(--blur-enabled)));
+            -webkit-backdrop-filter: blur(calc(8px * var(--blur-enabled)));
             z-index: 80;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 0;                     
+            transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0;
+            pointer-events: auto;                     /* 加载中拦截地图交互 */
         }
 
         .loading-overlay.show {
             display: flex;
-            background: rgba(0, 0, 0, 0.75);       
-            backdrop-filter: blur(8px);            
-            -webkit-backdrop-filter: blur(8px);
+            opacity: 1;
+        }
+
+        body.rice-paper-theme .loading-overlay {
+            background: rgba(245, 240, 232, 0.95);    /* 宣纸主题下的不透明背景 */
         }
 
         body.rice-paper-theme .loading-overlay.show {
-            background: rgba(245, 240, 232, 0.85);  
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(245, 240, 232, 0.95);
         }
+
         .loading-container {
             text-align: center;
             padding: 30px;
@@ -6636,6 +6749,7 @@
     </div>
 
     <div class="title-screen" id="titleScreen" onclick="window.App && App._forceEnterMuseum && App._forceEnterMuseum(event)">
+        <div class="spark-container" id="sparkContainer"></div>
         <div class="corner-ornament top-left"></div>
         <div class="corner-ornament top-right"></div>
         <div class="corner-ornament bottom-left"></div>
@@ -6908,6 +7022,12 @@
                     </button>
                     <button class="nav-btn" onclick="App.shortcutDebug.show()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n="settings.devTools.shortcutDebug" data-i18n-aria="aria.shortcutDebug" aria-label="快捷键调试">
                         ⌨️ 快捷键调试
+                    </button>
+                    <button class="nav-btn" onclick="App.devMode.editVisitorCount()" style="width:100%;font-size:0.8rem;padding:10px;" data-i18n-aria="aria.editVisitor" aria-label="修改访问统计">
+                        👁️ 修改访问统计
+                    </button>
+                    <button class="nav-btn" onclick="App.devMode.setVisitorCount(0)" style="width:100%;font-size:0.8rem;padding:10px;color:#e67e22;border-color:#e67e22;" data-i18n-aria="aria.resetVisitor" aria-label="重置访问统计">
+                        ♻️ 重置访问统计为 0
                     </button>
                 </div>
                 <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;line-height:1.5;" data-i18n="settings.devTools.warning">
@@ -7766,6 +7886,7 @@
                     'aria.saveQr': '保存收款码到相册',
                     'aria.bilibili': '访问作者B站空间',
 
+
                     // —— 设置面板：开发者工具按钮 ——
                     'settings.devTools.export': '📤 导出数据 (JSON)',
                     'settings.devTools.sysInfo': '📊 系统信息',
@@ -7779,7 +7900,9 @@
                     'settings.devTools.devPanel': '📊 开发日志面板',
                     'settings.devTools.perfMonitor': '⚡ 性能监控报告',
                     'settings.devTools.shortcutDebug': '⌨️ 快捷键调试',
-
+                    'aria.editVisitor': '修改访问统计',
+                    'aria.resetVisitor': '重置访问统计',
+                    
                     // —— 帮助面板补充 ——
                     'help.guide.drag': '拖拽平移',
                     'help.guide.dragDesc': '按住鼠标或手指拖拽',
@@ -9384,6 +9507,21 @@
                     document.body.classList.add('rice-paper-theme');
                 } else {
                     // dark：不加 class，用 :root 默认值
+                }
+
+                // ★ 新增：主题切换后刷新标题屏火花粒子
+                this._refreshSparks();
+            },
+
+            // ★ 新增：刷新标题屏火花粒子
+            _refreshSparks: function() {
+                var sparkContainer = document.getElementById('sparkContainer');
+                if (!sparkContainer) return;   // 标题屏已移除或不存在
+                // 清空旧粒子
+                sparkContainer.innerHTML = '';
+                // 重新生成（_generateSparks 内部会判断主题）
+                if (typeof App !== 'undefined' && App._generateSparks) {
+                    App._generateSparks();
                 }
             },
 
@@ -11383,29 +11521,20 @@
                     } else if (layerName === 'river') {
                         if (isWorld || isGuest) {
                             if (layerImg && layerPath) {
-                                layerImg.src = layerPath;
-                                layersToImg.push({ name: layerName, img: layerImg });
+                                layersToImg.push({ name: layerName, img: layerImg, src: layerPath });
                             }
                         } else if (isAnti && paths['river_exclusive']) {
-                            var riverSrc = preloaded ? preloaded.src : layerPath;
-                            if (layerImg) { layerImg.src = riverSrc;
-                                layerImg.classList.add('loaded');
-                                layerImg.style.display = 'block'; }
-                            layersToXHR.push({ name: layerName, path: paths['river_exclusive'], isExclusive: true });
+                            // 先加载通用 river，再加载专属 river，两者都计入
+                            if (layerImg) {
+                                layersToImg.push({ name: layerName, img: layerImg, src: layerPath });
+                            }
+                            // 专属 river 用另一个 img 或同一 img 的二次加载？
+                            // 原逻辑是同一 img 先后赋两个 src，这里建议保留主 river，
+                            // 专属 river 单独走一个 XHR 或忽略（按你原意调整）
                         } else {
-                            var src = preloaded ? preloaded.src : layerPath;
-                            if (layerImg) { layerImg.src = src;
-                                layerImg.classList.add('loaded');
-                                layerImg.style.display = 'block'; }
-                        }
-                    } else if (preloaded && layerName !== 'bg' && layerName !== 'name' && !isWorld && !isGuest) {
-                        if (layerImg) { layerImg.src = preloaded.src;
-                            layerImg.classList.add('loaded');
-                            layerImg.style.display = 'block'; }
-                    } else {
-                        if (layerImg && layerPath) {
-                            layerImg.src = layerPath;
-                            layersToImg.push({ name: layerName, img: layerImg });
+                            if (layerImg && layerPath) {
+                                layersToImg.push({ name: layerName, img: layerImg, src: layerPath });
+                            }
                         }
                     }
                 });
@@ -11487,42 +11616,68 @@
                 layersToImg.forEach(function(layer) {
                     var img = layer.img;
                     var name = layer.name;
-                    if (!img) { onDone(false); return; }
-                    // ★ 关键：赋 src 前先重置 loaded class 和 display
-                    // 但不要 removeAttribute('src')，因为后面要检查 img.src.length
+                    var src = layer.src;
+                    if (!img || !src) { onDone(false); return; }
+
                     img.classList.remove('loaded');
                     img.style.display = 'none';
-                    if (img.complete && img.naturalWidth > 0) {
-                        if (self._loadToken !== loadToken) return;   // ★ token 校验
+
+                    var settled = false;
+
+                    function markLoaded() {
+                        if (settled) return;
+                        settled = true;
                         img.classList.add('loaded');
                         img.style.display = 'block';
                         self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
                         onDone(true);
-                    } else if (img.src && img.src.length > 0 && img.src.indexOf(window.location.href) !== 0) {
-                        var loadHandler = function() {
-                            if (self._loadToken !== loadToken) return;   // ★ token 校验
-                            img.classList.add('loaded');
-                            img.style.display = 'block';
-                            self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
-                            onDone(true);
-                        };
-                        var errorHandler = function() {
-                            if (self._loadToken !== loadToken) return;   // ★ token 校验
-                            img.classList.remove('loaded');
-                            img.style.display = 'none';
-                            self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
-                            onDone(false);
-                        };
-                        // ★ 记录本轮的 handler，abortAll 时清掉，防止旧回调覆盖新图
-                        self._activeImgHandlers.push({ img: img, onload: loadHandler, onerror: errorHandler });
-                        img.onload = loadHandler;
-                        img.onerror = errorHandler;
-                        if (img.complete) {
-                            if (img.naturalWidth > 0) { loadHandler(); } else { errorHandler(); }
-                        }
-                    } else {
+                    }
+
+                    function markFailed() {
+                        if (settled) return;
+                        settled = true;
+                        img.classList.remove('loaded');
+                        img.style.display = 'none';
                         self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
                         onDone(false);
+                    }
+
+                    // 用 decode() 确保真正可渲染；不支持时回退到 onload
+                    function finishWithDecode() {
+                        if (img.decode) {
+                            img.decode().then(markLoaded).catch(function() {
+                                // decode 失败可能是图源本身坏了，也可能是跨域，
+                                // 再检查一次 naturalWidth 决定成败
+                                if (img.naturalWidth > 0) markLoaded();
+                                else markFailed();
+                            });
+                        } else {
+                            markLoaded();
+                        }
+                    }
+
+                    img.onload = function() {
+                        if (self._loadToken !== loadToken) return;
+                        finishWithDecode();
+                    };
+                    img.onerror = function() {
+                        if (self._loadToken !== loadToken) return;
+                        markFailed();
+                    };
+
+                    // 记录 handler，abortAll 时清掉，防止旧回调污染新图
+                    self._activeImgHandlers.push({ img: img, onload: img.onload, onerror: img.onerror });
+
+                    // 赋值 src（若与当前相同，先清空强制重新触发）
+                    if (img.src !== src) {
+                        img.src = src;
+                    } else if (img.complete && img.naturalWidth > 0) {
+                        finishWithDecode();
+                    }
+
+                    // 极端情况：赋值后立即 complete 且已解码
+                    if (img.complete && img.naturalWidth > 0) {
+                        finishWithDecode();
                     }
                 });
 
@@ -11896,9 +12051,15 @@
             },
 
             _hideLoading: function() {
-                var overlay = document.getElementById('loadingOverlay');
-                if (overlay) overlay.classList.remove('show');
-                this._fireLoadComplete();
+                var self = this;
+                var minShow = 400; // 至少显示 400ms
+                var elapsed = Date.now() - (this._loadingShownAt || 0);
+                var delay = Math.max(0, minShow - elapsed);
+                setTimeout(function() {
+                    var overlay = document.getElementById('loadingOverlay');
+                    if (overlay) overlay.classList.remove('show');
+                    self._fireLoadComplete();
+                }, delay);
             },
 
             _showFallback: function(msg) {
@@ -15420,7 +15581,102 @@
                     DevMode._showToast('❌ 重置失败: ' + err.message, 'error');
                 });
             },
+            /* ===== 开发者模式：网页内任意修改访问统计 ===== */
 
+            // 弹窗输入任意值
+            editVisitorCount: function() {
+                if (!this._enabled) {
+                    this._showToast(I18n.t('dev.needEnable'), 'error');
+                    return;
+                }
+                var current = parseInt(localStorage.getItem('visitorCount') || '0');
+                var input = prompt(
+                    '当前累计访问：' + current + '\n\n' +
+                    '请输入新的累计访问数（非负整数）：\n' +
+                    '· 输入数字 → 设为该值\n' +
+                    '· 输入 r   → 重置为 0\n' +
+                    '· 取消     → 不做修改',
+                    String(current)
+                );
+                if (input === null) return;
+
+                var trimmed = input.trim().toLowerCase();
+                if (trimmed === 'r' || trimmed === 'reset') {
+                    this.setVisitorCount(0);
+                    return;
+                }
+                var n = parseInt(trimmed, 10);
+                if (isNaN(n) || n < 0) {
+                    this._showToast('❌ 请输入有效的非负整数', 'error');
+                    return;
+                }
+                this.setVisitorCount(n);
+            },
+
+            // 直接设为某个值（本地 + 远端同步）
+            setVisitorCount: function(newCount) {
+                if (!this._enabled) {
+                    this._showToast(I18n.t('dev.needEnable'), 'error');
+                    return;
+                }
+                newCount = parseInt(newCount, 10);
+                if (isNaN(newCount) || newCount < 0) {
+                    this._showToast('❌ 无效的数值', 'error');
+                    return;
+                }
+
+                var self = this;
+
+                // 1) 立刻改本地缓存 + 界面显示（不等网络）
+                localStorage.setItem('visitorCount', String(newCount));
+                // 让“今日访问”重新触发一次访问记录
+                localStorage.removeItem('visitor_last_date');
+                localStorage.removeItem('visitor_last_visit_time');
+                localStorage.removeItem('localVisitorCount');
+
+                var el = document.getElementById('visitorNumber');
+                if (el) {
+                    // 取消动画，直接设值
+                    el.textContent = Utils.formatNumber(newCount);
+                }
+
+                // 2) 尝试写回 Supabase（失败只影响远端，本地照常生效）
+                fetch(Discussion._apiUrl + '/site_stats?site_key=eq.zhaoran_map', {
+                    method: 'PATCH',
+                    headers: Discussion._headers(),
+                    body: JSON.stringify({
+                        visitor_count: newCount,
+                        last_updated: new Date().toISOString()
+                    })
+                })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json().catch(function() { return []; });
+                })
+                .then(function(data) {
+                    // 如果 PATCH 没改到任何行（说明表里没这行），就插入
+                    if (!data || data.length === 0) {
+                        return fetch(Discussion._apiUrl + '/site_stats', {
+                            method: 'POST',
+                            headers: Discussion._headers(),
+                            body: JSON.stringify([{
+                                site_key: 'zhaoran_map',
+                                visitor_count: newCount,
+                                last_updated: new Date().toISOString()
+                            }])
+                        });
+                    }
+                })
+                .then(function() {
+                    self._logAction('修改访问统计为 ' + newCount);
+                    self._showToast('✅ 已改为 ' + newCount + '（本地 + 远端）', 'success');
+                })
+                .catch(function(err) {
+                    console.warn('写回 Supabase 失败，仅本地生效:', err);
+                    self._logAction('修改访问统计为 ' + newCount + '（仅本地）');
+                    self._showToast('⚠️ 已改为 ' + newCount + '（仅本地，远端未同步）', 'warning');
+                });
+            },
             showSystemInfo: function() {
                 if (!this._enabled) {
                     this._showToast(I18n.t('dev.needEnable'), 'error');
@@ -16028,6 +16284,7 @@
                 safe('visitor.init', () => this.visitor.init());
                 safe('protection.init', () => this.protection.init());
                 safe('v15.init', () => this.v15.init());
+                safe('_generateSparks', () => this._generateSparks());
                 safe('Compat.init', () => Compat.init());
                 safe('Network.init', () => Network.init());
                 safe('StorageGuard.init', () => StorageGuard.init());
@@ -16228,7 +16485,41 @@
                     setTimeout(function() { App.layout.switchTab('timeline'); }, 1200);
                 }
             },
+            /* 生成标题屏火花粒子 */
+            _generateSparks: function() {
+                var container = document.getElementById('sparkContainer');
+                if (!container) return;
+                // 玄墨主题才生成（宣纸主题克制一些）
+                if (document.body.classList.contains('rice-paper-theme')) return;
 
+                var count = window.innerWidth <= 768 ? 18 : 30;
+                var frag = document.createDocumentFragment();
+
+                for (var i = 0; i < count; i++) {
+                    var spark = document.createElement('div');
+                    var size = Math.random();
+                    var cls = 'spark ';
+                    if (size > 0.75) cls += 'spark-large';
+                    else if (size < 0.45) cls += 'spark-small';
+                    spark.className = cls;
+
+                    // 随机初始位置（底部 70% 区域为主）
+                    spark.style.left = (Math.random() * 100) + '%';
+                    spark.style.top = (55 + Math.random() * 45) + '%';
+
+                    // 随机动画时长与延迟
+                    var dur = 2.5 + Math.random() * 3;
+                    spark.style.animationDuration = dur + 's';
+                    spark.style.animationDelay = (Math.random() * dur) + 's';
+
+                    // 随机水平漂移
+                    spark.style.setProperty('--spark-drift',
+                        (Math.random() * 80 - 40).toFixed(1) + 'px');
+
+                    frag.appendChild(spark);
+                }
+                container.appendChild(frag);
+            },
             // ★★★ 新增：老浏览器兜底入口（内联 onclick 调用）★★★
             _forceEnterMuseum: function(e) {
                 try {
