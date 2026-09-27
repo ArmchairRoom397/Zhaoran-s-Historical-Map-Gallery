@@ -4054,6 +4054,8 @@
         @import url('https://fonts.loli.net/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
         @import url('https://fonts.loli.net/css2?family=Ma+Shan+Zheng&display=swap');
         @import url('https://fonts.loli.net/css2?family=Noto+Serif+TC:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.loli.net/css2?family=Noto+Serif+JP:wght@400;600;700&display=swap');
+        @import url('https://fonts.loli.net/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap');
 
         /* 动画效果 */
         /* === 1. 时间轴项目入场动画 === */
@@ -6474,6 +6476,42 @@
             word-break: break-word;
             text-align: center;
         }
+        html[lang="ja"] body {
+            font-family: "Noto Serif JP", "Noto Serif SC", "Yu Mincho", "Hiragino Mincho ProN", serif !important;
+        }
+        html[lang="ko"] body {
+            font-family: "Noto Serif KR", "Noto Serif SC", "Nanum Myeongjo", "Malgun Gothic", serif !important;
+        }
+        html[lang="ru"] body {
+            font-family: "Cormorant Garamond", "Noto Serif SC", Georgia, serif !important;
+        }
+        /* 标题样式 */
+        html[lang="ja"] .main-title,
+        html[lang="ja"] .museum-title,
+        html[lang="ja"] .welcome-text {
+            font-family: "Noto Serif JP", "Shippori Mincho", "Yu Mincho", serif !important;
+            letter-spacing: 3px;
+        }
+        html[lang="ko"] .main-title,
+        html[lang="ko"] .museum-title,
+        html[lang="ko"] .welcome-text {
+            font-family: "Noto Serif KR", "Nanum Myeongjo", serif !important;
+            letter-spacing: 3px;
+        }
+        html[lang="ru"] .main-title,
+        html[lang="ru"] .museum-title,
+        html[lang="ru"] .welcome-text {
+            font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif !important;
+            letter-spacing: 2px;
+        }
+        /* 俄语标题不要 nowrap */
+        html[lang="ru"] .main-title,
+        html[lang="ru"] .welcome-text {
+            white-space: normal !important;
+            word-break: break-word;
+            text-align: center;
+            line-height: 1.25;
+        }
                 /* ===== v1.5 上线预告弹窗 ===== */
         .v15-modal-overlay {
             position: fixed;
@@ -6717,7 +6755,12 @@
                 transition: none !important;
             }
         }
-
+        /* ===== 手机端隐藏"渲染模式"设置区块 ===== */
+        @media (max-width: 768px) {
+            #renderModeSection {
+                display: none !important;
+            }
+        }
         /* ===== 设置面板与帮助中心统一 ===== */
         .settings-panel .help-content {
             gap: 0;   /* 覆盖帮助中心的 25px gap，避免双倍间距 */
@@ -6897,7 +6940,7 @@
                 </div>
             </div>
 
-            <div class="settings-section">
+            <div class="settings-section" id="renderModeSection">
                 <label class="settings-label" data-i18n="settings.renderMode">渲染模式</label>
                 <div class="quality-options">
                     <div class="quality-option active" onclick="App.renderMode.set('auto')" id="renderMode-auto" role="button" tabindex="0" data-i18n-aria="aria.renderAuto" aria-label="自动渲染模式">
@@ -6934,6 +6977,9 @@
                     <option value="zh-TW" data-i18n="lang.zhTW">繁體中文（中國台灣省）</option>
                     <option value="zh-HK" data-i18n="lang.zhHK">繁體中文（中國香港特别行政区）</option>
                     <option value="en" data-i18n="lang.en">English</option>
+                    <option value="ja" data-i18n="lang.ja">日本語</option>
+                    <option value="ko" data-i18n="lang.ko">한국어</option>
+                    <option value="ru" data-i18n="lang.ru">Русский</option>
                 </select>
             </div>
 
@@ -7606,7 +7652,18 @@
         /*模块 0.5: 国际化 (I18n) */
         const I18n = {
             current: 'zh-CN',
-            _supported: ['zh-CN', 'zh-TW', 'zh-HK', 'en'],
+            _supported: ['zh-CN', 'zh-TW', 'zh-HK', 'en', 'ja', 'ko', 'ru'],
+
+            _detectLang: function() {
+                var nav = (navigator.language || navigator.userLanguage || 'zh-CN').toLowerCase();
+                if (nav.indexOf('zh-tw') >= 0 || nav.indexOf('zh-hant') >= 0) return 'zh-TW';
+                if (nav.indexOf('zh-hk') >= 0) return 'zh-HK';
+                if (nav.indexOf('zh') >= 0) return 'zh-CN';
+                if (nav.indexOf('ja') >= 0) return 'ja';
+                if (nav.indexOf('ko') >= 0) return 'ko';
+                if (nav.indexOf('ru') >= 0) return 'ru';
+                return 'en';
+            },
 
             // ===== 翻译词典 =====
             _dict: {
@@ -8433,15 +8490,12 @@
                 },
 
                 'zh-HK': {
-                    // ===== 标题屏 =====
                     'title.subtitle': '歷史地圖館',
                     'title.enterHint': '點擊任何區域進入地圖館',
 
-                    // ===== 通用按钮 =====
                     'btn.save': '儲存',
                     'btn.reset': '重設',
 
-                    // ===== 設定面板 =====
                     'settings.title': '展館設定',
                     'settings.blur': '高斯模糊',
                     'settings.blur.desc': '開啟後背景介面將呈現毛玻璃效果，關閉可提升效能',
@@ -8453,7 +8507,6 @@
                     'settings.devTools.showReports': '🚩 檢舉紀錄',
                     'settings.devTools.refreshCache': '🔄 重新整理快取',
 
-                    // ===== 時間軸 / 資訊面板 =====
                     'timeline.searchPlaceholder': '搜尋朝代、年份或地圖名稱...',
                     'info.discussion': '💬 學術討論區',
                     'info.discussion.about': '關於這幅地圖的討論',
@@ -8463,7 +8516,6 @@
                     'info.share': '📤 分享',
                     'info.share.generate': '產生分享卡片',
 
-                    // ===== 幫助面板 =====
                     'help.guide.mobile': '流動端',
                     'help.guide.mobileDesc': '底部標籤列切換檢視',
                     'help.shortcuts': '⌨️ 電腦端快捷鍵',
@@ -8471,28 +8523,21 @@
                     'help.sponsor.btn': '請作者昭燃飲杯茶',
                     'help.sponsor.disclaimer': '免責聲明：本功能為自願贊助，不構成任何商業交易，如出現問題請立即聯絡作者。',
 
-                    // ===== 贊助彈窗 =====
                     'sponsor.tip': '感謝你的支持！長按或掃描下方 QR Code，請作者飲杯茶',
                     'sponsor.note': '微信掃碼 · 金額隨意 · 感謝每一份心意',
 
-                    // ===== 移動端標籤 =====
                     'mobile.timeline': '時間軸',
                     'mobile.map': '地圖',
                     'mobile.info': '詳情',
 
-                    // ===== 提示 =====
                     'toast.offline': '⚠️ 網絡已斷開，部分功能不可用',
                     'toast.quota': '⚠️ 本機儲存空間不足',
 
-                    // ===== 失敗佔位 =====
                     'fallback.desc': '地圖資源載入失敗，請檢查網絡後重試。',
 
-                    // ===== 歡迎屏 =====
                     'welcome.title': '昭燃的历史地图馆',
                     'welcome.quote': '"史者，所以明夫治天下之道也"',
                     'welcome.quoteAuthor': '—— 曾鞏《南齊書序》',
-
-                    // ===== 未列出的鍵會自動用 zh-TW 的繁體，再回退 zh-CN =====
                 },
 
                 'en': {
@@ -8982,6 +9027,1478 @@
                     'author.name': 'Author',
                     'author.org': 'Organization',
                 },
+                'ja': {
+                    // ===== 标题屏 =====
+                    'title.main': '昭燃',
+                    'title.subtitle': '歴史地図館',
+                    'title.quote': '「天人の際を究め、古今の変を通じ、一家の言を成す」',
+                    'title.quoteAuthor': '—— 司馬遷『報任安書』',
+                    'title.enterHint': '任意の場所をタップして入館',
+
+                    // ===== 通用按钮 =====
+                    'btn.close': '閉じる',
+                    'btn.confirm': '確認',
+                    'btn.cancel': 'キャンセル',
+                    'btn.save': '保存',
+                    'btn.delete': '削除',
+                    'btn.edit': '編集',
+                    'btn.submit': '送信',
+                    'btn.reset': 'リセット',
+                    'btn.copy': 'コピー',
+                    'btn.download': 'ダウンロード',
+
+                    // ===== aria =====
+                    'aria.help': 'ヘルプセンターを開く',
+                    'aria.settings': '設定パネルを開く',
+                    'aria.closeSettings': '設定を閉じる',
+                    'aria.closeHelp': 'ヘルプセンターを閉じる',
+                    'aria.themeDark': '玄墨テーマに切り替え',
+                    'aria.themeRice': '宣紙テーマに切り替え',
+                    'aria.themeCustom': 'カスタムテーマに切り替え',
+                    'aria.themeAuto': '自動テーマに切り替え',
+                    'aria.leftWidth': '左サイドバー幅を調整',
+                    'aria.rightWidth': '右サイドバー幅を調整',
+                    'aria.qualityOriginal': '原画画質',
+                    'aria.qualityHigh': '高画質',
+                    'aria.qualityLow': '低画質',
+                    'aria.renderAuto': '自動レンダリングモード',
+                    'aria.renderSingle': '単一レイヤーレンダリング',
+                    'aria.renderMulti': 'マルチレイヤーレンダリング',
+                    'aria.devMode': '開発者モードを切り替え',
+                    'aria.blur': 'ガウスぼかしを切り替え',
+                    'aria.a11yHc': 'ハイコントラストを切り替え',
+                    'aria.a11yCb': '色覚サポートモードを切り替え',
+                    'aria.a11yRm': 'アニメーション削減を切り替え',
+                    'aria.exportData': 'データをJSONでエクスポート',
+                    'aria.sysInfo': 'システム情報を表示',
+                    'aria.refreshCache': 'キャッシュを更新',
+                    'aria.clearStats': '統計をリセット',
+                    'aria.clearDiscussions': 'すべてのコメントを削除',
+                    'aria.clearLogs': '操作ログを消去',
+                    'aria.showReports': '通報を表示',
+                    'aria.errorLogs': 'エラーログを表示',
+                    'aria.exportErrors': 'エラーログをエクスポート',
+                    'aria.devPanel': '開発ログパネル',
+                    'aria.perfMonitor': 'パフォーマンス監視レポート',
+                    'aria.shortcutDebug': 'ショートカットデバッグ',
+                    'aria.devLogout': '開発者モードを終了',
+                    'aria.devPassword': '開発者パスワード入力',
+                    'aria.devVerify': '本人確認',
+                    'aria.search': '地図を検索',
+                    'aria.bookmark': '現在の地図をお気に入り登録',
+                    'aria.nickname': 'ニックネーム入力',
+                    'aria.tagGeneral': '一般討論タグを選択',
+                    'aria.tagAcademic': '学術討論タグを選択',
+                    'aria.tagQuestion': '質問タグを選択',
+                    'aria.tagOpinion': '意見共有タグを選択',
+                    'aria.addImage': '画像を追加',
+                    'aria.imageFile': '画像ファイルを選択',
+                    'aria.removeImage': '画像を削除',
+                    'aria.commentContent': 'コメント内容入力',
+                    'aria.submitComment': 'コメントを投稿',
+                    'aria.shareCard': 'シェアカードを生成',
+                    'aria.prevMap': '前の地図',
+                    'aria.nextMap': '次の地図',
+                    'aria.toggleTimeline': 'タイムラインパネルを切り替え',
+                    'aria.toggleInfo': '情報パネルを切り替え',
+                    'aria.reload': '地図を更新',
+                    'aria.layer': 'レイヤーパネルを切り替え',
+                    'aria.fullscreen': '全画面切り替え',
+                    'aria.tabTimeline': 'タイムラインに切り替え',
+                    'aria.tabMap': '地図に切り替え',
+                    'aria.tabInfo': '詳細に切り替え',
+                    'aria.closeLayer': 'レイヤーパネルを閉じる',
+                    'aria.layerName': '地名レイヤーを切り替え',
+                    'aria.layerRoad': '交通路レイヤーを切り替え',
+                    'aria.layerWall': '長城レイヤーを切り替え',
+                    'aria.layerRiver': '河川湖沼レイヤーを切り替え',
+                    'aria.layerBorder': '国境レイヤーを切り替え',
+                    'aria.layerTerrain': '地形レイヤーを切り替え',
+                    'aria.layerBg': '背景レイヤー（固定）',
+                    'aria.closeShare': 'シェアダイアログを閉じる',
+                    'aria.saveShare': 'シェアカードを保存',
+                    'aria.copyShare': 'シェアカードをクリップボードにコピー',
+                    'aria.closeSponsor': 'サポートダイアログを閉じる',
+                    'aria.saveQr': 'QRコードをアルバムに保存',
+                    'aria.bilibili': '作者のBilibiliを訪問',
+
+                    // ===== 设置面板 =====
+                    'settings.title': '館の設定',
+                    'settings.theme': 'テーマ',
+                    'settings.theme.dark': '玄墨',
+                    'settings.theme.rice': '宣紙',
+                    'settings.theme.custom': 'カスタム',
+                    'settings.theme.auto': '自動',
+                    'settings.theme.autoHint': '🌗 昼は宣紙、夜（19:00 - 07:00）は自動的に玄墨に切り替え',
+                    'settings.customColors': '🎨 カスタムカラー',
+                    'settings.color.bg': '背景',
+                    'settings.color.panel': 'パネル',
+                    'settings.color.hover': 'ホバー',
+                    'settings.color.accent': 'アクセント',
+                    'settings.color.accentLight': 'アクセント（淡）',
+                    'settings.color.gold': '金色',
+                    'settings.color.goldLight': '金色（淡）',
+                    'settings.color.text': '本文',
+                    'settings.color.textMuted': '補助テキスト',
+                    'settings.copyFromCurrent': '📋 現在のテーマからコピー',
+                    'settings.resetCustom': '↺ デフォルトに戻す',
+                    'settings.leftWidth': '左サイドバー幅',
+                    'settings.rightWidth': '右サイドバー幅',
+                    'settings.quality': '画質',
+                    'settings.quality.original': '原画',
+                    'settings.quality.high': '高画質',
+                    'settings.quality.low': '低画質',
+                    'settings.quality.expOriginal': '全体を高精細に描画。最高画質だがリソース消費が多い',
+                    'settings.quality.expHigh': 'PC/iPad版は300%未満で簡略描画、300%以上で高精度。スマホ版は750%未満で簡略描画、750%以上で高精度',
+                    'settings.quality.expLow': '地形レイヤーを非表示にし全体を簡略描画。動作が大幅に軽くなる',
+                    'settings.renderMode': 'レンダリングモード',
+                    'settings.renderMode.auto': '自動',
+                    'settings.renderMode.single': '単一レイヤー',
+                    'settings.renderMode.multi': 'マルチレイヤー',
+                    'settings.renderMode.expAuto': 'スマホは単一レイヤー（性能優先）、PCはマルチレイヤー（画質優先）',
+                    'settings.renderMode.expSingle': '統合画像のみを読み込み。性能が最も良い',
+                    'settings.renderMode.expMulti': '背景・地形・国境・河川・地名などを重ねて描画。画質が最も良い',
+                    'settings.devMode': '開発者モード',
+                    'settings.devMode.desc': '有効にするとコメント管理（削除・ピン留め）が可能。パスワード認証が必要',
+                    'settings.devMode.on': 'オン',
+                    'settings.devMode.off': 'オフ',
+                    'settings.blur': 'ガウスぼかし',
+                    'settings.blur.desc': '有効にすると背景がすりガラス効果に。無効にすると動作が軽くなる',
+                    'settings.blur.on': 'オン',
+                    'settings.blur.off': 'オフ',
+                    'settings.a11y': '♿ アクセシビリティ',
+                    'settings.a11y.hc': 'ハイコントラスト',
+                    'settings.a11y.hcDesc': '文字と背景のコントラストを強化。弱視の方に適しています',
+                    'settings.a11y.cb': '色覚サポート',
+                    'settings.a11y.cbDesc': '赤緑を青黄に置き換え。色覚異常の方に適しています',
+                    'settings.a11y.rm': 'アニメーション削減',
+                    'settings.a11y.rmDesc': 'すべてのトランジションとアニメーションを無効化',
+                    'settings.a11y.on': 'オン',
+                    'settings.a11y.off': 'オフ',
+                    'settings.devTools': '🛠️ 開発者ツール',
+                    'settings.devTools.export': '📤 データをエクスポート (JSON)',
+                    'settings.devTools.sysInfo': '📊 システム情報',
+                    'settings.devTools.refreshCache': '🔄 キャッシュを更新',
+                    'settings.devTools.clearStats': '📊 統計をリセット',
+                    'settings.devTools.clearDiscussions': '🗑️ すべてのコメントを削除',
+                    'settings.devTools.clearLogs': '📋 操作ログを消去',
+                    'settings.devTools.showReports': '🚩 通報を表示',
+                    'settings.devTools.errorLogs': '🐛 エラーログを表示',
+                    'settings.devTools.exportErrors': '📥 エラーログをエクスポート',
+                    'settings.devTools.devPanel': '📊 開発ログパネル',
+                    'settings.devTools.perfMonitor': '⚡ パフォーマンス監視レポート',
+                    'settings.devTools.shortcutDebug': '⌨️ ショートカットデバッグ',
+                    'settings.devTools.warning': '警告：一部の操作は元に戻せません。ご注意ください',
+
+                    // ===== 语言 =====
+                    'lang.label': '言語 / Language',
+                    'lang.zhCN': '简体中文（中国大陆）',
+                    'lang.zhTW': '繁體中文（中國台灣省）',
+                    'lang.zhHK': '繁體中文（中國香港特别行政区）',
+                    'lang.en': 'English',
+                    'lang.ja': '日本語',
+                    'lang.ko': '한국어',
+                    'lang.ru': 'Русский',
+
+                    // ===== 时间轴 =====
+                    'timeline.title': '昭燃の歴史地図館',
+                    'timeline.subtitle': '史に学び · 興亡を知る',
+                    'timeline.searchPlaceholder': '王朝・年代・地図名を検索...',
+                    'timeline.filter.all': 'すべて',
+                    'timeline.filter.bookmark': '⭐ お気に入り',
+                    'timeline.filter.war': '戦争',
+                    'timeline.filter.territory': '領域',
+                    'timeline.filter.culture': '文化',
+                    'timeline.filter.economy': '経済',
+
+                    // ===== 信息面板 =====
+                    'info.yearPlaceholder': '—',
+                    'info.titlePlaceholder': '地図を選択して探索を開始',
+                    'info.bookmark': 'お気に入り',
+                    'info.bookmarked': 'お気に入り済み',
+                    'info.eraBg': '📜 時代背景',
+                    'info.eraBgPlaceholder': '地図を選択して時代背景を表示...',
+                    'info.wisdom': '史家の言葉',
+                    'info.mapDetail': '地図の詳細',
+                    'info.mapDetailPlaceholder': '先史文明から現代世界まで、170枚以上の歴史地図が中華と世界文明の時空を結びます。左のタイムラインをクリックして旅を始めましょう。',
+                    'info.discussion': '💬 学術討論エリア',
+                    'info.discussion.about': 'この地図についての討論',
+                    'info.discussion.loading': '読み込み中...',
+                    'info.discussion.sortLatest': '最新',
+                    'info.discussion.sortHottest': '人気',
+                    'info.discussion.sortEssential': '精华',
+                    'info.discussion.namePlaceholder': 'ニックネーム（任意）',
+                    'info.discussion.anon': '匿名',
+                    'info.discussion.tagGeneral': '一般討論',
+                    'info.discussion.tagAcademic': '学術討論',
+                    'info.discussion.tagQuestion': '質問',
+                    'info.discussion.tagOpinion': '意見共有',
+                    'info.discussion.addImage': '📎 画像を追加',
+                    'info.discussion.contentPlaceholder': 'この地図への見解・疑問・学術的意見を共有... @ でユーザーをメンション',
+                    'info.discussion.submit': 'コメントを投稿',
+                    'info.discussion.count': '件の討論',
+                    'info.basicInfo': '基本情報',
+                    'info.meta.era': '歴史時代',
+                    'info.meta.span': '期間',
+                    'info.meta.count': '政権/勢力',
+                    'info.meta.index': '地図番号',
+                    'info.visitor': '👁️ アクセス統計',
+                    'info.visitor.total': '累計アクセス',
+                    'info.visitor.today': '今日',
+                    'info.share': '📤 シェア',
+                    'info.share.generate': 'シェアカードを生成',
+                    'info.nav.prev': '← 前代',
+                    'info.nav.next': '次代 →',
+                    'info.defaultQuote': '歴史は英知の鏡である',
+                    'info.defaultQuoteAuthor': '— フランシス・ベーコン',
+                    'info.defaultQuote2': '大道を知らんと欲すれば、必ず先ず史を為す',
+                    'info.defaultQuoteAuthor2': '— 龔自珍',
+                    'info.defaultQuote3': '「天人の際を究め、古今の変を通じ、一家の言を成す」',
+                    'info.defaultQuoteAuthor3': '— 司馬遷『報任安書』',
+                    'info.defaultQuote4': '江山勝跡を留め、我輩復た登臨す',
+                    'info.defaultQuoteAuthor4': '孟浩然',
+                    'info.quoteDefault': '史に鑑みれば、興替を知るべし',
+
+                    // ===== 帮助 =====
+                    'help.title': '📖 ヘルプセンター',
+                    'help.about': '地図館について',
+                    'help.guide': '🎮 使い方ガイド',
+                    'help.guide.drag': 'ドラッグで移動',
+                    'help.guide.dragDesc': 'マウスまたは指でドラッグ',
+                    'help.guide.zoom': 'ズーム',
+                    'help.guide.zoomDesc': 'ホイールまたはピンチ',
+                    'help.guide.timeline': 'タイムライン',
+                    'help.guide.timelineDesc': '左の年代をクリックして切り替え',
+                    'help.guide.search': '検索',
+                    'help.guide.searchDesc': '王朝や年代を入力して素早く移動',
+                    'help.guide.theme': 'テーマ切替',
+                    'help.guide.themeDesc': '設定で4つのスタイルを切り替え',
+                    'help.guide.mobile': 'モバイル',
+                    'help.guide.mobileDesc': '下部タブでビューを切り替え',
+                    'help.shortcuts': '⌨️ キーボードショートカット',
+                    'help.shortcut.prev': '前の地図へ',
+                    'help.shortcut.next': '次の地図へ',
+                    'help.shortcut.zoomIn': '拡大',
+                    'help.shortcut.zoomOut': '縮小',
+                    'help.shortcut.reset': 'ビューをリセット',
+                    'help.shortcut.help': 'ヘルプを開閉',
+                    'help.shortcut.settings': '設定を開閉',
+                    'help.shortcut.search': '検索ボックスにフォーカス',
+                    'help.shortcut.reload': '現在の地図を再読み込み',
+                    'help.shortcut.layer': 'レイヤーパネルを開閉',
+                    'help.shortcut.esc': 'すべてのパネルを閉じる',
+                    'help.shortcut.fullscreen': '全画面 / 全画面解除',
+                    'help.contact': '📬 作者への連絡',
+                    'help.contact.email': 'メール',
+                    'help.sponsor': '☕ 作者を支援',
+                    'help.sponsor.desc': 'この地図館が役に立ったら、作者にお茶を一杯おごってください。あなたの支援が更新の原動力です。',
+                    'help.sponsor.btn': '作者・昭燃にお茶をおごる',
+                    'help.sponsor.disclaimer': '免責事項：本機能は任意の支援であり、商業取引ではありません。問題があれば作者までご連絡ください。',
+                    'help.thanks': '🙏 謝辞',
+                    'help.version': 'ℹ️ バージョン情報',
+                    'help.version.line1': '昭燃の歴史地図館 v1.3',
+                    'help.version.line2': '歴史地図 170+ 枚収録 · 8 大歴史時代',
+                    'help.version.copyright': '© 2024 昭燃 · 史に鑑みれば、興替を知るべし',
+
+                    // ===== 分享 =====
+                    'share.title': '📤 シェアカードを生成',
+                    'share.save': '💾 画像を保存',
+                    'share.copy': '📋 クリップボードにコピー',
+                    'share.tip': '生成されたカードには現在の地図情報、名言、館のロゴが含まれます。SNS や学術交流にご利用ください。',
+                    'share.selectFirst': '先に地図を選択してください',
+                    'share.generating': 'カード生成中です。少々お待ちください...',
+                    'share.copySuccess': 'シェアカードをクリップボードにコピーしました！',
+                    'share.copyFail': 'ブラウザが画像の直接コピーに対応していません。自動的にダウンロードします...',
+                    'share.mapLoading': '地図読み込み中です。しばらくしてからお試しください',
+                    'share.cardTitle': '昭燃の歴史地図館',
+                    'share.cardSubtitle': '史に学び · 興亡を知る',
+                    'share.cardIndex': '第 {0} / {1} 枚 · {2}',
+                    'share.cardUrl': 'maps.zhaoran.history',
+                    'share.cardDownloadPrefix': 'ZhaoranMap_',
+
+                    // ===== 赞助 =====
+                    'sponsor.title': '☕ 作者にお茶をおごる',
+                    'sponsor.tip': 'ご支援ありがとうございます！下記のQRコードを長押しまたはスキャンしてください',
+                    'sponsor.loading': '読み込み中...',
+                    'sponsor.save': '💾 アルバムに保存',
+                    'sponsor.note': 'WeChatスキャン · 金額自由 · 心遣いに感謝',
+                    'sponsor.disclaimer': '本機能は任意の支援であり、商業取引ではありません。',
+                    'sponsor.loadFail': 'QRコードの読み込みに失敗しました。しばらくしてからお試しください',
+                    'sponsor.notReady': 'QRコードの準備ができていません。しばらくしてからお試しください',
+                    'sponsor.saving': '⏳ 保存中...',
+                    'sponsor.saved': '✅ QRコードを保存しました',
+                    'sponsor.saveHint': '自動ダウンロードされない場合は、画像を長押しして保存してください',
+                    'sponsor.saveBtn': '💾 アルバムに保存',
+
+                    // ===== 图层 =====
+                    'layer.title': '🗗 レイヤー管理',
+                    'layer.name': '地名',
+                    'layer.road': '交通路',
+                    'layer.wall': '長城',
+                    'layer.river': '河川湖沼',
+                    'layer.border': '国境',
+                    'layer.terrain': '地形',
+                    'layer.bg': '背景',
+                    'layer.badge.top': '最上位',
+                    'layer.badge.exclusive': '専用',
+                    'layer.badge.exclusiveUniversal': '専用/汎用',
+                    'layer.badge.multiply': '乗算',
+                    'layer.badge.bottom': '最下位',
+                    'layer.no': '(なし)',
+                    'layer.exclusive': '専用',
+                    'layer.top': '最上位',
+                    'layer.bottom': '最下位',
+                    'layer.exclusiveUniversal': '専用/汎用',
+                    'layer.multiply': '乗算',
+
+                    // ===== 加载 =====
+                    'loading.text': 'レイヤー読み込み中',
+                    'loading.preparing': '準備中...',
+                    'loading.waiting': '待機中...',
+                    'loading.done': '✓ 完了',
+                    'loading.remain': '⏳ 残り約',
+                    'loading.seconds': '秒',
+                    'loading.almostDone': '⏳ まもなく完了...',
+                    'loading.completed': '✅ 完了',
+
+                    // ===== 移动端 =====
+                    'mobile.timeline': 'タイムライン',
+                    'mobile.map': '地図',
+                    'mobile.info': '詳細',
+
+                    // ===== 开发者 =====
+                    'dev.indicator': '🔧 開発者モード有効',
+                    'dev.logout': 'ログアウト',
+                    'dev.loginTitle': '🔧 開発者モード認証',
+                    'dev.passwordPlaceholder': '開発者パスワードを入力',
+                    'dev.verify': '認証',
+                    'dev.passwordWrong': '❌ パスワードが違います。残り試行回数: {0}',
+                    'dev.locked': '🔒 試行回数が多すぎます。15分間ロックされました',
+                    'dev.lockedWait': '🔒 ログインがロックされています。{0}分後に再試行してください',
+                    'dev.lockedShort': '🔒 ロック中。{0}分後に再試行してください',
+                    'dev.on': '✅ 開発者モードを有効にしました',
+                    'dev.off': '🔒 開発者モードを無効にしました',
+                    'dev.passwordWrongToast': '❌ パスワードが違います',
+                    'dev.lockToast': '🔒 ログインを15分間ロックしました',
+                    'dev.needEnable': '⚠️ 先に開発者モードを有効にしてください',
+                    'dev.logoutConfirm': '開発者モードを終了しますか？',
+                    'dev.consoleOn': '🔓 開発者モード有効：すべての制限が解除されました（右クリック、コピー、F12、ショートカットなど）',
+                    'dev.consoleOff': '🔒 開発者モード無効：保護制限が復元されました',
+
+                    // ===== 提示 =====
+                    'toast.copyright': '著作権保護',
+                    'toast.copyrightSub': '作者の許可なく、地図ファイルの保存・複製を固く禁じます！',
+                    'toast.offline': '⚠️ ネットワークが切断されました。一部の機能が利用できません',
+                    'toast.quota': '⚠️ ローカルストレージの容量が不足しています',
+
+                    // ===== 地图失败 =====
+                    'fallback.title': 'この地図は未収録です',
+                    'fallback.desc': '地図リソースの読み込みに失敗しました。ネットワークを確認して再試行してください。',
+                    'fallback.retry': '🔄 再読み込み',
+
+                    // ===== 欢迎 =====
+                    'welcome.title': '昭燃の歴史地図館',
+                    'welcome.quote': '「史とは、天下を治むるの道を明らかにする所以なり」',
+                    'welcome.quoteAuthor': '—— 曾鞏『南斉書序』',
+
+                    // ===== 地图引擎 =====
+                    'map.layer.loading': 'レイヤーを読み込み中...',
+                    'map.layer.init': '初期化中...',
+                    'map.layer.connecting': '接続中...',
+                    'map.layer.connecting2': '接続中',
+                    'map.layer.preparing': 'レイヤーを準備中...',
+                    'map.layer.layer': 'レイヤー',
+                    'map.layer.river': '河川湖沼',
+                    'map.layer.terrain': '地形',
+                    'map.layer.border': '国境',
+                    'map.layer.name': '地名',
+                    'map.layer.bg': '背景',
+                    'map.layer.done': '完了',
+                    'map.layer.loadedCount': '✓ 読み込み完了',
+                    'map.layer.remaining': '⏳ 残り約',
+                    'map.layer.remainingSec': '秒',
+                    'map.layer.almostDone': '⏳ まもなく完了...',
+                    'map.layer.completed': '✅ 完了',
+                    'map.layer.error': '地図リソースの読み込みに失敗しました。ネットワークを確認して再試行してください。',
+                    'map.layer.timeout': '地図の読み込みがタイムアウトしました。ネットワークを確認して再試行してください。',
+                    'map.layer.mergedFallback': '⚠️ 統合画像の読み込みに失敗。元画像にフォールバックします',
+
+                    // ===== 收藏 =====
+                    'bookmark.selectFirst': '先に地図を選択してください',
+                    'bookmark.added': '⭐ お気に入りに追加しました',
+                    'bookmark.removed': 'お気に入りから削除しました',
+                    'bookmark.already': 'お気に入り済み',
+
+                    // ===== 空状态 =====
+                    'empty.title': '地図を選択して探索を開始',
+                    'empty.desc': '先史文明から現代世界まで、170枚以上の歴史地図が中華文明の時空を結びます。左のタイムラインをクリックして旅を始めましょう。',
+                    'empty.discussion': '地図を選択して討論を開始',
+
+                    // ===== 主题提示 =====
+                    'theme.copied': '📋 現在のテーマ配色をコピーしました',
+                    'theme.resetConfirm': 'カスタム配色をデフォルトに戻しますか？',
+                    'theme.resetDone': '↺ デフォルト配色に戻しました',
+
+                    // ===== 无障碍提示 =====
+                    'a11y.hcOn': '✅ ハイコントラストを有効にしました',
+                    'a11y.hcOff': 'ハイコントラストを無効にしました',
+                    'a11y.cbOn': '✅ 色覚サポートモードを有効にしました',
+                    'a11y.cbOff': '色覚サポートモードを無効にしました',
+                    'a11y.rmOn': '✅ アニメーションを削減しました',
+                    'a11y.rmOff': 'アニメーションを復元しました',
+
+                    // ===== 全屏 =====
+                    'fullscreen.enter': '⛶ 全画面モードに入りました',
+                    'fullscreen.exit': '⛶ 全画面モードを終了しました',
+
+                    // ===== 讨论区动态 =====
+                    'discussion.rateLimit': '⏳ {0}秒後にお試しください',
+                    'discussion.rateLimitAlert': '投稿が頻繁すぎます。{0}秒後にお試しください',
+                    'discussion.emptyContent': 'コメント内容を入力してください',
+                    'discussion.tooLong': 'コメントは500文字以内で入力してください',
+                    'discussion.sending': '送信中...',
+                    'discussion.sendSuccess': 'コメントを投稿しました！',
+                    'discussion.sendSuccess2': '送信しました！',
+                    'discussion.sendFail': '送信に失敗しました: {0}',
+                    'discussion.sendError': '送信に失敗しました。ネットワーク接続を確認して再試行してください',
+                    'discussion.loading': '読み込み中...',
+                    'discussion.loadFail': '読み込みに失敗しました: {0}',
+                    'discussion.loadError': '読み込みに失敗しました。しばらくしてからお試しください',
+                    'discussion.noComments': 'まだコメントがありません。最初の一人になりましょう',
+                    'discussion.selectMap': '地図を選択して討論を開始',
+                    'discussion.deleteConfirm': 'このコメントを削除しますか？',
+                    'discussion.deleteFail': '削除に失敗しました。再試行してください',
+                    'discussion.reportPrompt': '通報理由を簡単に記入してください（例：広告、誹謗中傷、違法コンテンツ）：',
+                    'discussion.reportDefault': '不適切な内容',
+                    'discussion.reportTooLong': '理由は200文字以内で入力してください',
+                    'discussion.reportSuccess': '通報を受け付けました。ご協力ありがとうございます。',
+                    'discussion.reportFail': '通報の送信に失敗しました。しばらくしてからお試しください',
+                    'discussion.editEmpty': '内容を入力してください',
+                    'discussion.editTooLong': '500文字以内で入力してください',
+                    'discussion.editFail': '編集に失敗しました。再試行してください',
+                    'discussion.edited': '(編集済み)',
+                    'discussion.tagAcademic': '学術',
+                    'discussion.tagQuestion': '質問',
+                    'discussion.tagOpinion': '意見',
+                    'discussion.essential': '⭐ 精华',
+                    'discussion.replyPlaceholder': '@{0} に返信 ... @ でユーザーをメンション',
+                    'discussion.replySend': '返信を送信',
+                    'discussion.replyCancel': 'キャンセル',
+                    'discussion.replyFail': '返信の送信に失敗しました。再試行してください',
+                    'discussion.report': '通報',
+                    'discussion.delete': '削除',
+                    'discussion.adminDelete': '管理者削除',
+                    'discussion.edit': '編集',
+                    'discussion.reply': '返信',
+                    'discussion.imageOnly': 'JPG、PNG、GIF、WEBP形式の画像のみ対応しています',
+                    'discussion.imageTooBig': '画像は10MB以内にしてください',
+                    'discussion.imageCompressing': '⏳ 圧縮中...',
+                    'discussion.imageSelected': '✅ 選択済み ({0}KB)',
+                    'discussion.imageFail': '画像の処理に失敗しました。別の画像をお試しください',
+                    'discussion.imageTimeout': '画像アップロードがタイムアウトしました。テキストのみで送信します',
+                    'discussion.imageUploadFail': '画像アップロードに失敗しました。テキストのみで送信します',
+                    'discussion.anonName': '匿名ゲスト',
+                    'discussion.defaultName': '匿名ユーザー',
+                    'discussion.anonymous': '匿名',
+                    'discussion.reportContent': 'コメントを通報',
+                    'discussion.editContent': 'コメントを編集',
+                    'discussion.deleteContent': 'コメントを削除',
+                    'discussion.essentialContent': '精华に設定',
+                    'discussion.essentialRemove': 'ピン留めを解除',
+
+                    // ===== 访问统计 =====
+                    'visitor.justNow': 'たった今',
+                    'visitor.hoursAgo': '{0}時間前',
+                    'visitor.today': '本日訪問済み',
+                    'visitor.new': '新規訪問',
+
+                    // ===== 作者信息 =====
+                    'author.info': '✍️ 作者情報',
+                    'author.name': '作者',
+                    'author.org': '所属団体',
+                },
+
+                'ko': {
+                    // ===== 标题屏 =====
+                    'title.main': '昭燃',
+                    'title.subtitle': '역사 지도관',
+                    'title.quote': '"천인지제를 궁구하고, 고금의 변화를 통하며, 일가의 말을 이룬다"',
+                    'title.quoteAuthor': '—— 사마천 《보임안서》',
+                    'title.enterHint': '아무 곳이나 탭하여 입장',
+
+                    // ===== 通用按钮 =====
+                    'btn.close': '닫기',
+                    'btn.confirm': '확인',
+                    'btn.cancel': '취소',
+                    'btn.save': '저장',
+                    'btn.delete': '삭제',
+                    'btn.edit': '편집',
+                    'btn.submit': '제출',
+                    'btn.reset': '초기화',
+                    'btn.copy': '복사',
+                    'btn.download': '다운로드',
+
+                    // ===== aria =====
+                    'aria.help': '도움말 센터 열기',
+                    'aria.settings': '설정 패널 열기',
+                    'aria.closeSettings': '설정 닫기',
+                    'aria.closeHelp': '도움말 센터 닫기',
+                    'aria.themeDark': '현묵 테마로 전환',
+                    'aria.themeRice': '선지 테마로 전환',
+                    'aria.themeCustom': '사용자 정의 테마로 전환',
+                    'aria.themeAuto': '자동 테마로 전환',
+                    'aria.leftWidth': '왼쪽 사이드바 너비 조절',
+                    'aria.rightWidth': '오른쪽 사이드바 너비 조절',
+                    'aria.qualityOriginal': '원본 화질',
+                    'aria.qualityHigh': '고화질',
+                    'aria.qualityLow': '저화질',
+                    'aria.renderAuto': '자동 렌더링 모드',
+                    'aria.renderSingle': '단일 레이어 렌더링',
+                    'aria.renderMulti': '다중 레이어 렌더링',
+                    'aria.devMode': '개발자 모드 전환',
+                    'aria.blur': '가우시안 블러 전환',
+                    'aria.a11yHc': '고대비 전환',
+                    'aria.a11yCb': '색각 지원 모드 전환',
+                    'aria.a11yRm': '애니메이션 감소 전환',
+                    'aria.exportData': '데이터를 JSON으로 내보내기',
+                    'aria.sysInfo': '시스템 정보 표시',
+                    'aria.refreshCache': '캐시 새로고침',
+                    'aria.clearStats': '통계 초기화',
+                    'aria.clearDiscussions': '모든 댓글 삭제',
+                    'aria.clearLogs': '작업 로그 지우기',
+                    'aria.showReports': '신고 보기',
+                    'aria.errorLogs': '오류 로그 보기',
+                    'aria.exportErrors': '오류 로그 내보내기',
+                    'aria.devPanel': '개발 로그 패널',
+                    'aria.perfMonitor': '성능 모니터링 보고서',
+                    'aria.shortcutDebug': '단축키 디버그',
+                    'aria.devLogout': '개발자 모드 종료',
+                    'aria.devPassword': '개발자 비밀번호 입력',
+                    'aria.devVerify': '본인 확인',
+                    'aria.search': '지도 검색',
+                    'aria.bookmark': '현재 지도 즐겨찾기',
+                    'aria.nickname': '닉네임 입력',
+                    'aria.tagGeneral': '일반 토론 태그 선택',
+                    'aria.tagAcademic': '학술 토론 태그 선택',
+                    'aria.tagQuestion': '질문 태그 선택',
+                    'aria.tagOpinion': '의견 공유 태그 선택',
+                    'aria.addImage': '이미지 추가',
+                    'aria.imageFile': '이미지 파일 선택',
+                    'aria.removeImage': '이미지 제거',
+                    'aria.commentContent': '댓글 내용 입력',
+                    'aria.submitComment': '댓글 게시',
+                    'aria.shareCard': '공유 카드 생성',
+                    'aria.prevMap': '이전 지도',
+                    'aria.nextMap': '다음 지도',
+                    'aria.toggleTimeline': '타임라인 패널 전환',
+                    'aria.toggleInfo': '정보 패널 전환',
+                    'aria.reload': '지도 새로고침',
+                    'aria.layer': '레이어 패널 전환',
+                    'aria.fullscreen': '전체 화면 전환',
+                    'aria.tabTimeline': '타임라인으로 전환',
+                    'aria.tabMap': '지도로 전환',
+                    'aria.tabInfo': '상세로 전환',
+                    'aria.closeLayer': '레이어 패널 닫기',
+                    'aria.layerName': '지명 레이어 전환',
+                    'aria.layerRoad': '교통로 레이어 전환',
+                    'aria.layerWall': '만리장성 레이어 전환',
+                    'aria.layerRiver': '하천호수 레이어 전환',
+                    'aria.layerBorder': '국경 레이어 전환',
+                    'aria.layerTerrain': '지형 레이어 전환',
+                    'aria.layerBg': '배경 레이어(고정)',
+                    'aria.closeShare': '공유 대화상자 닫기',
+                    'aria.saveShare': '공유 카드 저장',
+                    'aria.copyShare': '공유 카드를 클립보드에 복사',
+                    'aria.closeSponsor': '후원 대화상자 닫기',
+                    'aria.saveQr': 'QR 코드를 앨범에 저장',
+                    'aria.bilibili': '작가 Bilibili 방문',
+
+                    // ===== 设置面板 =====
+                    'settings.title': '전시관 설정',
+                    'settings.theme': '테마',
+                    'settings.theme.dark': '현묵',
+                    'settings.theme.rice': '선지',
+                    'settings.theme.custom': '사용자 정의',
+                    'settings.theme.auto': '자동',
+                    'settings.theme.autoHint': '🌗 낮에는 선지, 밤(19:00 - 07:00)에는 자동으로 현묵으로 전환',
+                    'settings.customColors': '🎨 사용자 정의 색상',
+                    'settings.color.bg': '배경',
+                    'settings.color.panel': '패널',
+                    'settings.color.hover': '호버',
+                    'settings.color.accent': '강조색',
+                    'settings.color.accentLight': '강조색(연함)',
+                    'settings.color.gold': '금색',
+                    'settings.color.goldLight': '금색(연함)',
+                    'settings.color.text': '본문',
+                    'settings.color.textMuted': '보조 텍스트',
+                    'settings.copyFromCurrent': '📋 현재 테마에서 복사',
+                    'settings.resetCustom': '↺ 기본값으로 복원',
+                    'settings.leftWidth': '왼쪽 사이드바 너비',
+                    'settings.rightWidth': '오른쪽 사이드바 너비',
+                    'settings.quality': '화질',
+                    'settings.quality.original': '원본',
+                    'settings.quality.high': '고화질',
+                    'settings.quality.low': '저화질',
+                    'settings.quality.expOriginal': '전체를 고정밀도로 다시 그립니다. 최고 화질이지만 리소스 사용량이 많습니다',
+                    'settings.quality.expHigh': 'PC/iPad는 300% 미만 단순 렌더링, 300% 이상 고정밀. 모바일은 750% 미만 단순 렌더링, 750% 이상 고정밀',
+                    'settings.quality.expLow': '지형 레이어를 숨기고 전체를 단순 렌더링합니다. 성능이 크게 향상됩니다',
+                    'settings.renderMode': '렌더링 모드',
+                    'settings.renderMode.auto': '자동',
+                    'settings.renderMode.single': '단일 레이어',
+                    'settings.renderMode.multi': '다중 레이어',
+                    'settings.renderMode.expAuto': '모바일은 단일 레이어(성능 우선), PC는 다중 레이어(화질 우선)',
+                    'settings.renderMode.expSingle': '병합된 전체 이미지만 로드합니다. 성능 최적',
+                    'settings.renderMode.expMulti': '배경, 지형, 국경, 하천, 지명 등을 겹쳐서 표시합니다. 화질 최적',
+                    'settings.devMode': '개발자 모드',
+                    'settings.devMode.desc': '활성화하면 댓글 관리(삭제, 고정)가 가능합니다. 비밀번호 인증 필요',
+                    'settings.devMode.on': '켜짐',
+                    'settings.devMode.off': '꺼짐',
+                    'settings.blur': '가우시안 블러',
+                    'settings.blur.desc': '활성화하면 배경이 젖은 유리 효과로 표시됩니다. 끄면 성능이 향상됩니다',
+                    'settings.blur.on': '켜짐',
+                    'settings.blur.off': '꺼짐',
+                    'settings.a11y': '♿ 접근성',
+                    'settings.a11y.hc': '고대비',
+                    'settings.a11y.hcDesc': '텍스트와 배경 대비를 강화합니다. 저시력 사용자에게 적합합니다',
+                    'settings.a11y.cb': '색각 지원',
+                    'settings.a11y.cbDesc': '빨강/초록을 파랑/노랑으로 대체합니다. 색각 이상 사용자에게 적합합니다',
+                    'settings.a11y.rm': '애니메이션 감소',
+                    'settings.a11y.rmDesc': '모든 전환과 애니메이션을 비활성화합니다',
+                    'settings.a11y.on': '켜짐',
+                    'settings.a11y.off': '꺼짐',
+                    'settings.devTools': '🛠️ 개발자 도구',
+                    'settings.devTools.export': '📤 데이터 내보내기 (JSON)',
+                    'settings.devTools.sysInfo': '📊 시스템 정보',
+                    'settings.devTools.refreshCache': '🔄 캐시 새로고침',
+                    'settings.devTools.clearStats': '📊 통계 초기화',
+                    'settings.devTools.clearDiscussions': '🗑️ 모든 댓글 삭제',
+                    'settings.devTools.clearLogs': '📋 작업 로그 지우기',
+                    'settings.devTools.showReports': '🚩 신고 보기',
+                    'settings.devTools.errorLogs': '🐛 오류 로그 보기',
+                    'settings.devTools.exportErrors': '📥 오류 로그 내보내기',
+                    'settings.devTools.devPanel': '📊 개발 로그 패널',
+                    'settings.devTools.perfMonitor': '⚡ 성능 모니터링 보고서',
+                    'settings.devTools.shortcutDebug': '⌨️ 단축키 디버그',
+                    'settings.devTools.warning': '경고: 일부 작업은 되돌릴 수 없습니다. 주의해서 사용하세요',
+
+                    // ===== 语言 =====
+                    'lang.label': '언어 / Language',
+                    'lang.zhCN': '简体中文（中国大陆）',
+                    'lang.zhTW': '繁體中文（中國台灣省）',
+                    'lang.zhHK': '繁體中文（中國香港特别行政区）',
+                    'lang.en': 'English',
+                    'lang.ja': '日本語',
+                    'lang.ko': '한국어',
+                    'lang.ru': 'Русский',
+
+                    // ===== 时间轴 =====
+                    'timeline.title': '昭燃의 역사 지도관',
+                    'timeline.subtitle': '역사를 거울삼아 · 흥망을 알다',
+                    'timeline.searchPlaceholder': '왕조, 연도 또는 지도 이름 검색...',
+                    'timeline.filter.all': '전체',
+                    'timeline.filter.bookmark': '⭐ 즐겨찾기',
+                    'timeline.filter.war': '전쟁',
+                    'timeline.filter.territory': '영역',
+                    'timeline.filter.culture': '문화',
+                    'timeline.filter.economy': '경제',
+
+                    // ===== 信息面板 =====
+                    'info.yearPlaceholder': '—',
+                    'info.titlePlaceholder': '지도를 선택하여 탐험 시작',
+                    'info.bookmark': '즐겨찾기',
+                    'info.bookmarked': '즐겨찾기됨',
+                    'info.eraBg': '📜 시대 배경',
+                    'info.eraBgPlaceholder': '지도를 선택하여 시대 배경 보기...',
+                    'info.wisdom': '사가의 말',
+                    'info.mapDetail': '지도 상세',
+                    'info.mapDetailPlaceholder': '선사 문명부터 현대 세계까지, 170여 장의 역사 지도가 중화와 세계 문명의 시공간을 연결합니다. 왼쪽 타임라인을 클릭하여 여행을 시작하세요.',
+                    'info.discussion': '💬 학술 토론 구역',
+                    'info.discussion.about': '이 지도에 대한 토론',
+                    'info.discussion.loading': '로딩 중...',
+                    'info.discussion.sortLatest': '최신',
+                    'info.discussion.sortHottest': '인기',
+                    'info.discussion.sortEssential': '精华',
+                    'info.discussion.namePlaceholder': '닉네임(선택)',
+                    'info.discussion.anon': '익명',
+                    'info.discussion.tagGeneral': '일반 토론',
+                    'info.discussion.tagAcademic': '학술 토론',
+                    'info.discussion.tagQuestion': '질문',
+                    'info.discussion.tagOpinion': '의견 공유',
+                    'info.discussion.addImage': '📎 이미지 추가',
+                    'info.discussion.contentPlaceholder': '이 지도에 대한 견해, 질문 또는 학술적 의견을 공유하세요... @ 로 사용자를 멘션할 수 있습니다',
+                    'info.discussion.submit': '댓글 게시',
+                    'info.discussion.count': '개의 토론',
+                    'info.basicInfo': '기본 정보',
+                    'info.meta.era': '역사 시대',
+                    'info.meta.span': '기간',
+                    'info.meta.count': '정권/세력',
+                    'info.meta.index': '지도 번호',
+                    'info.visitor': '👁️ 방문 통계',
+                    'info.visitor.total': '누적 방문',
+                    'info.visitor.today': '오늘',
+                    'info.share': '📤 공유',
+                    'info.share.generate': '공유 카드 생성',
+                    'info.nav.prev': '← 이전',
+                    'info.nav.next': '다음 →',
+                    'info.defaultQuote': '역사는 지혜의 거울이다',
+                    'info.defaultQuoteAuthor': '— 프랜시스 베이컨',
+                    'info.defaultQuote2': '대도를 알려면 먼저 역사를 알아야 한다',
+                    'info.defaultQuoteAuthor2': '— 공자진',
+                    'info.defaultQuote3': '"천인지제를 궁구하고, 고금의 변화를 통하며, 일가의 말을 이룬다"',
+                    'info.defaultQuoteAuthor3': '— 사마천 《보임안서》',
+                    'info.defaultQuote4': '강산에 승적을 남기니, 우리들이 다시 오르네',
+                    'info.defaultQuoteAuthor4': '맹호연',
+                    'info.quoteDefault': '역사를 거울삼아 흥망을 알다',
+
+                    // ===== 帮助 =====
+                    'help.title': '📖 도움말 센터',
+                    'help.about': '지도관 소개',
+                    'help.guide': '🎮 사용 안내',
+                    'help.guide.drag': '드래그로 이동',
+                    'help.guide.dragDesc': '마우스 또는 손가락으로 드래그',
+                    'help.guide.zoom': '확대/축소',
+                    'help.guide.zoomDesc': '스크롤 휠 또는 핀치',
+                    'help.guide.timeline': '타임라인',
+                    'help.guide.timelineDesc': '왼쪽 연도를 클릭하여 전환',
+                    'help.guide.search': '검색',
+                    'help.guide.searchDesc': '왕조나 연도를 입력하여 빠르게 이동',
+                    'help.guide.theme': '테마 전환',
+                    'help.guide.themeDesc': '설정에서 네 가지 스타일 전환',
+                    'help.guide.mobile': '모바일',
+                    'help.guide.mobileDesc': '하단 탭으로 뷰 전환',
+                    'help.shortcuts': '⌨️ 키보드 단축키',
+                    'help.shortcut.prev': '이전 지도로',
+                    'help.shortcut.next': '다음 지도로',
+                    'help.shortcut.zoomIn': '확대',
+                    'help.shortcut.zoomOut': '축소',
+                    'help.shortcut.reset': '뷰 초기화',
+                    'help.shortcut.help': '도움말 열기/닫기',
+                    'help.shortcut.settings': '설정 열기/닫기',
+                    'help.shortcut.search': '검색 상자에 포커스',
+                    'help.shortcut.reload': '현재 지도 다시 로드',
+                    'help.shortcut.layer': '레이어 패널 열기/닫기',
+                    'help.shortcut.esc': '모든 패널 닫기',
+                    'help.shortcut.fullscreen': '전체 화면 / 전체 화면 해제',
+                    'help.contact': '📬 작가에게 연락',
+                    'help.contact.email': '이메일',
+                    'help.sponsor': '☕ 작가 후원',
+                    'help.sponsor.desc': '이 지도관이 도움이 되었다면 작가에게 차 한 잔을 대접해 주세요. 여러분의 지원이 업데이트의 원동력입니다.',
+                    'help.sponsor.btn': '작가 조연에게 차 한 잔',
+                    'help.sponsor.disclaimer': '면책 조항: 본 기능은 자발적 후원이며 상업 거래가 아닙니다. 문제가 있으면 작가에게 연락해 주세요.',
+                    'help.thanks': '🙏 감사의 말',
+                    'help.version': 'ℹ️ 버전 정보',
+                    'help.version.line1': '조연의 역사 지도관 v1.3',
+                    'help.version.line2': '역사 지도 170+ 장 수록 · 8대 역사 시대',
+                    'help.version.copyright': '© 2024 昭燃 · 역사를 거울삼아 흥망을 알다',
+
+                    // ===== 分享 =====
+                    'share.title': '📤 공유 카드 생성',
+                    'share.save': '💾 이미지 저장',
+                    'share.copy': '📋 클립보드에 복사',
+                    'share.tip': '생성된 카드에는 현재 지도 정보, 명언, 전시관 로고가 포함됩니다. SNS나 학술 교류에 활용하세요.',
+                    'share.selectFirst': '먼저 지도를 선택하세요',
+                    'share.generating': '카드 생성 중입니다. 잠시만 기다려 주세요...',
+                    'share.copySuccess': '공유 카드를 클립보드에 복사했습니다!',
+                    'share.copyFail': '브라우저가 이미지 직접 복사를 지원하지 않습니다. 자동으로 다운로드합니다...',
+                    'share.mapLoading': '지도 로딩 중입니다. 잠시 후 다시 시도하세요',
+                    'share.cardTitle': '조연의 역사 지도관',
+                    'share.cardSubtitle': '역사를 거울삼아 · 흥망을 알다',
+                    'share.cardIndex': '제 {0} / {1} 장 · {2}',
+                    'share.cardUrl': 'maps.zhaoran.history',
+                    'share.cardDownloadPrefix': 'ZhaoranMap_',
+
+                    // ===== 赞助 =====
+                    'sponsor.title': '☕ 작가에게 차 한 잔',
+                    'sponsor.tip': '지원해 주셔서 감사합니다! 아래 QR 코드를 길게 누르거나 스캔하세요',
+                    'sponsor.loading': '로딩 중...',
+                    'sponsor.save': '💾 앨범에 저장',
+                    'sponsor.note': 'WeChat 스캔 · 금액 자유 · 마음에 감사',
+                    'sponsor.disclaimer': '본 기능은 자발적 후원이며 상업 거래가 아닙니다.',
+                    'sponsor.loadFail': 'QR 코드 로드에 실패했습니다. 잠시 후 다시 시도하세요',
+                    'sponsor.notReady': 'QR 코드가 아직 준비되지 않았습니다. 잠시 후 다시 시도하세요',
+                    'sponsor.saving': '⏳ 저장 중...',
+                    'sponsor.saved': '✅ QR 코드를 저장했습니다',
+                    'sponsor.saveHint': '자동 다운로드되지 않으면 이미지를 길게 눌러 저장하세요',
+                    'sponsor.saveBtn': '💾 앨범에 저장',
+
+                    // ===== 图层 =====
+                    'layer.title': '🗗 레이어 관리',
+                    'layer.name': '지명',
+                    'layer.road': '교통로',
+                    'layer.wall': '만리장성',
+                    'layer.river': '하천호수',
+                    'layer.border': '국경',
+                    'layer.terrain': '지형',
+                    'layer.bg': '배경',
+                    'layer.badge.top': '최상위',
+                    'layer.badge.exclusive': '전용',
+                    'layer.badge.exclusiveUniversal': '전용/범용',
+                    'layer.badge.multiply': '곱하기',
+                    'layer.badge.bottom': '최하위',
+                    'layer.no': '(없음)',
+                    'layer.exclusive': '전용',
+                    'layer.top': '최상위',
+                    'layer.bottom': '최하위',
+                    'layer.exclusiveUniversal': '전용/범용',
+                    'layer.multiply': '곱하기',
+
+                    // ===== 加载 =====
+                    'loading.text': '레이어 로딩 중',
+                    'loading.preparing': '준비 중...',
+                    'loading.waiting': '대기 중...',
+                    'loading.done': '✓ 완료',
+                    'loading.remain': '⏳ 남은 시간 약',
+                    'loading.seconds': '초',
+                    'loading.almostDone': '⏳ 거의 완료...',
+                    'loading.completed': '✅ 완료',
+
+                    // ===== 移动端 =====
+                    'mobile.timeline': '타임라인',
+                    'mobile.map': '지도',
+                    'mobile.info': '상세',
+
+                    // ===== 开发者 =====
+                    'dev.indicator': '🔧 개발자 모드 켜짐',
+                    'dev.logout': '로그아웃',
+                    'dev.loginTitle': '🔧 개발자 모드 인증',
+                    'dev.passwordPlaceholder': '개발자 비밀번호 입력',
+                    'dev.verify': '인증',
+                    'dev.passwordWrong': '❌ 비밀번호가 틀렸습니다. 남은 시도 횟수: {0}',
+                    'dev.locked': '🔒 시도 횟수 초과. 15분 동안 잠금',
+                    'dev.lockedWait': '🔒 로그인이 잠겼습니다. {0}분 후 다시 시도하세요',
+                    'dev.lockedShort': '🔒 잠김. {0}분 후 다시 시도하세요',
+                    'dev.on': '✅ 개발자 모드를 켰습니다',
+                    'dev.off': '🔒 개발자 모드를 껐습니다',
+                    'dev.passwordWrongToast': '❌ 비밀번호가 틀렸습니다',
+                    'dev.lockToast': '🔒 로그인을 15분 동안 잠갔습니다',
+                    'dev.needEnable': '⚠️ 먼저 개발자 모드를 켜주세요',
+                    'dev.logoutConfirm': '개발자 모드를 종료하시겠습니까?',
+                    'dev.consoleOn': '🔓 개발자 모드 활성화: 모든 제한 해제(우클릭, 복사, F12, 단축키 등)',
+                    'dev.consoleOff': '🔒 개발자 모드 비활성화: 보호 제한이 복원되었습니다',
+
+                    // ===== 提示 =====
+                    'toast.copyright': '저작권 보호',
+                    'toast.copyrightSub': '작가의 허락 없이 지도 파일을 저장하거나 복사하는 것을 엄금합니다!',
+                    'toast.offline': '⚠️ 네트워크가 끊어졌습니다. 일부 기능을 사용할 수 없습니다',
+                    'toast.quota': '⚠️ 로컬 저장 공간이 부족합니다',
+
+                    // ===== 地图失败 =====
+                    'fallback.title': '이 지도는 아직 수록되지 않았습니다',
+                    'fallback.desc': '지도 리소스 로드에 실패했습니다. 네트워크를 확인하고 다시 시도하세요.',
+                    'fallback.retry': '🔄 다시 로드',
+
+                    // ===== 欢迎 =====
+                    'welcome.title': '조연의 역사 지도관',
+                    'welcome.quote': '"역사란 천하를 다스리는 도리를 밝히는 것이다"',
+                    'welcome.quoteAuthor': '—— 증공 《남제서서》',
+
+                    // ===== 地图引擎 =====
+                    'map.layer.loading': '레이어 로딩 중...',
+                    'map.layer.init': '초기화 중...',
+                    'map.layer.connecting': '연결 중...',
+                    'map.layer.connecting2': '연결 중',
+                    'map.layer.preparing': '레이어 준비 중...',
+                    'map.layer.layer': '레이어',
+                    'map.layer.river': '하천호수',
+                    'map.layer.terrain': '지형',
+                    'map.layer.border': '국경',
+                    'map.layer.name': '지명',
+                    'map.layer.bg': '배경',
+                    'map.layer.done': '완료',
+                    'map.layer.loadedCount': '✓ 로드 완료',
+                    'map.layer.remaining': '⏳ 남은 시간 약',
+                    'map.layer.remainingSec': '초',
+                    'map.layer.almostDone': '⏳ 거의 완료...',
+                    'map.layer.completed': '✅ 완료',
+                    'map.layer.error': '지도 리소스 로드에 실패했습니다. 네트워크를 확인하고 다시 시도하세요.',
+                    'map.layer.timeout': '지도 로드 시간 초과. 네트워크를 확인하고 다시 시도하세요.',
+                    'map.layer.mergedFallback': '⚠️ 병합 이미지 로드 실패. 원본 이미지로 대체합니다',
+
+                    // ===== 收藏 =====
+                    'bookmark.selectFirst': '먼저 지도를 선택하세요',
+                    'bookmark.added': '⭐ 즐겨찾기에 추가했습니다',
+                    'bookmark.removed': '즐겨찾기에서 제거했습니다',
+                    'bookmark.already': '즐겨찾기됨',
+
+                    // ===== 空状态 =====
+                    'empty.title': '지도를 선택하여 탐험 시작',
+                    'empty.desc': '선사 문명부터 현대 세계까지, 170여 장의 역사 지도가 중화 문명의 시공간을 연결합니다. 왼쪽 타임라인을 클릭하여 여행을 시작하세요.',
+                    'empty.discussion': '지도를 선택하여 토론 시작',
+
+                    // ===== 主题提示 =====
+                    'theme.copied': '📋 현재 테마 색상을 복사했습니다',
+                    'theme.resetConfirm': '사용자 정의 색상을 기본값으로 되돌리시겠습니까?',
+                    'theme.resetDone': '↺ 기본 색상으로 복원했습니다',
+
+                    // ===== 无障碍提示 =====
+                    'a11y.hcOn': '✅ 고대비를 켰습니다',
+                    'a11y.hcOff': '고대비를 껐습니다',
+                    'a11y.cbOn': '✅ 색각 지원 모드를 켰습니다',
+                    'a11y.cbOff': '색각 지원 모드를 껐습니다',
+                    'a11y.rmOn': '✅ 애니메이션을 줄였습니다',
+                    'a11y.rmOff': '애니메이션을 복원했습니다',
+
+                    // ===== 全屏 =====
+                    'fullscreen.enter': '⛶ 전체 화면 모드에 들어갔습니다',
+                    'fullscreen.exit': '⛶ 전체 화면 모드를 종료했습니다',
+
+                    // ===== 讨论区动态 =====
+                    'discussion.rateLimit': '⏳ {0}초 후에 시도하세요',
+                    'discussion.rateLimitAlert': '너무 자주 게시했습니다. {0}초 후에 다시 시도하세요',
+                    'discussion.emptyContent': '댓글 내용을 입력하세요',
+                    'discussion.tooLong': '댓글은 500자 이내로 입력하세요',
+                    'discussion.sending': '전송 중...',
+                    'discussion.sendSuccess': '댓글을 게시했습니다!',
+                    'discussion.sendSuccess2': '전송했습니다!',
+                    'discussion.sendFail': '전송 실패: {0}',
+                    'discussion.sendError': '전송 실패. 네트워크 연결을 확인하고 다시 시도하세요',
+                    'discussion.loading': '로딩 중...',
+                    'discussion.loadFail': '로드 실패: {0}',
+                    'discussion.loadError': '로드 실패. 잠시 후 다시 시도하세요',
+                    'discussion.noComments': '아직 댓글이 없습니다. 첫 번째가 되어보세요',
+                    'discussion.selectMap': '지도를 선택하여 토론 시작',
+                    'discussion.deleteConfirm': '이 댓글을 삭제하시겠습니까?',
+                    'discussion.deleteFail': '삭제 실패. 다시 시도하세요',
+                    'discussion.reportPrompt': '신고 사유를 간단히 작성하세요(예: 광고, 인신공격, 불법 콘텐츠):',
+                    'discussion.reportDefault': '부적절한 내용',
+                    'discussion.reportTooLong': '사유는 200자 이내로 입력하세요',
+                    'discussion.reportSuccess': '신고가 접수되었습니다. 감사합니다.',
+                    'discussion.reportFail': '신고 전송 실패. 잠시 후 다시 시도하세요',
+                    'discussion.editEmpty': '내용을 입력하세요',
+                    'discussion.editTooLong': '500자 이내로 입력하세요',
+                    'discussion.editFail': '편집 실패. 다시 시도하세요',
+                    'discussion.edited': '(편집됨)',
+                    'discussion.tagAcademic': '학술',
+                    'discussion.tagQuestion': '질문',
+                    'discussion.tagOpinion': '의견',
+                    'discussion.essential': '⭐ 精华',
+                    'discussion.replyPlaceholder': '@{0} 님에게 답장 ... @ 로 사용자를 멘션',
+                    'discussion.replySend': '답장 보내기',
+                    'discussion.replyCancel': '취소',
+                    'discussion.replyFail': '답장 전송 실패. 다시 시도하세요',
+                    'discussion.report': '신고',
+                    'discussion.delete': '삭제',
+                    'discussion.adminDelete': '관리자 삭제',
+                    'discussion.edit': '편집',
+                    'discussion.reply': '답장',
+                    'discussion.imageOnly': 'JPG, PNG, GIF, WEBP 형식의 이미지만 지원합니다',
+                    'discussion.imageTooBig': '이미지는 10MB 이내로 하세요',
+                    'discussion.imageCompressing': '⏳ 압축 중...',
+                    'discussion.imageSelected': '✅ 선택됨 ({0}KB)',
+                    'discussion.imageFail': '이미지 처리에 실패했습니다. 다른 이미지를 시도하세요',
+                    'discussion.imageTimeout': '이미지 업로드 시간 초과. 텍스트만 전송합니다',
+                    'discussion.imageUploadFail': '이미지 업로드 실패. 텍스트만 전송합니다',
+                    'discussion.anonName': '익명 방문자',
+                    'discussion.defaultName': '익명 사용자',
+                    'discussion.anonymous': '익명',
+                    'discussion.reportContent': '댓글 신고',
+                    'discussion.editContent': '댓글 편집',
+                    'discussion.deleteContent': '댓글 삭제',
+                    'discussion.essentialContent': '精华으로 설정',
+                    'discussion.essentialRemove': '고정 해제',
+
+                    // ===== 访问统计 =====
+                    'visitor.justNow': '방금',
+                    'visitor.hoursAgo': '{0}시간 전',
+                    'visitor.today': '오늘 방문함',
+                    'visitor.new': '새 방문',
+
+                    // ===== 作者信息 =====
+                    'author.info': '✍️ 작가 정보',
+                    'author.name': '작가',
+                    'author.org': '소속 단체',
+                },
+
+                'ru': {
+                    // ===== 标题屏 =====
+                    'title.main': 'Чжаожань',
+                    'title.subtitle': 'Галерея исторических карт',
+                    'title.quote': '«Постичь связь Неба и Человека, проникнуть в изменения от древности до современности и создать собственное учение»',
+                    'title.quoteAuthor': '— Сыма Цянь, «Письмо Жэнь Аню»',
+                    'title.enterHint': 'Нажмите в любом месте, чтобы войти',
+
+                    // ===== 通用按钮 =====
+                    'btn.close': 'Закрыть',
+                    'btn.confirm': 'Подтвердить',
+                    'btn.cancel': 'Отмена',
+                    'btn.save': 'Сохранить',
+                    'btn.delete': 'Удалить',
+                    'btn.edit': 'Редактировать',
+                    'btn.submit': 'Отправить',
+                    'btn.reset': 'Сбросить',
+                    'btn.copy': 'Копировать',
+                    'btn.download': 'Скачать',
+
+                    // ===== aria =====
+                    'aria.help': 'Открыть центр помощи',
+                    'aria.settings': 'Открыть настройки',
+                    'aria.closeSettings': 'Закрыть настройки',
+                    'aria.closeHelp': 'Закрыть центр помощи',
+                    'aria.themeDark': 'Переключить на тему «Тушь»',
+                    'aria.themeRice': 'Переключить на тему «Рисовая бумага»',
+                    'aria.themeCustom': 'Переключить на пользовательскую тему',
+                    'aria.themeAuto': 'Переключить на автотему',
+                    'aria.leftWidth': 'Изменить ширину левой панели',
+                    'aria.rightWidth': 'Изменить ширину правой панели',
+                    'aria.qualityOriginal': 'Оригинальное качество',
+                    'aria.qualityHigh': 'Высокое качество',
+                    'aria.qualityLow': 'Низкое качество',
+                    'aria.renderAuto': 'Автоматический режим рендеринга',
+                    'aria.renderSingle': 'Однослойный рендеринг',
+                    'aria.renderMulti': 'Многослойный рендеринг',
+                    'aria.devMode': 'Переключить режим разработчика',
+                    'aria.blur': 'Переключить размытие по Гауссу',
+                    'aria.a11yHc': 'Переключить высокий контраст',
+                    'aria.a11yCb': 'Переключить режим для дальтоников',
+                    'aria.a11yRm': 'Переключить уменьшение анимации',
+                    'aria.exportData': 'Экспортировать данные в JSON',
+                    'aria.sysInfo': 'Показать системную информацию',
+                    'aria.refreshCache': 'Обновить кэш',
+                    'aria.clearStats': 'Сбросить статистику',
+                    'aria.clearDiscussions': 'Удалить все комментарии',
+                    'aria.clearLogs': 'Очистить журнал действий',
+                    'aria.showReports': 'Показать жалобы',
+                    'aria.errorLogs': 'Показать журнал ошибок',
+                    'aria.exportErrors': 'Экспортировать журнал ошибок',
+                    'aria.devPanel': 'Панель журнала разработчика',
+                    'aria.perfMonitor': 'Отчёт мониторинга производительности',
+                    'aria.shortcutDebug': 'Отладка горячих клавиш',
+                    'aria.devLogout': 'Выйти из режима разработчика',
+                    'aria.devPassword': 'Ввод пароля разработчика',
+                    'aria.devVerify': 'Подтвердить личность',
+                    'aria.search': 'Поиск карт',
+                    'aria.bookmark': 'Добавить текущую карту в закладки',
+                    'aria.nickname': 'Ввод псевдонима',
+                    'aria.tagGeneral': 'Выбрать тег «Общее обсуждение»',
+                    'aria.tagAcademic': 'Выбрать тег «Научное обсуждение»',
+                    'aria.tagQuestion': 'Выбрать тег «Вопрос»',
+                    'aria.tagOpinion': 'Выбрать тег «Мнение»',
+                    'aria.addImage': 'Добавить изображение',
+                    'aria.imageFile': 'Выбор файла изображения',
+                    'aria.removeImage': 'Удалить изображение',
+                    'aria.commentContent': 'Ввод текста комментария',
+                    'aria.submitComment': 'Отправить комментарий',
+                    'aria.shareCard': 'Создать карточку для sharing',
+                    'aria.prevMap': 'Предыдущая карта',
+                    'aria.nextMap': 'Следующая карта',
+                    'aria.toggleTimeline': 'Переключить панель хронологии',
+                    'aria.toggleInfo': 'Переключить панель информации',
+                    'aria.reload': 'Обновить карту',
+                    'aria.layer': 'Переключить панель слоёв',
+                    'aria.fullscreen': 'Переключить полноэкранный режим',
+                    'aria.tabTimeline': 'Переключиться на хронологию',
+                    'aria.tabMap': 'Переключиться на карту',
+                    'aria.tabInfo': 'Переключиться на информацию',
+                    'aria.closeLayer': 'Закрыть панель слоёв',
+                    'aria.layerName': 'Переключить слой подписей',
+                    'aria.layerRoad': 'Переключить слой дорог',
+                    'aria.layerWall': 'Переключить слой Великой стены',
+                    'aria.layerRiver': 'Переключить слой рек и озёр',
+                    'aria.layerBorder': 'Переключить слой границ',
+                    'aria.layerTerrain': 'Переключить слой рельефа',
+                    'aria.layerBg': 'Фоновый слой (заблокирован)',
+                    'aria.closeShare': 'Закрыть диалог sharing',
+                    'aria.saveShare': 'Сохранить карточку',
+                    'aria.copyShare': 'Скопировать карточку в буфер обмена',
+                    'aria.closeSponsor': 'Закрыть диалог поддержки',
+                    'aria.saveQr': 'Сохранить QR-код в альбом',
+                    'aria.bilibili': 'Посетить автора на Bilibili',
+
+                    // ===== 设置面板 =====
+                    'settings.title': 'Настройки галереи',
+                    'settings.theme': 'Тема',
+                    'settings.theme.dark': 'Тушь',
+                    'settings.theme.rice': 'Рисовая бумага',
+                    'settings.theme.custom': 'Своя',
+                    'settings.theme.auto': 'Авто',
+                    'settings.theme.autoHint': '🌗 Днём — рисовая бумага, ночью (19:00 - 07:00) — автоматически тушь',
+                    'settings.customColors': '🎨 Пользовательские цвета',
+                    'settings.color.bg': 'Фон',
+                    'settings.color.panel': 'Панель',
+                    'settings.color.hover': 'Наведение',
+                    'settings.color.accent': 'Акцент',
+                    'settings.color.accentLight': 'Акцент (светлый)',
+                    'settings.color.gold': 'Золотой',
+                    'settings.color.goldLight': 'Золотой (светлый)',
+                    'settings.color.text': 'Текст',
+                    'settings.color.textMuted': 'Приглушённый текст',
+                    'settings.copyFromCurrent': '📋 Скопировать из текущей темы',
+                    'settings.resetCustom': '↺ Сбросить по умолчанию',
+                    'settings.leftWidth': 'Ширина левой панели',
+                    'settings.rightWidth': 'Ширина правой панели',
+                    'settings.quality': 'Качество',
+                    'settings.quality.original': 'Оригинал',
+                    'settings.quality.high': 'Высокое',
+                    'settings.quality.low': 'Низкое',
+                    'settings.quality.expOriginal': 'Полная высокодетализированная отрисовка. Лучшее качество, но больше ресурсов.',
+                    'settings.quality.expHigh': 'ПК/iPad: упрощённая отрисовка ниже 300%, высокая точность выше. Мобильные: упрощённая ниже 750%, высокая выше.',
+                    'settings.quality.expLow': 'Скрыть слой рельефа, упрощённая отрисовка. Значительно повышает производительность.',
+                    'settings.renderMode': 'Режим рендеринга',
+                    'settings.renderMode.auto': 'Авто',
+                    'settings.renderMode.single': 'Однослойный',
+                    'settings.renderMode.multi': 'Многослойный',
+                    'settings.renderMode.expAuto': 'Мобильные — однослойный (производительность), ПК — многослойный (качество)',
+                    'settings.renderMode.expSingle': 'Загружается только объединённое изображение. Лучшая производительность.',
+                    'settings.renderMode.expMulti': 'Наложение фона, рельефа, границ, рек, подписей. Лучшее качество.',
+                    'settings.devMode': 'Режим разработчика',
+                    'settings.devMode.desc': 'Включите для управления комментариями (удаление, закрепление). Требуется пароль.',
+                    'settings.devMode.on': 'Вкл',
+                    'settings.devMode.off': 'Выкл',
+                    'settings.blur': 'Размытие по Гауссу',
+                    'settings.blur.desc': 'Включает эффект матового стекла. Отключите для повышения производительности.',
+                    'settings.blur.on': 'Вкл',
+                    'settings.blur.off': 'Выкл',
+                    'settings.a11y': '♿ Доступность',
+                    'settings.a11y.hc': 'Высокий контраст',
+                    'settings.a11y.hcDesc': 'Усиливает контраст текста и фона. Подходит слабовидящим.',
+                    'settings.a11y.cb': 'Для дальтоников',
+                    'settings.a11y.cbDesc': 'Заменяет красно-зелёный на сине-жёлтый. Подходит дальтоникам.',
+                    'settings.a11y.rm': 'Уменьшить анимацию',
+                    'settings.a11y.rmDesc': 'Отключает все переходы и анимации.',
+                    'settings.a11y.on': 'Вкл',
+                    'settings.a11y.off': 'Выкл',
+                    'settings.devTools': '🛠️ Инструменты разработчика',
+                    'settings.devTools.export': '📤 Экспорт данных (JSON)',
+                    'settings.devTools.sysInfo': '📊 Системная информация',
+                    'settings.devTools.refreshCache': '🔄 Обновить кэш',
+                    'settings.devTools.clearStats': '📊 Сбросить статистику',
+                    'settings.devTools.clearDiscussions': '🗑️ Удалить все комментарии',
+                    'settings.devTools.clearLogs': '📋 Очистить журнал',
+                    'settings.devTools.showReports': '🚩 Показать жалобы',
+                    'settings.devTools.errorLogs': '🐛 Журнал ошибок',
+                    'settings.devTools.exportErrors': '📥 Экспорт журнала ошибок',
+                    'settings.devTools.devPanel': '📊 Панель журнала разработчика',
+                    'settings.devTools.perfMonitor': '⚡ Отчёт мониторинга производительности',
+                    'settings.devTools.shortcutDebug': '⌨️ Отладка горячих клавиш',
+                    'settings.devTools.warning': 'Внимание: некоторые операции необратимы. Используйте осторожно.',
+
+                    // ===== 语言 =====
+                    'lang.label': 'Язык / Language',
+                    'lang.zhCN': '简体中文（中国大陆）',
+                    'lang.zhTW': '繁體中文（中國台灣省）',
+                    'lang.zhHK': '繁體中文（中國香港特别行政区）',
+                    'lang.en': 'English',
+                    'lang.ja': '日本語',
+                    'lang.ko': '한국어',
+                    'lang.ru': 'Русский',
+
+                    // ===== 时间轴 =====
+                    'timeline.title': 'Галерея исторических карт Чжаожаня',
+                    'timeline.subtitle': 'Учиться у истории · Знать взлёты и падения',
+                    'timeline.searchPlaceholder': 'Поиск династии, года или названия карты...',
+                    'timeline.filter.all': 'Все',
+                    'timeline.filter.bookmark': '⭐ Закладки',
+                    'timeline.filter.war': 'Война',
+                    'timeline.filter.territory': 'Территория',
+                    'timeline.filter.culture': 'Культура',
+                    'timeline.filter.economy': 'Экономика',
+
+                    // ===== 信息面板 =====
+                    'info.yearPlaceholder': '—',
+                    'info.titlePlaceholder': 'Выберите карту для начала исследования',
+                    'info.bookmark': 'В закладки',
+                    'info.bookmarked': 'В закладках',
+                    'info.eraBg': '📜 Исторический контекст',
+                    'info.eraBgPlaceholder': 'Выберите карту, чтобы увидеть исторический контекст...',
+                    'info.wisdom': 'Слова историка',
+                    'info.mapDetail': 'Описание карты',
+                    'info.mapDetailPlaceholder': 'От первобытной цивилизации до современного мира — 170+ исторических карт связывают пространство и время китайской и мировой цивилизации. Нажмите на хронологию слева, чтобы начать путешествие.',
+                    'info.discussion': '💬 Научная дискуссия',
+                    'info.discussion.about': 'Обсуждение этой карты',
+                    'info.discussion.loading': 'Загрузка...',
+                    'info.discussion.sortLatest': 'Новые',
+                    'info.discussion.sortHottest': 'Популярные',
+                    'info.discussion.sortEssential': '精华',
+                    'info.discussion.namePlaceholder': 'Ваш псевдоним (необязательно)',
+                    'info.discussion.anon': 'Анонимно',
+                    'info.discussion.tagGeneral': 'Общее',
+                    'info.discussion.tagAcademic': 'Научное',
+                    'info.discussion.tagQuestion': 'Вопрос',
+                    'info.discussion.tagOpinion': 'Мнение',
+                    'info.discussion.addImage': '📎 Добавить изображение',
+                    'info.discussion.contentPlaceholder': 'Поделитесь мнением, вопросом или научной точкой зрения... Введите @ для упоминания',
+                    'info.discussion.submit': 'Отправить комментарий',
+                    'info.discussion.count': 'обсуждений',
+                    'info.basicInfo': 'Основная информация',
+                    'info.meta.era': 'Период',
+                    'info.meta.span': 'Временной диапазон',
+                    'info.meta.count': 'Государства/силы',
+                    'info.meta.index': 'Номер карты',
+                    'info.visitor': '👁️ Статистика посещений',
+                    'info.visitor.total': 'Всего посещений',
+                    'info.visitor.today': 'Сегодня',
+                    'info.share': '📤 Поделиться',
+                    'info.share.generate': 'Создать карточку',
+                    'info.nav.prev': '← Ранее',
+                    'info.nav.next': 'Позже →',
+                    'info.defaultQuote': 'История — зеркало мудрости',
+                    'info.defaultQuoteAuthor': '— Фрэнсис Бэкон',
+                    'info.defaultQuote2': 'Чтобы познать Путь, нужно сначала познать историю',
+                    'info.defaultQuoteAuthor2': '— Гун Цзычжэнь',
+                    'info.defaultQuote3': '«Постичь связь Неба и Человека, проникнуть в изменения от древности до современности и создать собственное учение»',
+                    'info.defaultQuoteAuthor3': '— Сыма Цянь, «Письмо Жэнь Аню»',
+                    'info.defaultQuote4': 'Земля хранит следы прошлого; мы снова восходим на высоты',
+                    'info.defaultQuoteAuthor4': 'Мэн Хаожань',
+                    'info.quoteDefault': 'Учиться у истории, знать взлёты и падения',
+
+                    // ===== 帮助 =====
+                    'help.title': '📖 Центр помощи',
+                    'help.about': 'О галерее',
+                    'help.guide': '🎮 Руководство',
+                    'help.guide.drag': 'Перетаскивание',
+                    'help.guide.dragDesc': 'Удерживайте мышь или палец',
+                    'help.guide.zoom': 'Масштабирование',
+                    'help.guide.zoomDesc': 'Колесо мыши или щипок',
+                    'help.guide.timeline': 'Хронология',
+                    'help.guide.timelineDesc': 'Нажмите на год слева',
+                    'help.guide.search': 'Поиск',
+                    'help.guide.searchDesc': 'Введите династию или год',
+                    'help.guide.theme': 'Смена темы',
+                    'help.guide.themeDesc': 'Четыре стиля в настройках',
+                    'help.guide.mobile': 'Мобильные',
+                    'help.guide.mobileDesc': 'Вкладки внизу для переключения',
+                    'help.shortcuts': '⌨️ Горячие клавиши',
+                    'help.shortcut.prev': 'Предыдущая карта',
+                    'help.shortcut.next': 'Следующая карта',
+                    'help.shortcut.zoomIn': 'Увеличить',
+                    'help.shortcut.zoomOut': 'Уменьшить',
+                    'help.shortcut.reset': 'Сбросить вид',
+                    'help.shortcut.help': 'Открыть/закрыть помощь',
+                    'help.shortcut.settings': 'Открыть/закрыть настройки',
+                    'help.shortcut.search': 'Фокус на поиске',
+                    'help.shortcut.reload': 'Перезагрузить карту',
+                    'help.shortcut.layer': 'Открыть/закрыть слои',
+                    'help.shortcut.esc': 'Закрыть все панели',
+                    'help.shortcut.fullscreen': 'Полный экран / выход',
+                    'help.contact': '📬 Связаться с автором',
+                    'help.contact.email': 'Email',
+                    'help.sponsor': '☕ Поддержать автора',
+                    'help.sponsor.desc': 'Если галерея вам помогла, угостите автора чашкой чая. Ваша поддержка — стимул для обновлений.',
+                    'help.sponsor.btn': 'Угостить Чжаожаня чаем',
+                    'help.sponsor.disclaimer': 'Отказ от ответственности: это добровольная поддержка, а не коммерческая сделка. При проблемах свяжитесь с автором.',
+                    'help.thanks': '🙏 Благодарности',
+                    'help.version': 'ℹ️ Версия',
+                    'help.version.line1': 'Галерея исторических карт Чжаожаня v1.3',
+                    'help.version.line2': '170+ исторических карт · 8 основных периодов',
+                    'help.version.copyright': '© 2024 Чжаожань · Учиться у истории, знать взлёты и падения',
+
+                    // ===== 分享 =====
+                    'share.title': '📤 Создать карточку',
+                    'share.save': '💾 Сохранить изображение',
+                    'share.copy': '📋 Копировать в буфер',
+                    'share.tip': 'Карточка содержит информацию о текущей карте, цитату и логотип галереи. Подходит для соцсетей и научного обмена.',
+                    'share.selectFirst': 'Сначала выберите карту',
+                    'share.generating': 'Карточка создаётся, подождите...',
+                    'share.copySuccess': 'Карточка скопирована в буфер обмена!',
+                    'share.copyFail': 'Браузер не поддерживает прямое копирование. Скачивание...',
+                    'share.mapLoading': 'Карта загружается, попробуйте позже',
+                    'share.cardTitle': 'Галерея исторических карт Чжаожаня',
+                    'share.cardSubtitle': 'Учиться у истории · Знать взлёты и падения',
+                    'share.cardIndex': '№ {0} / {1} · {2}',
+                    'share.cardUrl': 'maps.zhaoran.history',
+                    'share.cardDownloadPrefix': 'ZhaoranMap_',
+
+                    // ===== 赞助 =====
+                    'sponsor.title': '☕ Угостить автора чаем',
+                    'sponsor.tip': 'Спасибо за поддержку! Нажмите или отсканируйте QR-код ниже',
+                    'sponsor.loading': 'Загрузка...',
+                    'sponsor.save': '💾 Сохранить в альбом',
+                    'sponsor.note': 'WeChat · Любая сумма · Спасибо за поддержку',
+                    'sponsor.disclaimer': 'Это добровольная поддержка, а не коммерческая сделка.',
+                    'sponsor.loadFail': 'Не удалось загрузить QR-код, попробуйте позже',
+                    'sponsor.notReady': 'QR-код ещё не готов, попробуйте позже',
+                    'sponsor.saving': '⏳ Сохранение...',
+                    'sponsor.saved': '✅ QR-код сохранён',
+                    'sponsor.saveHint': 'Если не скачалось автоматически, удерживайте изображение для сохранения',
+                    'sponsor.saveBtn': '💾 Сохранить в альбом',
+
+                    // ===== 图层 =====
+                    'layer.title': '🗗 Управление слоями',
+                    'layer.name': 'Подписи',
+                    'layer.road': 'Дороги',
+                    'layer.wall': 'Великая стена',
+                    'layer.river': 'Реки и озёра',
+                    'layer.border': 'Границы',
+                    'layer.terrain': 'Рельеф',
+                    'layer.bg': 'Фон',
+                    'layer.badge.top': 'Верх',
+                    'layer.badge.exclusive': 'Экскл.',
+                    'layer.badge.exclusiveUniversal': 'Экскл./универс.',
+                    'layer.badge.multiply': 'Умножение',
+                    'layer.badge.bottom': 'Низ',
+                    'layer.no': '(нет)',
+                    'layer.exclusive': 'Экскл.',
+                    'layer.top': 'Верх',
+                    'layer.bottom': 'Низ',
+                    'layer.exclusiveUniversal': 'Экскл./универс.',
+                    'layer.multiply': 'Умножение',
+
+                    // ===== 加载 =====
+                    'loading.text': 'Загрузка слоёв',
+                    'loading.preparing': 'Подготовка...',
+                    'loading.waiting': 'Ожидание...',
+                    'loading.done': '✓ Готово',
+                    'loading.remain': '⏳ Осталось',
+                    'loading.seconds': 'с',
+                    'loading.almostDone': '⏳ Почти готово...',
+                    'loading.completed': '✅ Завершено',
+
+                    // ===== 移动端 =====
+                    'mobile.timeline': 'Хронология',
+                    'mobile.map': 'Карта',
+                    'mobile.info': 'Инфо',
+
+                    // ===== 开发者 =====
+                    'dev.indicator': '🔧 Режим разработчика ВКЛ',
+                    'dev.logout': 'Выйти',
+                    'dev.loginTitle': '🔧 Верификация разработчика',
+                    'dev.passwordPlaceholder': 'Введите пароль разработчика',
+                    'dev.verify': 'Подтвердить',
+                    'dev.passwordWrong': '❌ Неверный пароль. Осталось попыток: {0}',
+                    'dev.locked': '🔒 Слишком много попыток. Заблокировано на 15 минут',
+                    'dev.lockedWait': '🔒 Вход заблокирован. Повторите через {0} мин.',
+                    'dev.lockedShort': '🔒 Заблокировано. Повторите через {0} мин.',
+                    'dev.on': '✅ Режим разработчика включён',
+                    'dev.off': '🔒 Режим разработчика выключен',
+                    'dev.passwordWrongToast': '❌ Неверный пароль',
+                    'dev.lockToast': '🔒 Вход заблокирован на 15 минут',
+                    'dev.needEnable': '⚠️ Сначала включите режим разработчика',
+                    'dev.logoutConfirm': 'Выйти из режима разработчика?',
+                    'dev.consoleOn': '🔓 Режим разработчика активирован: все ограничения сняты (ПКМ, копирование, F12, горячие клавиши и т.д.)',
+                    'dev.consoleOff': '🔒 Режим разработчика выключен: ограничения восстановлены',
+
+                    // ===== 提示 =====
+                    'toast.copyright': 'Защита авторских прав',
+                    'toast.copyrightSub': 'Сохранение и копирование карт без разрешения автора строго запрещено!',
+                    'toast.offline': '⚠️ Сеть отключена. Некоторые функции недоступны',
+                    'toast.quota': '⚠️ Недостаточно локального хранилища',
+
+                    // ===== 地图失败 =====
+                    'fallback.title': 'Карта пока недоступна',
+                    'fallback.desc': 'Не удалось загрузить ресурс карты. Проверьте сеть и повторите.',
+                    'fallback.retry': '🔄 Перезагрузить',
+
+                    // ===== 欢迎 =====
+                    'welcome.title': 'Галерея исторических карт Чжаожаня',
+                    'welcome.quote': '«История — путь к пониманию управления миром»',
+                    'welcome.quoteAuthor': '— Цзэн Гун, «Предисловие к Книге Ци»',
+
+                    // ===== 地图引擎 =====
+                    'map.layer.loading': 'Загрузка слоёв...',
+                    'map.layer.init': 'Инициализация...',
+                    'map.layer.connecting': 'Подключение...',
+                    'map.layer.connecting2': 'Подключение',
+                    'map.layer.preparing': 'Подготовка слоёв...',
+                    'map.layer.layer': 'Слой',
+                    'map.layer.river': 'Реки',
+                    'map.layer.terrain': 'Рельеф',
+                    'map.layer.border': 'Границы',
+                    'map.layer.name': 'Подписи',
+                    'map.layer.bg': 'Фон',
+                    'map.layer.done': 'Готово',
+                    'map.layer.loadedCount': '✓ Загружено',
+                    'map.layer.remaining': '⏳ Осталось',
+                    'map.layer.remainingSec': 'с',
+                    'map.layer.almostDone': '⏳ Почти готово...',
+                    'map.layer.completed': '✅ Завершено',
+                    'map.layer.error': 'Не удалось загрузить ресурс карты. Проверьте сеть и повторите.',
+                    'map.layer.timeout': 'Тайм-аут загрузки карты. Проверьте сеть и повторите.',
+                    'map.layer.mergedFallback': '⚠️ Не удалось загрузить объединённое изображение, возврат к оригиналу',
+
+                    // ===== 收藏 =====
+                    'bookmark.selectFirst': 'Сначала выберите карту',
+                    'bookmark.added': '⭐ Добавлено в закладки',
+                    'bookmark.removed': 'Удалено из закладок',
+                    'bookmark.already': 'В закладках',
+
+                    // ===== 空状态 =====
+                    'empty.title': 'Выберите карту для начала',
+                    'empty.desc': 'От первобытной цивилизации до современного мира — 170+ исторических карт связывают пространство и время китайской цивилизации. Нажмите на хронологию слева, чтобы начать.',
+                    'empty.discussion': 'Выберите карту для начала обсуждения',
+
+                    // ===== 主题提示 =====
+                    'theme.copied': '📋 Цвета текущей темы скопированы',
+                    'theme.resetConfirm': 'Сбросить пользовательские цвета по умолчанию?',
+                    'theme.resetDone': '↺ Цвета сброшены по умолчанию',
+
+                    // ===== 无障碍提示 =====
+                    'a11y.hcOn': '✅ Высокий контраст включён',
+                    'a11y.hcOff': 'Высокий контраст выключен',
+                    'a11y.cbOn': '✅ Режим для дальтоников включён',
+                    'a11y.cbOff': 'Режим для дальтоников выключен',
+                    'a11y.rmOn': '✅ Анимация уменьшена',
+                    'a11y.rmOff': 'Анимация восстановлена',
+
+                    // ===== 全屏 =====
+                    'fullscreen.enter': '⛶ Полноэкранный режим включён',
+                    'fullscreen.exit': '⛶ Полноэкранный режим выключен',
+
+                    // ===== 讨论区动态 =====
+                    'discussion.rateLimit': '⏳ Подождите {0} секунд',
+                    'discussion.rateLimitAlert': 'Слишком часто. Подождите {0} секунд',
+                    'discussion.emptyContent': 'Введите текст комментария',
+                    'discussion.tooLong': 'Комментарий не должен превышать 500 символов',
+                    'discussion.sending': 'Отправка...',
+                    'discussion.sendSuccess': 'Комментарий опубликован!',
+                    'discussion.sendSuccess2': 'Отправлено!',
+                    'discussion.sendFail': 'Ошибка отправки: {0}',
+                    'discussion.sendError': 'Ошибка отправки. Проверьте сеть и повторите',
+                    'discussion.loading': 'Загрузка...',
+                    'discussion.loadFail': 'Ошибка загрузки: {0}',
+                    'discussion.loadError': 'Ошибка загрузки. Попробуйте позже',
+                    'discussion.noComments': 'Комментариев пока нет. Будьте первым!',
+                    'discussion.selectMap': 'Выберите карту для начала обсуждения',
+                    'discussion.deleteConfirm': 'Удалить этот комментарий?',
+                    'discussion.deleteFail': 'Ошибка удаления. Повторите',
+                    'discussion.reportPrompt': 'Кратко укажите причину (например: реклама, оскорбления, незаконный контент):',
+                    'discussion.reportDefault': 'Неприемлемый контент',
+                    'discussion.reportTooLong': 'Причина не должна превышать 200 символов',
+                    'discussion.reportSuccess': 'Жалоба отправлена. Спасибо за обратную связь.',
+                    'discussion.reportFail': 'Ошибка отправки жалобы. Попробуйте позже',
+                    'discussion.editEmpty': 'Содержимое не может быть пустым',
+                    'discussion.editTooLong': 'Не более 500 символов',
+                    'discussion.editFail': 'Ошибка редактирования. Повторите',
+                    'discussion.edited': '(изменено)',
+                    'discussion.tagAcademic': 'Наука',
+                    'discussion.tagQuestion': 'Вопрос',
+                    'discussion.tagOpinion': 'Мнение',
+                    'discussion.essential': '⭐ 精华',
+                    'discussion.replyPlaceholder': 'Ответить @{0} ... Введите @ для упоминания',
+                    'discussion.replySend': 'Отправить ответ',
+                    'discussion.replyCancel': 'Отмена',
+                    'discussion.replyFail': 'Ошибка отправки ответа. Повторите',
+                    'discussion.report': 'Жалоба',
+                    'discussion.delete': 'Удалить',
+                    'discussion.adminDelete': 'Удалить (админ)',
+                    'discussion.edit': 'Редактировать',
+                    'discussion.reply': 'Ответить',
+                    'discussion.imageOnly': 'Поддерживаются только JPG, PNG, GIF, WEBP',
+                    'discussion.imageTooBig': 'Изображение не должно превышать 10 МБ',
+                    'discussion.imageCompressing': '⏳ Сжатие...',
+                    'discussion.imageSelected': '✅ Выбрано ({0} КБ)',
+                    'discussion.imageFail': 'Ошибка обработки изображения. Попробуйте другое',
+                    'discussion.imageTimeout': 'Тайм-аут загрузки изображения. Отправка только текста',
+                    'discussion.imageUploadFail': 'Ошибка загрузки изображения. Отправка только текста',
+                    'discussion.anonName': 'Анонимный гость',
+                    'discussion.defaultName': 'Анонимный пользователь',
+                    'discussion.anonymous': 'Аноним',
+                    'discussion.reportContent': 'Пожаловаться на комментарий',
+                    'discussion.editContent': 'Редактировать комментарий',
+                    'discussion.deleteContent': 'Удалить комментарий',
+                    'discussion.essentialContent': 'Сделать精华',
+                    'discussion.essentialRemove': 'Снять закрепление',
+
+                    // ===== 访问统计 =====
+                    'visitor.justNow': 'Только что',
+                    'visitor.hoursAgo': '{0} ч. назад',
+                    'visitor.today': 'Посещено сегодня',
+                    'visitor.new': 'Новое посещение',
+
+                    // ===== 作者信息 =====
+                    'author.info': '✍️ Об авторе',
+                    'author.name': 'Автор',
+                    'author.org': 'Организация',
+                },
             },
 
             // ===== 初始化 =====
@@ -9063,7 +10580,7 @@
                 // 1. 优先当前语言
                 if (dict[key] !== undefined) return dict[key];
 
-                // 2. 香港 → 台湾（同为繁体，用词相近）
+                // 2. 香港 → 台湾
                 if (lang === 'zh-HK') {
                     if (this._dict['zh-TW'] && this._dict['zh-TW'][key] !== undefined) {
                         return this._dict['zh-TW'][key];
@@ -9073,7 +10590,8 @@
                 if (lang === 'zh-TW' || lang === 'zh-HK') {
                     if (this._dict['zh-CN'][key] !== undefined) return this._dict['zh-CN'][key];
                 }
-                // 4. 英文 → 简体
+                // 4. 日/韩/俄 → 英文 → 简体
+                if (this._dict['en'] && this._dict['en'][key] !== undefined) return this._dict['en'][key];
                 if (this._dict['zh-CN'][key] !== undefined) return this._dict['zh-CN'][key];
                 return fallback !== undefined ? fallback : key;
             },
@@ -9120,17 +10638,42 @@
             // 中文："前214年" / 英文："214 BC"
             formatYear: function(year) {
                 if (!year) return year;
-                if (this.current === 'en') {
-                    // "前214年" → "214 BC"
+                var lang = this.current;
+                // 西历纪年
+                if (lang === 'en') {
                     if (year.indexOf('前') === 0) {
                         var m = year.match(/^前(\d+)年?$/);
                         if (m) return m[1] + ' BC';
                         return year.replace('前', '').replace('年', '') + ' BC';
                     }
-                    // "2025年" → "2025 AD"
                     var m2 = year.match(/^(\d+)年?$/);
                     if (m2) return m2[1] + ' AD';
-                    // 非标准年份（如"旧石器"）原样返回
+                    return year;
+                }
+                // 日语：前214年 / 2025年（与中文相同，直接用汉字）
+                if (lang === 'ja') {
+                    return year;
+                }
+                // 韩语：기원전 214년 / 2025년
+                if (lang === 'ko') {
+                    if (year.indexOf('前') === 0) {
+                        var mk = year.match(/^前(\d+)年?$/);
+                        if (mk) return '기원전 ' + mk[1] + '년';
+                        return '기원전 ' + year.replace('前', '').replace('年', '') + '년';
+                    }
+                    var mk2 = year.match(/^(\d+)年?$/);
+                    if (mk2) return mk2[1] + '년';
+                    return year;
+                }
+                // 俄语：214 г. до н.э. / 2025 г.
+                if (lang === 'ru') {
+                    if (year.indexOf('前') === 0) {
+                        var mr = year.match(/^前(\d+)年?$/);
+                        if (mr) return mr[1] + ' г. до н.э.';
+                        return year.replace('前', '').replace('年', '') + ' г. до н.э.';
+                    }
+                    var mr2 = year.match(/^(\d+)年?$/);
+                    if (mr2) return mr2[1] + ' г.';
                     return year;
                 }
                 return year;
@@ -9697,6 +11240,11 @@
 
             init: function() {
                 var saved = localStorage.getItem('renderMode') || 'auto';
+                // ★ 手机端强制走 auto（auto 在手机端 = 单图层）
+                //   避免用户之前在桌面选了 multi，换到手机后仍加载多图层
+                if (window.innerWidth <= this._mobileBreakpoint) {
+                    saved = 'auto';
+                }
                 this.current = saved;
                 this._applyUI();
                 this._setupResizeListener();
@@ -9721,13 +11269,14 @@
             },
 
             _applyUI: function() {
+                // 手机端区块被 CSS 隐藏，没必要再更新 active 状态
+                if (window.innerWidth <= this._mobileBreakpoint) return;
                 ['auto', 'single', 'multi'].forEach(function(m) {
                     var el = document.getElementById('renderMode-' + m);
                     if (el) el.classList.toggle('active', m === RenderMode.current);
                 });
             },
 
-            // 监听窗口尺寸变化（auto 模式下可能切换）
             _setupResizeListener: function() {
                 var self = this;
                 var lastIsMobile = window.innerWidth <= this._mobileBreakpoint;
@@ -9735,9 +11284,15 @@
                     var isMobile = window.innerWidth <= self._mobileBreakpoint;
                     if (isMobile !== lastIsMobile) {
                         lastIsMobile = isMobile;
-                        if (self.current === 'auto' && Map.getIndex() >= 0) {
-                            Map.reload();
+                        // ★ 跨过手机断点时，手机端强制 auto，桌面端恢复用户选择
+                        if (isMobile) {
+                            self.current = 'auto';
+                        } else {
+                            var saved = localStorage.getItem('renderMode') || 'auto';
+                            self.current = saved;
                         }
+                        self._applyUI();
+                        if (Map.getIndex() >= 0) Map.reload();
                     }
                 });
             }
@@ -10585,7 +12140,7 @@
                     this._lastRenderedZoom = -1;
                 }
             },
-                        
+
             // 检查是否跨过了 600% 边界
             _crossedBoundary: function(currentZoom, lastZoom) {
                 var boundary = this._renderBoundary;
