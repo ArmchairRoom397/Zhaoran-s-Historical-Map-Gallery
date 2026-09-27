@@ -7902,7 +7902,7 @@
                     'settings.devTools.shortcutDebug': '⌨️ 快捷键调试',
                     'aria.editVisitor': '修改访问统计',
                     'aria.resetVisitor': '重置访问统计',
-                    
+
                     // —— 帮助面板补充 ——
                     'help.guide.drag': '拖拽平移',
                     'help.guide.dragDesc': '按住鼠标或手指拖拽',
@@ -10526,13 +10526,29 @@
                 var mapImage = document.getElementById('mapImage');
                 var q = this.current;
 
+                // ★ 关键修复：切换到非 low 时，恢复地形复选框
+                var terrainChk = document.getElementById('layerCheckTerrain');
+                if (terrainChk) {
+                    if (q === 'low') {
+                        terrainChk.checked = false;
+                    } else {
+                        // 恢复为默认勾选（如果地形层可用）
+                        var data = (typeof Map !== 'undefined' && Map.getData) ? Map.getData() : null;
+                        if (data && (!data.layers || data.layers.terrain !== false)) {
+                            terrainChk.checked = true;
+                        }
+                    }
+                }
+
                 if (q === 'original') {
                     layers.forEach(function(l) {
                         l.style.imageRendering = 'crisp-edges';
                         if (l.dataset.layer === 'terrain') {
                             var chk = document.getElementById('layerCheckTerrain');
-                            if (chk && chk.checked) { l.style.display = 'block';
-                                l.classList.add('loaded'); }
+                            if (chk && chk.checked) {
+                                l.style.display = 'block';
+                                l.classList.add('loaded');
+                            }
                         }
                     });
                     if (mapImage) mapImage.style.imageRendering = 'crisp-edges';
@@ -10541,8 +10557,10 @@
                     layers.forEach(function(l) {
                         if (l.dataset.layer === 'terrain') {
                             var chk = document.getElementById('layerCheckTerrain');
-                            if (chk && chk.checked) { l.style.display = 'block';
-                                l.classList.add('loaded'); }
+                            if (chk && chk.checked) {
+                                l.style.display = 'block';
+                                l.classList.add('loaded');
+                            }
                         }
                     });
                     this._lastRenderedZoom = -1;
@@ -10551,7 +10569,6 @@
                     layers.forEach(function(l) {
                         l.style.imageRendering = 'auto';
                         if (l.dataset.layer === 'terrain') {
-                            // ★ 清 src
                             try {
                                 if (l.src && l.src.indexOf('blob:') === 0) {
                                     try { URL.revokeObjectURL(l.src); } catch (e) {}
@@ -10568,7 +10585,7 @@
                     this._lastRenderedZoom = -1;
                 }
             },
-            
+                        
             // 检查是否跨过了 600% 边界
             _crossedBoundary: function(currentZoom, lastZoom) {
                 var boundary = this._renderBoundary;
@@ -11310,10 +11327,10 @@
             _generateLayerPaths: function(basePath) {
                 var paths = {};
                 var data = Data.get(this._index);
-                var isGuest = this._isGuestWork;
-                var isWorld = data && data.era === '世界历史';
+                if (!data) return paths;
 
-                if (data && data.layers) {
+                // 自定义图层优先
+                if (data.layers) {
                     var lastSlash = basePath.lastIndexOf('/');
                     var dir = lastSlash >= 0 ? basePath.substring(0, lastSlash + 1) : '';
                     for (var key in data.layers) {
@@ -11321,546 +11338,127 @@
                             paths[key] = dir + data.layers[key].file;
                         }
                     }
+                    // 背景层始终用原图
+                    paths['bg'] = basePath;
                     return paths;
+                }
+
+                // 默认规则：通用层用固定路径，专属层用 basePath 加后缀
+                var lastDot = basePath.lastIndexOf('.');
+                var lastSlash2 = basePath.lastIndexOf('/');
+                var dir2 = '', fn = '', ext = '';
+                if (lastDot > 0 && lastSlash2 > 0) {
+                    dir2 = basePath.substring(0, lastSlash2 + 1);
+                    fn = basePath.substring(lastSlash2 + 1, lastDot);
+                    ext = basePath.substring(lastDot);
                 }
 
                 for (var key2 in this._layerConfig) {
                     var cfg = this._layerConfig[key2];
-                    if (cfg.type === 'universal') { paths[key2] = cfg.path; } else {
-                        var lastDot = basePath.lastIndexOf('.');
-                        var lastSlash2 = basePath.lastIndexOf('/');
-                        if (lastDot > 0 && lastSlash2 > 0) {
-                            var dir2 = basePath.substring(0, lastSlash2 + 1);
-                            var fn = basePath.substring(lastSlash2 + 1, lastDot);
-                            var ext = basePath.substring(lastDot);
-                            paths[key2] = dir2 + fn + cfg.suffix + ext;
-                        } else { paths[key2] = basePath; }
-                    }
-                }
-                if (basePath.indexOf('anti_japanese') >= 0) {
-                    var ld = basePath.lastIndexOf('.');
-                    var ls3 = basePath.lastIndexOf('/');
-                    if (ld > 0 && ls3 > 0) {
-                        var d3 = basePath.substring(0, ls3 + 1);
-                        var fn3 = basePath.substring(ls3 + 1, ld);
-                        var ext3 = basePath.substring(ld);
-                        paths['river_exclusive'] = d3 + fn3 + '_2' + ext3;
+                    if (cfg.type === 'universal') {
+                        paths[key2] = cfg.path;
+                    } else if (dir2) {
+                        paths[key2] = dir2 + fn + cfg.suffix + ext;
+                    } else {
+                        paths[key2] = basePath;
                     }
                 }
                 return paths;
             },
 
             _abortAll: function() {
-                if (this._currentXhr) { this._currentXhr.abort();
-                    this._currentXhr = null; }
-                if (this._currentBlobUrl) { URL.revokeObjectURL(this._currentBlobUrl);
-                    this._currentBlobUrl = null; }
+                // 中断所有进行中的 XHR
                 for (var key in this._layerXhrs) {
-                    if (this._layerXhrs[key]) { try { this._layerXhrs[key].abort(); } catch (e) {} }
+                    if (this._layerXhrs[key]) {
+                        try { this._layerXhrs[key].abort(); } catch (e) {}
+                    }
                 }
                 this._layerXhrs = {};
                 this._layerLoadStates = {};
-                this._currentLayerPaths = {};
 
-                // ★ 清掉上一轮所有 img.onload/onerror，防止旧回调污染新图层
-                if (this._activeImgHandlers) {
+                if (this._currentXhr) {
+                    try { this._currentXhr.abort(); } catch (e) {}
+                    this._currentXhr = null;
+                }
+
+                // 清理 img 回调与超时，防止旧回调污染
+                if (this._activeImgHandlers && this._activeImgHandlers.length) {
                     this._activeImgHandlers.forEach(function(h) {
-                        try { h.img.onload = null; h.img.onerror = null; } catch (e) {}
+                        try {
+                            if (h.timeout) clearTimeout(h.timeout);
+                            if (h.img) {
+                                h.img.onload = null;
+                                h.img.onerror = null;
+                            }
+                        } catch (e) {}
                     });
                     this._activeImgHandlers = [];
                 }
                 this._activeXHRHandlers = [];
 
-                // ★ 递增 token，让所有进行中的回调失效
+                // 递增 token，让所有旧回调失效
                 this._loadToken = (this._loadToken || 0) + 1;
                 clearTimeout(this._loadTimeout);
                 clearTimeout(this._loadingTimer);
             },
 
+            // 统一入口：根据渲染模式分流
             _loadLayersWithProgress: function(path) {
                 this._abortAll();
                 var loadToken = this._loadToken;
-                console.log('▶️ [_loadLayersWithProgress] 开始, token=', loadToken, 'path=', path);
                 document.getElementById('placeholder').style.display = 'none';
 
-                // 1. 渲染模式分流
                 if (RenderMode.isSingleLayer()) {
                     this._loadSingleLayer(path);
                     return;
                 }
-
-                // 多图层：确保图层按钮显示、面板恢复
-                Layer._syncLayerUI();
-
-                var data = Data.get(this._index);
-                var hasCustomLayers = data && data.layers;
-                
-                var isOnlyBg = false;
-                if (hasCustomLayers) {
-                    var checkLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain'];
-                    var hasOther = false;
-                    for (var i = 0; i < checkLayers.length; i++) {
-                        if (data.layers[checkLayers[i]]) {
-                            hasOther = true;
-                            break;
-                        }
-                    }
-                    isOnlyBg = !hasOther;
-                }
-                
-                if (isOnlyBg) {
-                    var self2 = this;
-                    var allLayerIds = ['layerName', 'layerRoad', 'layerWall', 'layerRiver', 'layerBorder', 'layerTerrain'];
-                    allLayerIds.forEach(function(id) {
-                        var el = document.getElementById(id);
-                        if (el) {
-                            // ★ 清 src 防止旧图残影
-                            try {
-                                if (el.src && el.src.indexOf('blob:') === 0) {
-                                    try { URL.revokeObjectURL(el.src); } catch (e) {}
-                                }
-                            } catch (e) {}
-                            el.removeAttribute('src');
-                            el.style.display = 'none';
-                            el.classList.remove('loaded');
-                        }
-                    });
-                    var bgEl = document.getElementById('layerBg');
-                    if (bgEl) {
-                        bgEl.onload = function() {
-                            if (self2._loadToken !== loadToken) return;   // ★ token 校验
-                            self2._hideFallback();
-                            self2._applyCrossZoneReset();
-                        };
-                        bgEl.onerror = function() {
-                            if (self2._loadToken !== loadToken) return;   // ★ token 校验
-                            bgEl.classList.remove('loaded');
-                            self2._showFallback('地图资源加载失败，请检查网络后重试。');
-                            self2._applyCrossZoneReset();
-                        };
-                        bgEl.src = path;
-                        bgEl.style.display = 'block';
-                        bgEl.classList.add('loaded');
-                    }
-                    document.getElementById('loadingOverlay').classList.remove('show');
-                    return;
-                }
-
-                var paths = this._generateLayerPaths(path);
-                this._currentLayerPaths = paths;
-
-                var layerStack = document.getElementById('layerStack');
-                var mapImage = document.getElementById('mapImage');
-                if (layerStack) layerStack.style.display = 'flex';
-                if (mapImage) mapImage.style.display = 'none';
-
-                var isAnti = path.indexOf('anti_japanese') >= 0;
-                var isGuest = this._isGuestWork;
-                var isWorld = false;
-                var data2 = Data.get(this._index);
-                if (data2) isWorld = data2.era === '世界历史';
-
-                var layersToXHR = [];
-                var layersToImg = [];
-                var layerNames = ['name', 'road', 'wall', 'river', 'border', 'terrain', 'bg'];
-                var self = this;
-
-                layerNames.forEach(function(layerName) {
-                    var cfg = self._layerConfig[layerName];
-                    var layerPath = paths[layerName];
-                    console.log('  📦 处理层:', layerName, 'path=', layerPath);
-
-                    if (data2 && data2.layers) {
-                        var hasLayer = data2.layers[layerName];
-                        if (!hasLayer && layerName !== 'bg') {
-                            console.log('  ⏭️ 跳过', layerName, '（data.layers 中无此层）');
-                            var skipImg = document.getElementById('layer' + Utils.capitalize(layerName));
-                            if (skipImg) {
-                                try {
-                                    if (skipImg.src && skipImg.src.indexOf('blob:') === 0) {
-                                        try { URL.revokeObjectURL(skipImg.src); } catch (e) {}
-                                    }
-                                } catch (e) {}
-                                skipImg.removeAttribute('src');
-                                skipImg.style.display = 'none';
-                                skipImg.classList.remove('loaded');
-                            }
-                            return;
-                        }
-                    }
-
-                    if (layerName === 'terrain' && Quality.current === 'low') {
-                        console.log('  ⏭️ 跳过 terrain（低画质）');
-                        return;
-                    }
-
-                    var chk = document.getElementById('layerCheck' + Utils.capitalize(layerName));
-                    if (chk && !chk.checked && layerName !== 'bg') {
-                        console.log('  ⏭️ 跳过', layerName, '（复选框未勾选）');
-                        return;
-                    }
-
-                    var layerImg = document.getElementById('layer' + Utils.capitalize(layerName));
-                    var preloaded = self._imageCache[layerPath];
-
-                    var isFileProtocol = window.location.protocol === 'file:';
-
-                    // ★ file:// 协议下所有层都走 img.src 直连，不走 XHR
-                    if (isFileProtocol) {
-                        if (layerImg && layerPath) {
-                            layerImg.src = layerPath;
-                            layersToImg.push({ name: layerName, img: layerImg });
-                        }
-                        return;
-                    }
-
-                    if (layerName === 'bg' || layerName === 'name') {
-                        if (layerPath) {
-                            layersToXHR.push({ name: layerName, path: layerPath });
-                        }
-                    } else if (layerName === 'river') {
-                        if (isWorld || isGuest) {
-                            if (layerImg && layerPath) {
-                                layersToImg.push({ name: layerName, img: layerImg, src: layerPath });
-                            }
-                        } else if (isAnti && paths['river_exclusive']) {
-                            // 先加载通用 river，再加载专属 river，两者都计入
-                            if (layerImg) {
-                                layersToImg.push({ name: layerName, img: layerImg, src: layerPath });
-                            }
-                            // 专属 river 用另一个 img 或同一 img 的二次加载？
-                            // 原逻辑是同一 img 先后赋两个 src，这里建议保留主 river，
-                            // 专属 river 单独走一个 XHR 或忽略（按你原意调整）
-                        } else {
-                            if (layerImg && layerPath) {
-                                layersToImg.push({ name: layerName, img: layerImg, src: layerPath });
-                            }
-                        }
-                    }
-                });
-
-                var totalTasks = layersToXHR.length + layersToImg.length;
-                var completed = 0;
-                var hasError = false;
-                var loadedSuccess = 0;
-                var loadedFail = 0;
-
-                if (totalTasks === 0) {
-                    for (var n in self._layerLoadStates) { self._layerLoadStates[n] = { done: true, loaded: 1,
-                            total: 1 }; }
-                    self._updateLoadingDisplay();
-                    setTimeout(function() {
-                        if (self._loadToken !== loadToken) return;   // ★ token 校验
-                        self._hideLoading();
-                        self._forceRepaint();
-                        self._applyCrossZoneReset();
-                    }, 150);
-                    return;
-                }
-
-                self._showLoading(path);
-                self._updateLoadingDisplay();
-                Map._loadStartTime = Date.now();
-
-                self._loadTimeout = setTimeout(function() {
-                    if (self._loadToken !== loadToken) return;   // ★ token 校验
-                    var anyPending = false;
-                    for (var key in self._layerLoadStates) {
-                        if (!self._layerLoadStates[key].done) { anyPending = true; break; }
-                    }
-                    if (anyPending) {
-                        console.warn('⚠️ 地图加载超时，强制完成');
-                        for (var k in self._layerLoadStates) {
-                            if (!self._layerLoadStates[k].done) {
-                                self._layerLoadStates[k].done = true;
-                                self._layerLoadStates[k].loaded = self._layerLoadStates[k].total || 1;
-                            }
-                        }
-                        self._updateLoadingDisplay();
-                        // 28. 超时且有失败 → 显示占位
-                        if (loadedSuccess === 0) {
-                            self._showFallback(I18n.t('map.layer.timeout'));
-                        }
-                        setTimeout(function() {
-                            if (self._loadToken !== loadToken) return;   // ★ token 校验
-                            self._hideLoading();
-                            self._forceRepaint();
-                            self._applyCrossZoneReset();
-                        }, 300);
-                    }
-                }, 30000);
-
-                var onDone = function(success) {
-                    if (self._loadToken !== loadToken) return;   // ★ token 校验
-                    completed++;
-                    if (success === true) loadedSuccess++;
-                    if (success === false) loadedFail++;
-                    self._updateLoadingDisplay();
-                    if (completed >= totalTasks) {
-                        clearTimeout(self._loadTimeout);
-                        // 28. 全部失败 → 显示占位
-                        if (loadedSuccess === 0 && loadedFail > 0) {
-                            self._showFallback(I18n.t('map.layer.error'));
-                        } else {
-                            self._hideFallback();
-                        }
-                        setTimeout(function() {
-                            if (self._loadToken !== loadToken) return;   // ★ token 校验
-                            self._hideLoading();
-                            self._forceRepaint();
-                            self._applyCrossZoneReset();
-                        }, 300);
-                    }
-                };
-
-                layersToImg.forEach(function(layer) {
-                    var img = layer.img;
-                    var name = layer.name;
-                    var src = layer.src;
-                    if (!img || !src) { onDone(false); return; }
-
-                    img.classList.remove('loaded');
-                    img.style.display = 'none';
-
-                    var settled = false;
-
-                    function markLoaded() {
-                        if (settled) return;
-                        settled = true;
-                        img.classList.add('loaded');
-                        img.style.display = 'block';
-                        self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
-                        onDone(true);
-                    }
-
-                    function markFailed() {
-                        if (settled) return;
-                        settled = true;
-                        img.classList.remove('loaded');
-                        img.style.display = 'none';
-                        self._layerLoadStates[name] = { done: true, loaded: 1, total: 1 };
-                        onDone(false);
-                    }
-
-                    // 用 decode() 确保真正可渲染；不支持时回退到 onload
-                    function finishWithDecode() {
-                        if (img.decode) {
-                            img.decode().then(markLoaded).catch(function() {
-                                // decode 失败可能是图源本身坏了，也可能是跨域，
-                                // 再检查一次 naturalWidth 决定成败
-                                if (img.naturalWidth > 0) markLoaded();
-                                else markFailed();
-                            });
-                        } else {
-                            markLoaded();
-                        }
-                    }
-
-                    img.onload = function() {
-                        if (self._loadToken !== loadToken) return;
-                        finishWithDecode();
-                    };
-                    img.onerror = function() {
-                        if (self._loadToken !== loadToken) return;
-                        markFailed();
-                    };
-
-                    // 记录 handler，abortAll 时清掉，防止旧回调污染新图
-                    self._activeImgHandlers.push({ img: img, onload: img.onload, onerror: img.onerror });
-
-                    // 赋值 src（若与当前相同，先清空强制重新触发）
-                    if (img.src !== src) {
-                        img.src = src;
-                    } else if (img.complete && img.naturalWidth > 0) {
-                        finishWithDecode();
-                    }
-
-                    // 极端情况：赋值后立即 complete 且已解码
-                    if (img.complete && img.naturalWidth > 0) {
-                        finishWithDecode();
-                    }
-                });
-
-                layersToXHR.forEach(function(layer) {
-                    var xhr = new XMLHttpRequest();
-                    self._layerXhrs[layer.name] = xhr;
-                    xhr.open('GET', layer.path, true);
-                    xhr.responseType = 'blob';
-                    xhr.timeout = 15000;
-                    var state = { loaded: 0, total: 0, done: false, startTime: Date.now(), lastLoaded: 0,
-                        lastTime: Date.now(), speed: 0 };
-                    self._layerLoadStates[layer.name] = state;
-
-                    xhr.onprogress = function(ev) {
-                        if (self._loadToken !== loadToken) return;   // ★ token 校验
-                        if (ev.lengthComputable) { state.loaded = ev.loaded;
-                            state.total = ev.total; }
-                        var now = Date.now();
-                        var dt = (now - state.lastTime) / 1000;
-                        if (dt > 0.2) { state.speed = (ev.loaded - state.lastLoaded) / dt;
-                            state.lastLoaded = ev.loaded;
-                            state.lastTime = now; }
-                        self._updateLoadingDisplay();
-                    };
-
-                    xhr.onload = function() {
-                        if (self._loadToken !== loadToken) return;   // ★ token 校验（关键）
-                        state.done = true;
-                        state.loaded = state.total || 1;
-                        var layerImg = document.getElementById('layer' + Utils.capitalize(layer.name));
-                        if (xhr.status === 200 && layerImg) {
-                            try {
-                                var blobUrl = URL.createObjectURL(xhr.response);
-                                layerImg.src = blobUrl;
-                                layerImg.classList.add('loaded');
-                                layerImg.style.display = 'block';
-                                if (layer.name === 'bg') {
-                                    if (self._currentBlobUrl) URL.revokeObjectURL(self._currentBlobUrl);
-                                    self._currentBlobUrl = blobUrl;
-                                    var mi = document.getElementById('mapImage');
-                                    if (mi) { mi.src = blobUrl;
-                                        mi.classList.add('loaded'); }
-                                }
-                            } catch (e) {
-                                console.warn('图层加载失败:', layer.name, e);
-                            }
-                        }
-                        onDone(xhr.status === 200);
-                    };
-                    xhr.ontimeout = function() {
-                        if (self._loadToken !== loadToken) return;   // ★ token 校验
-                        state.done = true;
-                        state.loaded = 1;
-                        console.warn('图层加载超时:', layer.name);
-                        onDone(false);
-                    };
-                    xhr.onerror = function() {
-                        if (self._loadToken !== loadToken) return;   // ★ token 校验
-                        state.done = true;
-                        state.loaded = 1;
-                        console.warn('图层加载错误:', layer.name);
-                        onDone(false);
-                    };
-                    xhr.onabort = function() {
-                        if (self._loadToken !== loadToken) return;   // ★ token 校验
-                        state.done = true;
-                        state.loaded = 1;
-                        onDone(false);
-                    };
-                    xhr.send();
-                });
+                this._loadMultiLayer(path, loadToken);
             },
 
-            _fetchLayerWithXHR: function(layer, onDone, loadedSuccess, loadedFail) {
-                var self = this;
-                var loadToken = this._loadToken;   // ★ 记录本轮 token
-                var xhr = new XMLHttpRequest();
-                this._layerXhrs[layer.name] = xhr;
-                xhr.open('GET', layer.path, true);
-                xhr.responseType = 'blob';
-                xhr.timeout = 15000;
-                var state = { loaded: 0, total: 0, done: false, startTime: Date.now(), lastLoaded: 0,
-                    lastTime: Date.now(), speed: 0 };
-                this._layerLoadStates[layer.name] = state;
-
-                xhr.onprogress = function(ev) {
-                    if (self._loadToken !== loadToken) return;   // ★ token 校验
-                    if (ev.lengthComputable) { state.loaded = ev.loaded; state.total = ev.total; }
-                    var now = Date.now();
-                    var dt = (now - state.lastTime) / 1000;
-                    if (dt > 0.2) {
-                        state.speed = (ev.loaded - state.lastLoaded) / dt;
-                        state.lastLoaded = ev.loaded;
-                        state.lastTime = now;
-                    }
-                    self._updateLoadingDisplay();
-                };
-
-                xhr.onload = function() {
-                    if (self._loadToken !== loadToken) return;   // ★ token 校验
-                    state.done = true;
-                    state.loaded = state.total || 1;
-                    var layerImg = document.getElementById('layer' + Utils.capitalize(layer.name));
-                    if (xhr.status === 200 && layerImg) {
-                        try {
-                            // 存入 IndexedDB
-                            if (typeof LayerCache !== 'undefined') {
-                                LayerCache.put(layer.path, xhr.response);
-                            }
-                            var blobUrl = URL.createObjectURL(xhr.response);
-                            layerImg.src = blobUrl;
-                            layerImg.classList.add('loaded');
-                            layerImg.style.display = 'block';
-                            if (layer.name === 'bg') {
-                                if (self._currentBlobUrl) URL.revokeObjectURL(self._currentBlobUrl);
-                                self._currentBlobUrl = blobUrl;
-                            }
-                        } catch (e) {
-                            console.warn('图层加载失败:', layer.name, e);
-                        }
-                    }
-                    onDone(xhr.status === 200);
-                };
-                xhr.ontimeout = function() {
-                    if (self._loadToken !== loadToken) return;   // ★ token 校验
-                    state.done = true;
-                    state.loaded = 1;
-                    onDone(false);
-                };
-                xhr.onerror = function() {
-                    if (self._loadToken !== loadToken) return;   // ★ token 校验
-                    state.done = true;
-                    state.loaded = 1;
-                    onDone(false);
-                };
-                xhr.onabort = function() {
-                    if (self._loadToken !== loadToken) return;   // ★ token 校验
-                    state.done = true;
-                    state.loaded = 1;
-                    onDone(false);
-                };
-                xhr.send();
-            },
-
+            // ===== 单图层模式 =====
             _loadSingleLayer: function(basePath) {
                 var self = this;
                 var loadToken = this._loadToken;
                 var data = Data.get(this._index);
                 var mergedPath = (data && data.mergedPath) || basePath;
 
-                // 隐藏所有非背景图层
+                // 隐藏所有非背景层
                 var allLayerIds = ['layerName', 'layerRoad', 'layerWall', 'layerRiver', 'layerBorder', 'layerTerrain'];
                 allLayerIds.forEach(function(id) {
                     var el = document.getElementById(id);
-                    if (el) { el.style.display = 'none'; el.classList.remove('loaded'); }
+                    if (el) {
+                        el.style.display = 'none';
+                        el.classList.remove('loaded');
+                        try {
+                            if (el.src && el.src.indexOf('blob:') === 0) {
+                                try { URL.revokeObjectURL(el.src); } catch (e) {}
+                            }
+                        } catch (e) {}
+                        el.removeAttribute('src');
+                    }
                 });
 
                 var bgEl = document.getElementById('layerBg');
                 if (!bgEl) return;
 
-                // 清掉上一轮残留
-                bgEl.onload = null;
-                bgEl.onerror = null;
-                bgEl.classList.remove('loaded');
-                bgEl.style.display = 'none';
+                // 清理背景层旧状态
                 try {
                     if (bgEl.src && bgEl.src.indexOf('blob:') === 0) {
                         try { URL.revokeObjectURL(bgEl.src); } catch (e) {}
                     }
                 } catch (e) {}
+                bgEl.onload = null;
+                bgEl.onerror = null;
                 bgEl.removeAttribute('src');
+                bgEl.classList.remove('loaded');
+                bgEl.style.display = 'none';
 
-                // 显示加载遮罩
                 this._showLoading(mergedPath);
                 var startTime = Date.now();
                 var done = false;
-                var progressTimer = null;
-
-                // 模拟进度：从 0% 缓慢涨到 90%，给用户反馈
                 var fakeProgress = 0;
-                var updateFakeProgress = function() {
+                var progressTimer = setInterval(function() {
                     if (done) return;
-                    // 每次增加一点，越接近 90% 涨得越慢
                     var remain = 90 - fakeProgress;
                     fakeProgress += Math.max(0.5, remain * 0.08);
                     if (fakeProgress > 90) fakeProgress = 90;
@@ -11870,13 +11468,12 @@
                     if (pct) pct.textContent = fakeProgress.toFixed(0) + '%';
                     var pathEl = document.getElementById('loadingPath');
                     if (pathEl) pathEl.textContent = I18n.t('map.layer.loading');
-                    var speedEl = document.getElementById('loadingSpeed');
-                    if (speedEl) speedEl.textContent = I18n.t('map.layer.init');
-                };
-                progressTimer = setInterval(updateFakeProgress, 200);
-                updateFakeProgress();
+                }, 200);
+                var bar0 = document.getElementById('loadingProgressBar');
+                var pct0 = document.getElementById('loadingPercent');
+                if (bar0) bar0.style.width = '0%';
+                if (pct0) pct0.textContent = '0%';
 
-                // 统一的完成处理
                 var finish = function(success, reason) {
                     if (self._loadToken !== loadToken) return;
                     if (done) return;
@@ -11887,7 +11484,7 @@
                         bgEl.classList.add('loaded');
                         bgEl.style.display = 'block';
                         self._hideFallback();
-                        // 强制 100%
+
                         var bar = document.getElementById('loadingProgressBar');
                         var pct = document.getElementById('loadingPercent');
                         if (bar) bar.style.width = '100%';
@@ -11896,7 +11493,7 @@
                         if (pathEl) pathEl.textContent = I18n.t('map.layer.loadedCount') + ' 1/1';
                         var speedEl = document.getElementById('loadingSpeed');
                         if (speedEl) speedEl.textContent = I18n.t('map.layer.done');
-                        // 稍后关闭 loading
+
                         setTimeout(function() {
                             if (self._loadToken !== loadToken) return;
                             self._hideLoading();
@@ -11908,35 +11505,38 @@
                             }
                         }, 200);
                     } else {
-                        // 失败：如果 mergedPath 与 basePath 不同，回退到 basePath 再试
                         if (mergedPath !== basePath) {
-                            console.warn(I18n.t('map.layer.mergedFallback'), basePath);
+                            console.warn('⚠️ 合并图加载失败，回退到原图:', basePath);
                             mergedPath = basePath;
-                            // 重置 fake progress，重新尝试
                             fakeProgress = 0;
                             done = false;
-                            progressTimer = setInterval(updateFakeProgress, 200);
+                            progressTimer = setInterval(function() {
+                                if (done) return;
+                                var remain = 90 - fakeProgress;
+                                fakeProgress += Math.max(0.5, remain * 0.08);
+                                if (fakeProgress > 90) fakeProgress = 90;
+                                var bar2 = document.getElementById('loadingProgressBar');
+                                var pct2 = document.getElementById('loadingPercent');
+                                if (bar2) bar2.style.width = fakeProgress.toFixed(0) + '%';
+                                if (pct2) pct2.textContent = fakeProgress.toFixed(0) + '%';
+                            }, 200);
                             tryLoad(basePath, true);
                             return;
                         }
-                        // 最终失败
                         bgEl.classList.remove('loaded');
                         bgEl.style.display = 'none';
                         self._hideLoading();
-                        self._showFallback(reason || '地图资源加载失败，请检查网络后重试。');
+                        self._showFallback(reason || I18n.t('map.layer.error'));
                         self._applyCrossZoneReset();
                     }
                 };
 
-                // 用 Image 预加载后再赋给 bgEl，避免 onload 时序问题
                 var tryLoad = function(src, isFallback) {
                     if (self._loadToken !== loadToken) return;
                     if (done && !isFallback) return;
 
                     var probe = new Image();
                     var settled = false;
-
-                    // 超时保护：20 秒
                     var timeoutId = setTimeout(function() {
                         if (settled) return;
                         settled = true;
@@ -11951,20 +11551,17 @@
                         settled = true;
                         clearTimeout(timeoutId);
 
-                        // probe 成功，把 src 赋给 bgEl
                         bgEl.onload = function() {
                             if (self._loadToken !== loadToken) return;
                             finish(true);
                         };
                         bgEl.onerror = function() {
                             if (self._loadToken !== loadToken) return;
-                            finish(false, '地图资源加载失败，请检查网络后重试。');
+                            finish(false, I18n.t('map.layer.error'));
                         };
                         bgEl.src = src;
 
-                        // 如果 bgEl 立刻已加载（缓存命中），手动触发
                         if (bgEl.complete && bgEl.naturalWidth > 0) {
-                            // 稍等一拍，避免竞态
                             setTimeout(function() {
                                 if (self._loadToken !== loadToken) return;
                                 if (!done) finish(true);
@@ -11978,66 +11575,374 @@
                         settled = true;
                         clearTimeout(timeoutId);
                         console.warn('❌ 单图层 probe 加载失败:', src);
-                        finish(false, '地图资源加载失败，请检查网络后重试。');
+                        finish(false, I18n.t('map.layer.error'));
                     };
 
                     probe.src = src;
                 };
 
-                // 优先查 IndexedDB 缓存
-                if (typeof LayerCache !== 'undefined' && LayerCache.get && window.location.protocol !== 'file:') {
-                    LayerCache.get(mergedPath).then(function(blobUrl) {
-                        if (self._loadToken !== loadToken) {
-                            if (blobUrl) { try { URL.revokeObjectURL(blobUrl); } catch (e) {} }
-                            return;
-                        }
-                        if (blobUrl) {
-                            Map._lastCacheHits = (Map._lastCacheHits || 0) + 1;
-                            // 缓存命中：不 revoke，交给 bgEl 长期持有
-                            self._currentBlobUrl = blobUrl;
-                            // 检查这个 blob 是否有效（能加载）
-                            var testImg = new Image();
-                            var testSettled = false;
-                            var testTimeout = setTimeout(function() {
-                                if (testSettled) return;
-                                testSettled = true;
-                                testImg.onload = testImg.onerror = null;
-                                console.warn('⚠️ 缓存 blob 加载超时，回退到原图');
-                                try { URL.revokeObjectURL(blobUrl); } catch (e) {}
-                                self._currentBlobUrl = null;
-                                tryLoad(mergedPath, true);
-                            }, 8000);
-                            testImg.onload = function() {
-                                if (testSettled) return;
-                                testSettled = true;
-                                clearTimeout(testTimeout);
-                                // blob 有效，直接用
-                                tryLoad(blobUrl, false);
-                            };
-                            testImg.onerror = function() {
-                                if (testSettled) return;
-                                testSettled = true;
-                                clearTimeout(testTimeout);
-                                console.warn('⚠️ 缓存 blob 失效，回退到原图');
-                                try { URL.revokeObjectURL(blobUrl); } catch (e) {}
-                                self._currentBlobUrl = null;
-                                tryLoad(mergedPath, true);
-                            };
-                            testImg.src = blobUrl;
-                        } else {
-                            Map._lastCacheMisses = (Map._lastCacheMisses || 0) + 1;
-                            tryLoad(mergedPath, false);
-                        }
-                    }).catch(function() {
-                        if (self._loadToken !== loadToken) return;
-                        tryLoad(mergedPath, false);
-                    });
-                } else {
-                    tryLoad(mergedPath, false);
+                tryLoad(mergedPath, false);
+            },
+
+            // ===== 多图层模式 =====
+            _loadMultiLayer: function(basePath, loadToken) {
+                var self = this;
+                var data = Data.get(this._index);
+                if (!data) return;
+
+                Layer._syncLayerUI();
+
+                var paths = this._generateLayerPaths(basePath);
+                this._currentLayerPaths = paths;
+
+                var layerStack = document.getElementById('layerStack');
+                var mapImage = document.getElementById('mapImage');
+                if (layerStack) layerStack.style.display = 'flex';
+                if (mapImage) mapImage.style.display = 'none';
+
+                // 判断该地图是否只有背景层
+                var hasCustomLayers = data && data.layers;
+                var isOnlyBg = false;
+                if (hasCustomLayers) {
+                    var checkLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain'];
+                    var hasOther = false;
+                    for (var i = 0; i < checkLayers.length; i++) {
+                        if (data.layers[checkLayers[i]]) { hasOther = true; break; }
+                    }
+                    isOnlyBg = !hasOther;
                 }
 
-                // 更新图层面板：只显示背景项
-                Layer._syncLayerUI();
+                // 图层按钮显隐
+                var layerBtn = document.getElementById('layerCtrlGroup');
+                if (layerBtn) {
+                    layerBtn.style.display = isOnlyBg ? 'none' : '';
+                }
+
+                // 只有背景层：直接加载背景
+                if (isOnlyBg) {
+                    var allLayerIds = ['layerName', 'layerRoad', 'layerWall', 'layerRiver', 'layerBorder', 'layerTerrain'];
+                    allLayerIds.forEach(function(id) {
+                        var el = document.getElementById(id);
+                        if (el) {
+                            try {
+                                if (el.src && el.src.indexOf('blob:') === 0) {
+                                    try { URL.revokeObjectURL(el.src); } catch (e) {}
+                                }
+                            } catch (e) {}
+                            el.removeAttribute('src');
+                            el.style.display = 'none';
+                            el.classList.remove('loaded');
+                        }
+                    });
+
+                    var bgEl = document.getElementById('layerBg');
+                    if (bgEl) {
+                        try {
+                            if (bgEl.src && bgEl.src.indexOf('blob:') === 0) {
+                                try { URL.revokeObjectURL(bgEl.src); } catch (e) {}
+                            }
+                        } catch (e) {}
+                        bgEl.onload = function() {
+                            if (self._loadToken !== loadToken) return;
+                            self._hideFallback();
+                            self._applyCrossZoneReset();
+                        };
+                        bgEl.onerror = function() {
+                            if (self._loadToken !== loadToken) return;
+                            bgEl.classList.remove('loaded');
+                            bgEl.style.display = 'none';
+                            self._showFallback(I18n.t('map.layer.error'));
+                            self._applyCrossZoneReset();
+                        };
+                        bgEl.src = basePath;
+                        bgEl.style.display = 'block';
+                        bgEl.classList.add('loaded');
+                    }
+                    document.getElementById('loadingOverlay').classList.remove('show');
+                    self._hideFallback();
+                    return;
+                }
+
+                // 正常多图层加载
+                var layerNames = ['bg', 'terrain', 'border', 'river', 'name', 'wall', 'road'];
+                var tasks = [];
+                var data2 = data;
+
+                layerNames.forEach(function(layerName) {
+                    var layerPath = paths[layerName];
+
+                    // ★ 关键修复：只有专属层（road/wall）才需要 data.layers 显式声明
+                    //   通用层（terrain/border/river）和 bg/name 永远尝试加载
+                    var isExclusiveLayer = (layerName === 'road' || layerName === 'wall');
+                    if (isExclusiveLayer && data2.layers && !data2.layers[layerName]) {
+                        var skipImg = document.getElementById('layer' + Utils.capitalize(layerName));
+                        if (skipImg) {
+                            try {
+                                if (skipImg.src && skipImg.src.indexOf('blob:') === 0) {
+                                    try { URL.revokeObjectURL(skipImg.src); } catch (e) {}
+                                }
+                            } catch (e) {}
+                            skipImg.removeAttribute('src');
+                            skipImg.style.display = 'none';
+                            skipImg.classList.remove('loaded');
+                        }
+                        return;
+                    }
+
+                    // ★ 关键修复：data.layers 显式声明该层为 false 才跳过
+                    if (data2.layers && data2.layers[layerName] === false) {
+                        var skipImg2 = document.getElementById('layer' + Utils.capitalize(layerName));
+                        if (skipImg2) {
+                            try {
+                                if (skipImg2.src && skipImg2.src.indexOf('blob:') === 0) {
+                                    try { URL.revokeObjectURL(skipImg2.src); } catch (e) {}
+                                }
+                            } catch (e) {}
+                            skipImg2.removeAttribute('src');
+                            skipImg2.style.display = 'none';
+                            skipImg2.classList.remove('loaded');
+                        }
+                        return;
+                    }
+
+                    // 检查复选框状态
+                    var chk = document.getElementById('layerCheck' + Utils.capitalize(layerName));
+                    if (chk && !chk.checked && layerName !== 'bg') {
+                        console.log('⏭️ 跳过 ' + layerName + '（复选框未勾选）');
+                        return;
+                    }
+
+                    // 低画质跳过地形
+                    if (layerName === 'terrain' && Quality.current === 'low') {
+                        var tImg = document.getElementById('layerTerrain');
+                        if (tImg) {
+                            tImg.style.display = 'none';
+                            tImg.classList.remove('loaded');
+                        }
+                        return;
+                    }
+
+                    var layerImg = document.getElementById('layer' + Utils.capitalize(layerName));
+                    if (!layerImg || !layerPath) return;
+
+                    // 清空旧状态
+                    try {
+                        if (layerImg.src && layerImg.src.indexOf('blob:') === 0) {
+                            try { URL.revokeObjectURL(layerImg.src); } catch (e) {}
+                        }
+                    } catch (e) {}
+                    layerImg.onload = null;
+                    layerImg.onerror = null;
+                    layerImg.removeAttribute('src');
+                    layerImg.classList.remove('loaded');
+                    layerImg.style.display = 'none';
+
+                    tasks.push({ name: layerName, img: layerImg, path: layerPath });
+                });
+
+                var totalTasks = tasks.length;
+                var completed = 0;
+                var loadedSuccess = 0;
+
+                if (totalTasks === 0) {
+                    document.getElementById('loadingOverlay').classList.remove('show');
+                    self._hideFallback();
+                    self._forceRepaint();
+                    self._applyCrossZoneReset();
+                    return;
+                }
+
+                self._showLoading(basePath);
+                self._updateLoadingDisplay();
+                Map._loadStartTime = Date.now();
+
+                // 初始化 layerLoadStates
+                tasks.forEach(function(t) {
+                    self._layerLoadStates[t.name] = {
+                        loaded: 0, total: 0, done: false,
+                        startTime: Date.now(), lastLoaded: 0, lastTime: Date.now(), speed: 0
+                    };
+                });
+
+                var onDone = function(success) {
+                    if (self._loadToken !== loadToken) return;
+                    completed++;
+                    if (success) loadedSuccess++;
+                    self._updateLoadingDisplay();
+                    if (completed >= totalTasks) {
+                        clearTimeout(self._loadTimeout);
+                        if (loadedSuccess === 0) {
+                            self._showFallback(I18n.t('map.layer.error'));
+                        } else {
+                            self._hideFallback();
+                        }
+                        setTimeout(function() {
+                            if (self._loadToken !== loadToken) return;
+                            self._hideLoading();
+                            self._forceRepaint();
+                            self._applyCrossZoneReset();
+                        }, 300);
+                    }
+                };
+
+                self._loadTimeout = setTimeout(function() {
+                    if (self._loadToken !== loadToken) return;
+                    if (completed < totalTasks) {
+                        console.warn('⚠️ 地图加载超时，强制完成');
+                        onDone(false);
+                    }
+                }, 30000);
+
+                tasks.forEach(function(task) {
+                    self._loadOneLayer(task.name, task.img, task.path, loadToken, onDone);
+                });
+            },
+
+            // 加载单个图层（背景/地名走 XHR，其他走 img）
+            _loadOneLayer: function(name, img, path, loadToken, onDone) {
+                var self = this;
+                var state = this._layerLoadStates[name];
+                var useXHR = (name === 'bg' || name === 'name') && window.location.protocol !== 'file:';
+
+                if (useXHR) {
+                    var xhr = new XMLHttpRequest();
+                    this._layerXhrs[name] = xhr;
+                    xhr.open('GET', path, true);
+                    xhr.responseType = 'blob';
+                    xhr.timeout = 15000;
+
+                    xhr.onprogress = function(ev) {
+                        if (self._loadToken !== loadToken) return;
+                        if (ev.lengthComputable && state) {
+                            state.loaded = ev.loaded;
+                            state.total = ev.total;
+                        }
+                        var now = Date.now();
+                        if (state) {
+                            var dt = (now - state.lastTime) / 1000;
+                            if (dt > 0.2) {
+                                state.speed = (ev.loaded - state.lastLoaded) / dt;
+                                state.lastLoaded = ev.loaded;
+                                state.lastTime = now;
+                            }
+                        }
+                        self._updateLoadingDisplay();
+                    };
+
+                    xhr.onload = function() {
+                        if (self._loadToken !== loadToken) return;
+                        if (state) { state.done = true; state.loaded = state.total || 1; }
+                        if (xhr.status === 200) {
+                            try {
+                                if (typeof LayerCache !== 'undefined') {
+                                    LayerCache.put(path, xhr.response);
+                                }
+                                var blobUrl = URL.createObjectURL(xhr.response);
+                                img.src = blobUrl;
+                                img.classList.add('loaded');
+                                img.style.display = 'block';
+                                if (name === 'bg') {
+                                    if (self._currentBlobUrl) {
+                                        try { URL.revokeObjectURL(self._currentBlobUrl); } catch (e) {}
+                                    }
+                                    self._currentBlobUrl = blobUrl;
+                                }
+                                console.log('✅ 图层加载成功(XHR):', name);
+                                onDone(true);
+                            } catch (e) {
+                                console.warn('图层加载失败:', name, e);
+                                onDone(false);
+                            }
+                        } else {
+                            console.warn('❌ 图层加载失败(XHR):', name, xhr.status);
+                            onDone(false);
+                        }
+                    };
+
+                    xhr.ontimeout = function() {
+                        if (self._loadToken !== loadToken) return;
+                        if (state) { state.done = true; state.loaded = 1; }
+                        console.warn('图层加载超时:', name);
+                        onDone(false);
+                    };
+
+                    xhr.onerror = function() {
+                        if (self._loadToken !== loadToken) return;
+                        if (state) { state.done = true; state.loaded = 1; }
+                        console.warn('图层加载错误:', name);
+                        onDone(false);
+                    };
+
+                    xhr.send();
+                } else {
+                    var settled = false;
+
+                    var markLoaded = function() {
+                        if (settled) return;
+                        settled = true;
+                        if (state) {
+                            state.done = true;
+                            state.loaded = 1;
+                            state.total = 1;
+                        }
+                        img.classList.add('loaded');
+                        img.style.display = 'block';
+                        console.log('✅ 图层加载成功(img):', name);
+                        onDone(true);
+                    };
+
+                    var markFailed = function(reason) {
+                        if (settled) return;
+                        settled = true;
+                        if (state) {
+                            state.done = true;
+                            state.loaded = 1;
+                            state.total = 1;
+                        }
+                        img.classList.remove('loaded');
+                        img.style.display = 'none';
+                        console.warn('❌ 图层加载失败(img):', name, reason || '', path);
+                        onDone(false);
+                    };
+
+                    // ★ 关键修复：不用 decode()，直接用 onload/onerror
+                    //   decode() 在 mix-blend-mode: multiply 下可能永远 pending
+                    img.onload = function() {
+                        if (self._loadToken !== loadToken) return;
+                        markLoaded();
+                    };
+
+                    img.onerror = function() {
+                        if (self._loadToken !== loadToken) return;
+                        markFailed('onerror');
+                    };
+
+                    // 记录 handler 用于 abort 时清理
+                    var handlerObj = { img: img, timeout: null };
+                    self._activeImgHandlers.push(handlerObj);
+
+                    // ★ 设置 src 前先清空，强制浏览器重新请求
+                    img.removeAttribute('src');
+                    img.src = path;
+
+                    // ★ 超时保护：8 秒还没响应就当作失败
+                    var imgTimeout = setTimeout(function() {
+                        if (self._loadToken !== loadToken) return;
+                        if (!settled) {
+                            markFailed('timeout');
+                        }
+                    }, 8000);
+                    handlerObj.timeout = imgTimeout;
+
+                    // ★ 如果缓存命中，立即触发
+                    if (img.complete && img.naturalWidth > 0) {
+                        clearTimeout(imgTimeout);
+                        setTimeout(function() {
+                            if (self._loadToken !== loadToken) return;
+                            markLoaded();
+                        }, 10);
+                    }
+                }
             },
 
             _showLoading: function(path) {
@@ -13681,24 +13586,23 @@
                 console.log('📢 v1.5 预告：提示状态已重置');
             }
         };
-        /*模块 10: 图层控制 (Layer) — 修复 #11 */
+        /*模块 10: 图层控制 (Layer) */
         const Layer = {
             _panelOpen: false,
 
+            // 同步图层 UI 状态（单/多图层切换时调用）
             _syncLayerUI: function() {
                 var isSingle = RenderMode.isSingleLayer();
                 var ctrlGroup = document.getElementById('layerCtrlGroup');
                 var panel = document.getElementById('layerPanel');
-                
+
                 if (isSingle) {
-                    // 单图层：隐藏整个按钮组，关闭面板
                     if (ctrlGroup) ctrlGroup.style.display = 'none';
                     if (panel) {
                         panel.classList.remove('show');
                         this._panelOpen = false;
                     }
                 } else {
-                    // 多图层：显示按钮组，恢复面板内所有图层项
                     if (ctrlGroup) ctrlGroup.style.display = '';
                     if (panel) {
                         panel.style.display = '';
@@ -13708,22 +13612,29 @@
                     }
                 }
             },
+
             togglePanel: function() {
                 var panel = document.getElementById('layerPanel');
+                if (!panel) return;
                 this._panelOpen = !this._panelOpen;
                 panel.classList.toggle('show', this._panelOpen);
                 Blur._applyUI();
             },
 
+            // 切换某个图层的显示/隐藏
             toggle: function(name) {
                 if (name === 'bg') {
-                    var chk = document.getElementById('layerCheckBg');
-                    if (chk) chk.checked = true;
-                    var img = document.getElementById('layerBg');
-                    if (img) { img.style.display = 'block';
-                        img.classList.add('loaded'); }
+                    var chkBg = document.getElementById('layerCheckBg');
+                    if (chkBg) chkBg.checked = true;
+                    var imgBg = document.getElementById('layerBg');
+                    if (imgBg) {
+                        imgBg.style.display = 'block';
+                        imgBg.classList.add('loaded');
+                    }
                     return;
                 }
+
+                // 低画质下不允许开启地形
                 if (name === 'terrain' && Quality.current === 'low') {
                     var tc = document.getElementById('layerCheckTerrain');
                     if (tc) tc.checked = false;
@@ -13740,73 +13651,114 @@
                     }
                     return;
                 }
+
                 var chk = document.getElementById('layerCheck' + Utils.capitalize(name));
                 var img = document.getElementById('layer' + Utils.capitalize(name));
                 if (!img) return;
-                if (chk && chk.checked) {
-                    // 显示：从 _currentLayerPaths 重新加载（如果 src 为空）
-                    if (!img.src || img.src.indexOf('blob:') === 0 && !img.classList.contains('loaded')) {
-                        // 交给下一轮 _loadLayersWithProgress 重新加载
-                    }
-                    img.style.display = 'block';
-                    img.classList.add('loaded');
-                } else {
-                    // 隐藏：清 src
-                    try {
-                        if (img.src && img.src.indexOf('blob:') === 0) {
-                            try { URL.revokeObjectURL(img.src); } catch (e) {}
+
+                var isChecked = chk ? chk.checked : true;
+
+                if (isChecked) {
+                    // 打开：如果没 src 或没 loaded，尝试重新加载
+                    if (!img.classList.contains('loaded') || !img.src) {
+                        var path = Map._currentLayerPaths && Map._currentLayerPaths[name];
+                        if (path) {
+                            var loadToken = Map._loadToken;
+                            img.onload = function() {
+                                if (Map._loadToken !== loadToken) return;
+                                img.classList.add('loaded');
+                                img.style.display = 'block';
+                            };
+                            img.onerror = function() {
+                                if (Map._loadToken !== loadToken) return;
+                                img.classList.remove('loaded');
+                                img.style.display = 'none';
+                            };
+                            img.removeAttribute('src');
+                            img.src = path;
+                            // 缓存命中立即处理
+                            if (img.complete && img.naturalWidth > 0) {
+                                img.classList.add('loaded');
+                                img.style.display = 'block';
+                            }
                         }
-                    } catch (e) {}
-                    img.removeAttribute('src');
+                    } else {
+                        img.style.display = 'block';
+                        img.classList.add('loaded');
+                    }
+                } else {
+                    // 关闭：只隐藏，不清 src（下次打开可直接恢复）
                     img.style.display = 'none';
-                    img.classList.remove('loaded');
                 }
             },
 
+            // 根据当前地图的 layers 配置更新图层面板
             updateForGuestWork: function() {
                 var data = Map.getData();
                 if (!data) return;
 
+                // 单图层模式：直接隐藏面板按钮
                 if (RenderMode.isSingleLayer()) {
                     Layer._syncLayerUI();
                     return;
                 }
                 Layer._syncLayerUI();
 
-                var hasCustomLayers = data && data.layers;
+                var hasCustomLayers = !!(data && data.layers);
                 var allLayers = ['name', 'road', 'wall', 'river', 'border', 'terrain', 'bg'];
 
                 allLayers.forEach(function(name) {
                     var chk = document.getElementById('layerCheck' + Utils.capitalize(name));
                     var img = document.getElementById('layer' + Utils.capitalize(name));
-                    var hasLayer = hasCustomLayers && data.layers[name];
+                    var item = chk ? chk.closest('.layer-item') : null;
+                    var hasLayer = hasCustomLayers && !!data.layers[name];
 
+                    // road / wall 是专属层：没配置就隐藏整个 item
                     if (name === 'road' || name === 'wall') {
-                        var item = chk ? chk.closest('.layer-item') : null;
-                        if (hasLayer) {
-                            if (item) item.style.display = 'flex';
-                            if (chk) { chk.checked = true; chk.disabled = false; }
+                        if (hasCustomLayers) {
+                            if (hasLayer) {
+                                if (item) item.style.display = 'flex';
+                                if (chk) { chk.checked = true; chk.disabled = false; }
+                            } else {
+                                if (item) item.style.display = 'none';
+                                if (chk) { chk.checked = false; chk.disabled = true; }
+                                if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
+                            }
                         } else {
-                            if (item) item.style.display = 'none';
+                            if (item) item.style.display = 'flex';
                             if (chk) { chk.checked = false; chk.disabled = true; }
-                            if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
                         }
+                        return;
+                    }
+
+                    // terrain 需要看画质
+                    if (name === 'terrain' && Quality.current === 'low') {
+                        if (chk) { chk.checked = false; chk.disabled = true; }
+                        if (img) { img.style.display = 'none'; img.classList.remove('loaded'); }
                         return;
                     }
 
                     if (hasCustomLayers) {
                         if (hasLayer) {
-                            if (chk) { chk.checked = true; chk.disabled = name === 'bg'; }
+                            if (chk) { chk.checked = true; chk.disabled = (name === 'bg'); }
                         } else {
-                            if (chk) { chk.checked = false; chk.disabled = true; }
+                            // terrain/border/river 是通用层，即使 data.layers 没写也视为有
+                            if (name === 'terrain' || name === 'border' || name === 'river') {
+                                if (chk) { chk.checked = true; chk.disabled = (name === 'bg'); }
+                            } else {
+                                if (chk) { chk.checked = false; chk.disabled = true; }
+                            }
                         }
                     } else {
-                        if (chk) { chk.checked = name !== 'bg'; chk.disabled = name === 'bg'; }
-                        // ★ 不再给 img 加 loaded/display
-                        if (img) img.classList.remove('loaded');
+                        // 默认全开（背景层不可关闭）
+                        if (chk) {
+                            chk.checked = (name !== 'bg');
+                            chk.disabled = (name === 'bg');
+                        }
                     }
                 });
 
+                // 更新 label 和 badge
                 var labelKeys = {
                     name: 'layer.name', road: 'layer.road', wall: 'layer.wall',
                     river: 'layer.river', border: 'layer.border',
@@ -13822,14 +13774,14 @@
                     var le = document.getElementById('layerLabel' + Utils.capitalize(n));
                     var be = document.getElementById('layerBadge' + Utils.capitalize(n));
                     if (le) {
-                        if (hasCustomLayers) {
+                        if (hasCustomLayers && (n === 'road' || n === 'wall')) {
                             le.textContent = I18n.t(labelKeys[n]) + (has ? '' : ' ' + I18n.t('layer.no'));
                         } else {
                             le.textContent = I18n.t(labelKeys[n]);
                         }
                     }
                     if (be) {
-                        if (hasCustomLayers) {
+                        if (hasCustomLayers && (n === 'road' || n === 'wall')) {
                             be.textContent = has ? I18n.t('layer.exclusive') : '—';
                         } else if (badgeKeys[n]) {
                             be.textContent = I18n.t(badgeKeys[n]);
